@@ -139,3 +139,49 @@ describe('melody track selection', () => {
     expect(melodyScore(t('Alto', 67))).toBeLessThan(melodyScore(t('Track 1', 67)))
   })
 })
+
+describe('several right-hand voices', () => {
+  // Melody in thirds over C major (written for this test), two notes per onset.
+  const thirds: Song = {
+    title: 'thirds',
+    meter: { num: 4, den: 4 },
+    pickup: 0,
+    tempo: 90,
+    tracks: [
+      {
+        name: 'Melody',
+        notes: [72, 74, 76, 77, 79, 77, 76, 74, 72, 76, 79, 84].flatMap((p, i) => [
+          { start: i, dur: 1, pitch: p },
+          { start: i, dur: 1, pitch: p - (p === 72 || p === 77 || p === 84 ? 5 : p === 74 || p === 79 ? 3 : 4) },
+        ]),
+      },
+    ],
+  }
+
+  it('keeps the melody identical when only one voice is asked for', () => {
+    const one = arrange(thirds, hohner2915GC)
+    expect(one.voices).toHaveLength(1)
+    expect(one.voices[0]).toBe(one.notes)
+    expect(one.droppedCount).toBe(0)
+    const two = arrange(thirds, hohner2915GC, { voices: 2 })
+    expect(two.notes.map((n) => n.pitch)).toEqual(one.notes.map((n) => n.pitch))
+  })
+
+  it('plays the second voice with the melody, same bellows, other buttons, within reach', () => {
+    const r = arrange(thirds, hohner2915GC, { voices: 2, transpose: 0 })
+    expect(r.voices).toHaveLength(2)
+    const second = r.voices[1]!
+    expect(second.length + r.droppedCount).toBe(12)
+    expect(second.length).toBeGreaterThan(6)
+    for (const n of second) {
+      const m = r.notes.find((x) => x.start === n.start)!
+      expect(n.voice).toBe(1)
+      expect(n.pitch).toBeLessThan(m.pitch)
+      expect(n.fingering.bellows).toBe(m.fingering.bellows)
+      expect(n.fingering.row !== m.fingering.row || n.fingering.button !== m.fingering.button).toBe(true)
+      expect(Math.abs(n.fingering.y - m.fingering.y)).toBeLessThanOrEqual(4)
+      const row = hohner2915GC.rows.find((x) => x.id === n.fingering.row)!
+      expect(row.buttons[n.fingering.button - 1]![n.fingering.bellows]).toBe(n.pitch)
+    }
+  })
+})
