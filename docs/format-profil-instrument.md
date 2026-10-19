@@ -21,7 +21,7 @@ Exemple de référence : `packages/engine/src/profiles/hohner-2915-gc.json`.
 
 | Champ | Défaut | Rôle |
 |---|---|---|
-| `id` | — | Identifiant unique dans le profil (`do`, `sol`). |
+| `id` | — | Identifiant unique dans le profil, en anglais (`c`, `g`). |
 | `name` | — | Nom affiché. |
 | `suffix` | `""` | Signe ajouté au numéro dans la tablature : `"'"` pour le rang intérieur en Système Argoat. |
 | `offset` | `0` | Décalage vertical du rang, en boutons, par rapport aux autres (sert à mesurer les déplacements de la main). |
@@ -39,8 +39,9 @@ Chaque groupe porte le numéro affiché dans la tablature (`id`, entier à parti
 
 ## Erreurs
 
-`parseProfile` refuse un profil incomplet et dit où est le problème, par exemple :
-`rows[1].buttons[3] (bouton 4) : note tirée illisible : "Do5" (exemple valide : "C4", "F#5")`.
+`parseProfile` refuse un profil incomplet et lève une `ProfileError` qui dit où est le problème : le champ fautif (`path`, par exemple `rows[1].buttons[3]`), un code (`code`, par exemple `bad-pull-note`) et ses paramètres (`params`, par exemple le numéro du bouton et la valeur lue). L'interface s'en sert pour afficher le message dans la langue de l'utilisateur ; le texte de l'erreur elle-même est en anglais.
+
+Les noms des rangs et du modèle sont écrits en anglais dans le JSON ; l'interface affiche leur traduction quand elle existe.
 
 ## Évolutions prévues
 

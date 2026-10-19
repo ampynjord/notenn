@@ -43,10 +43,16 @@ main { max-width: 1040px; margin: 0 auto; padding: 24px max(16px, env(safe-area-
 h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.1; margin: 0 0 8px; }
 a { color: var(--push); }
 
+.site-header { max-width: 1040px; margin: 0 auto; padding: 14px max(16px, env(safe-area-inset-left)) 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.site-header .brand { font-weight: 800; font-size: 18px; color: var(--ink); text-decoration: none; }
+.site-header nav { display: flex; gap: 16px; font-size: 15px; }
+.intro { color: var(--muted); margin-top: 0; }
+.hint { margin: 12px 0 4px; font-size: 14px; color: var(--muted); }
+label.inline { flex-direction: row; align-items: center; }
 .home .links { display: flex; gap: 12px; margin-top: 16px; }
 .home .links a { padding: 8px 14px; border-radius: 7px; background: var(--chip); text-decoration: none; font-weight: 700; }
 
-.atelier { display: flex; flex-direction: column; gap: 16px; }
+.workshop { display: flex; flex-direction: column; gap: 16px; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
 .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 12px; }
 .grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; }

@@ -10,15 +10,15 @@ export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from '
 export { chooseFingering } from './fingering'
 export { chooseBass } from './bass'
 export { hohner2915GC } from './profiles/hohner-2915-gc'
-export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileJson } from './profile-format'
+export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileErrorCode, type ProfileJson } from './profile-format'
 
-/** Du morceau importé à la tablature : mélodie, transposition, doigté, basses. */
+/** From an imported song to a tab: melody, transposition, fingering, basses. */
 export function arrange(song: Song, profile: InstrumentProfile, options: ArrangeOptions = {}): Arrangement {
   const rows = options.rows ?? profile.rows.map((r) => r.id)
   const meter = meterInfo(song.meter)
   const trackIndex = options.trackIndex ?? pickMelodyTrack(song.tracks)
   const track = song.tracks[trackIndex]
-  if (!track) throw new Error(`Piste ${trackIndex} introuvable`)
+  if (!track) throw new Error(`Track ${trackIndex} not found`)
 
   let melody = extractMelody(track)
   const lastEnd = melody.reduce((m, n) => Math.max(m, n.start + n.dur), 0)
@@ -27,7 +27,7 @@ export function arrange(song: Song, profile: InstrumentProfile, options: Arrange
   const toBar = Math.min(Math.max(fromBar, options.toBar ?? barCount), barCount)
   const t0 = fromBar === 1 ? 0 : song.pickup + (fromBar - 1) * meter.barLength
   const t1 = song.pickup + toBar * meter.barLength
-  // Notes qui chevauchent la plage : on les garde et on les coupe aux deux bouts.
+  // Notes overlapping the range are kept and trimmed at both ends.
   melody = melody
     .filter((n) => n.start < t1 - 1e-6 && n.start + n.dur > t0 + 1e-6)
     .map((n) => {

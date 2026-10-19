@@ -1,11 +1,11 @@
 /**
- * Mise en page du Système Argoat, indépendante du support : on produit une liste
- * d'éléments de dessin (texte, trait, ellipse, rond, ligne brisée) en unités
- * abstraites. L'appli les dessine en SVG, le PDF les dessine avec jsPDF.
+ * Système Argoat layout, independent of the output medium: it produces a list of drawing
+ * operations (text, line, ellipse, circle, polyline) in abstract units. The app draws them
+ * as SVG, the PDF export with jsPDF.
  */
 import type { Arrangement, InstrumentProfile, Meter } from '@notenn/engine'
 
-/** Couleurs logiques ; chaque support les traduit (variables CSS, RGB pour le PDF). */
+/** Logical colours; each medium maps them (CSS variables, RGB for the PDF). */
 export type Ink = 'push' | 'pull' | 'bass' | 'warn' | 'muted' | 'line' | 'ink'
 
 export type DrawOp =
@@ -21,7 +21,7 @@ export interface SystemLine {
   /** Temps (en noires) au bord gauche et droit de la ligne. */
   start: number
   end: number
-  /** Unités de dessin par noire, et abscisse du temps `start`. */
+  /** Drawing units per quarter note, and x position of time `start`. */
   scale: number
   x0: number
   height: number
@@ -29,13 +29,23 @@ export interface SystemLine {
 }
 
 export interface LayoutOptions {
-  /** Largeur de dessin en unités (560 pour une page A4). */
+  /** Drawing width in units (560 for an A4 page). */
   width?: number
   staff?: boolean
-  /** Nombre de mesures par ligne, ou 'auto' pour éviter que les chiffres se chevauchent. */
+  /** Bars per line, or 'auto' to keep the numbers from overlapping. */
   barsPerLine?: number | 'auto'
   maxBarsPerLine?: number
+  /** Translated line labels; Système Argoat letters in French by default. */
+  labels?: Partial<LineLabels>
 }
+
+export interface LineLabels {
+  push: string
+  pull: string
+  bass: string
+}
+
+const DEFAULT_LABELS: LineLabels = { push: 'P', pull: 'T', bass: 'Basses' }
 
 const X0 = 44
 const RIGHT = 8
@@ -44,7 +54,7 @@ export function lineHeight(staff: boolean) {
   return staff ? 140 : 80
 }
 
-/** Libellé d'un bouton : numéro + signe du rang (apostrophe pour le rang intérieur). */
+/** Button label: number + row mark (apostrophe for the inner row). */
 export function buttonLabel(profile: InstrumentProfile, row: string, button: number) {
   const r = profile.rows.find((x) => x.id === row)
   return `${button}${r?.suffix ?? ''}`
@@ -68,7 +78,7 @@ function autoBarsPerLine(arr: Arrangement, width: number, staff: boolean, max: n
   return 1
 }
 
-/* ---------- Portée ---------- */
+/* ---------- Staff ---------- */
 const LETTERS: [string, boolean][] = [
   ['C', false], ['C', true], ['D', false], ['D', true], ['E', false], ['F', false],
   ['F', true], ['G', false], ['G', true], ['A', false], ['A', true], ['B', false],
@@ -86,14 +96,14 @@ const VALUES = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25]
 
 export interface DurationPiece {
   t: number
-  /** Valeur dessinée, en noires (pour un triolet : la figure écrite, croche = 0,5). */
+  /** Written value in quarter notes (for a triplet: the written figure, eighth = 0.5). */
   shape: number
   triplet: boolean
 }
 
 /**
- * Découpe une durée en figures écrites, liées entre elles : coupure aux barres de mesure,
- * puis valeurs simples ou pointées ; les tiers de noire deviennent des triolets.
+ * Splits a duration into tied written figures: cut at barlines, then plain or dotted values;
+ * thirds of a quarter note become triplets.
  */
 export function splitDuration(from: number, to: number, pickup: number, barLength: number): DurationPiece[] {
   const out: DurationPiece[] = []
@@ -103,11 +113,11 @@ export function splitDuration(from: number, to: number, pickup: number, barLengt
     const segEnd = Math.min(to, t < pickup - 1e-6 ? Math.min(pickup, to) : nextBar)
     let n12 = Math.round((segEnd - t) * 12)
     if (n12 <= 0) break
-    // n12 = 4a (triolets, en tiers de noire) + 3b (doubles croches) ; a minimal.
+    // n12 = 4a (triplets, in thirds of a quarter) + 3b (sixteenths), with a as small as possible.
     let a = 0
     while (a * 4 <= n12 && (n12 - a * 4) % 3 !== 0) a++
     if (a * 4 > n12) {
-      // Durée irrégulière : arrondie au quart de temps le plus proche, au moins une double croche.
+      // Irregular duration: rounded to the nearest sixteenth, at least one sixteenth.
       a = 0
       n12 = Math.max(3, Math.round(n12 / 3) * 3)
     }
@@ -134,7 +144,7 @@ function tieArc(x1: number, x2: number, y: number, dir: 1 | -1): [number, number
   return [0, 0.15, 0.35, 0.5, 0.65, 0.85, 1].map((f) => [x1 + (x2 - x1) * f, y + h * Math.sin(Math.PI * f)])
 }
 
-/** Octave d'affichage la plus lisible sur la portée (médiane des notes autour du Si central). */
+/** Most readable display octave on the staff (median note close to middle B). */
 function displayOctave(arr: Arrangement) {
   const steps = arr.notes.map((n) => pitchStep(n.pitch).step).sort((a, b) => a - b)
   return steps.length ? Math.round((34 - steps[Math.floor(steps.length / 2)]!) / 7) : 0
@@ -143,6 +153,7 @@ function displayOctave(arr: Arrangement) {
 export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Meter, options: LayoutOptions = {}): SystemLine[] {
   const width = options.width ?? 560
   const staff = options.staff ?? true
+  const labels = { ...DEFAULT_LABELS, ...options.labels }
   const bpl =
     options.barsPerLine === undefined || options.barsPerLine === 'auto'
       ? autoBarsPerLine(arr, width, staff, options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4))
@@ -178,13 +189,13 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bot, ink: 'ink', width: 0.8 })
       }
       ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bot, ink: 'ink', width: 0.8 })
-      // Altérations : un dièse vaut jusqu'à la barre, d'où un bécarre si la même ligne revient naturelle.
+      // Accidentals: a sharp lasts until the barline, so a natural is needed if the same line comes back unaltered.
       const sharpened = new Map<number, Set<number>>()
       const triplets: { from: number; to: number; x: number; ey: number }[] = []
       arr.notes.forEach((n, ni) => {
         const nEnd = n.start + n.dur
         const own = inLine(n.start)
-        // Une note commencée sur une ligne précédente se poursuit ici en notes liées.
+        // A note started on a previous line continues here as tied figures.
         if (!own && !(n.start < start - 1e-6 && nEnd > start + 1e-6)) return
         const ps = pitchStep(n.pitch)
         let natural = false
@@ -221,22 +232,22 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
               ops.push({ kind: 'line', x1: sx, y1: fy, x2: sx + 4.5, y2: fy + (up ? 6 : -6), ink, width: 1.1 })
             }
             if (pc.triplet) {
-              // Étendue du groupe : une noire pour des croches de triolet, une blanche pour des noires de triolet,
-              // comptée depuis le début de la mesure.
+              // Group span: a quarter note for eighth-note triplets, a half note for quarter-note triplets,
+              // counted from the start of the bar.
               const span = pc.shape === 1 ? 2 : 1
               const barStart = arr.pickup + Math.floor((pc.t - arr.pickup) / arr.meter.barLength + 1e-6) * arr.meter.barLength
               const from = barStart + Math.floor((pc.t - barStart) / span + 1e-6) * span
               triplets.push({ from, to: from + span, x, ey })
             }
           }
-          // Liaison avec la figure précédente de la même note (côté opposé à la hampe).
+          // Tie to the previous figure of the same note (on the side opposite the stem).
           if (prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, x - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
           prevX = x
         })
-        // La note continue sur la ligne suivante : liaison jusqu'au bord droit.
+        // The note continues on the next line: tie up to the right edge.
         if (nEnd > end + 1e-6 && prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, width - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
       })
-      // Un « 3 » par groupe de triolet ; les groupes qui se chevauchent (figures mêlées) n'en font qu'un.
+      // One "3" per triplet group; overlapping groups (mixed figures) count as one.
       triplets.sort((a, c) => a.from - c.from)
       const groups: (typeof triplets)[] = []
       for (const tr of triplets) {
@@ -250,14 +261,14 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       }
     }
 
-    ops.push({ kind: 'text', x: 6, y: yP, text: 'P', ink: 'push', size: 12, bold: true })
-    ops.push({ kind: 'text', x: 6, y: yT, text: 'T', ink: 'pull', size: 12, bold: true })
-    if (arr.bass.length) ops.push({ kind: 'text', x: 6, y: yB + 3, text: 'Basses', ink: 'bass', size: 7.5 })
+    ops.push({ kind: 'text', x: 6, y: yP, text: labels.push, ink: 'push', size: 12, bold: true })
+    ops.push({ kind: 'text', x: 6, y: yT, text: labels.pull, ink: 'pull', size: 12, bold: true })
+    if (arr.bass.length) ops.push({ kind: 'text', x: 6, y: yB + 3, text: labels.bass, ink: 'bass', size: 7.5 })
     for (let bar = b; bar <= e; bar++) {
       ops.push({ kind: 'text', x: X(arr.pickup + (bar - 1) * arr.meter.barLength), y: staff ? 12 : 9, text: String(bar), ink: 'muted', size: 7 })
     }
 
-    // Repères de temps : un point par temps, un trait court en début de mesure.
+    // Beat marks: a dot on each beat, a short tick at the start of each bar.
     const yR = (yT + yB) / 2 - 3
     const firstBeat = withPickup ? arr.pickup - Math.floor(arr.pickup / arr.meter.beat + 1e-6) * arr.meter.beat : start
     for (let t = firstBeat; t < end - 1e-6; t += arr.meter.beat) {
@@ -268,8 +279,8 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     }
 
     arr.notes.forEach((n, i) => {
-      const y = n.fingering.bellows === 'P' ? yP : yT
-      // Note commencée sur la ligne précédente et encore tenue : on prolonge seulement le trait.
+      const y = n.fingering.bellows === 'push' ? yP : yT
+      // Note started on the previous line and still held: only the hold line continues.
       if (n.start < start - 1e-6 && n.start + n.dur > start + 1e-6) {
         const z = X(Math.min(n.start + n.dur, end)) - 5
         if (z > X0 + 2) ops.push({ kind: 'line', x1: X0 - 4, y1: y - 4, x2: z, y2: y - 4, ink: 'line', width: 2 })
@@ -277,7 +288,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       }
       if (!inLine(n.start)) return
       const label = buttonLabel(profile, n.fingering.row, n.fingering.button)
-      const ink: Ink = n.approx ? 'warn' : n.fingering.bellows === 'P' ? 'push' : 'pull'
+      const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
       ops.push({ kind: 'text', x: X(n.start), y, text: label, ink, size: 11.5, bold: true, mono: true, note: i })
       if (n.dur > arr.meter.beat + 1e-6) {
         const a = X(n.start) + label.length * 7.6 + 3

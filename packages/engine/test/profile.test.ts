@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { chordOf, hohner2915GC, midiOf, parseProfile, pitchClassOf } from '../src/index'
 import json from '../src/profiles/hohner-2915-gc.json'
 
-describe('format JSON des profils', () => {
-  it('lit les noms de notes', () => {
+describe('JSON profile format', () => {
+  it('reads note names', () => {
     expect(midiOf('C4')).toBe(60)
     expect(midiOf('F#5')).toBe(78)
     expect(midiOf('Bb3')).toBe(58)
@@ -12,7 +12,7 @@ describe('format JSON des profils', () => {
     expect(pitchClassOf('Eb')).toBe(3)
   })
 
-  it('lit les accords par nom ou par notes', () => {
+  it('reads chords by name or by notes', () => {
     expect(chordOf('C')).toEqual([0, 4, 7])
     expect(chordOf('Am')).toEqual([9, 0, 4])
     expect(chordOf('D7')).toEqual([2, 6, 9, 0])
@@ -20,7 +20,7 @@ describe('format JSON des profils', () => {
     expect(chordOf('Cmaj9')).toBeNull()
   })
 
-  it('décrit le Hohner 2915 comme le plan de clavier', () => {
+  it('describes the Hohner 2915 like its keyboard chart', () => {
     const [doRow, solRow] = hohner2915GC.rows
     expect(doRow!.buttons.map((b) => [b.push, b.pull])).toEqual([
       [52, 55], [55, 59], [60, 62], [64, 65], [67, 69], [72, 71], [76, 74], [79, 77], [84, 81], [88, 83],
@@ -37,27 +37,27 @@ describe('format JSON des profils', () => {
     ])
   })
 
-  it('accepte un profil minimal (sans basses, valeurs par défaut)', () => {
+  it('accepts a minimal profile (no basses, default values)', () => {
     const p = parseProfile({ format: 'notenn-instrument', version: 1, id: 'x', name: 'X', family: 'diatonic-accordion', rows: [{ id: 'r', name: 'R', buttons: [['C4', 'D4']] }] })
     expect(p.rows[0]).toEqual({ id: 'r', name: 'R', suffix: '', offset: 0, cost: 0, buttons: [{ push: 60, pull: 62 }] })
     expect(p.bassGroups).toEqual([])
   })
 
-  it('dit précisément où est l’erreur', () => {
+  it('says exactly where the error is', () => {
     const bad = structuredClone(json) as typeof json
     bad.rows[1]!.buttons[3]![1] = 'Do5'
-    expect(() => parseProfile(bad)).toThrow(/rows\[1\]\.buttons\[3\] \(bouton 4\) : note tirée illisible : "Do5"/)
+    expect(() => parseProfile(bad)).toThrow(expect.objectContaining({ path: 'rows[1].buttons[3]', code: 'bad-pull-note', params: { button: 4, value: '"Do5"' } }))
     const bad2 = structuredClone(json) as typeof json
     bad2.bass[3]!.pull.chord = 'Am9'
     expect(() => parseProfile(bad2)).toThrow(/bass\[3\]\.pull\.chord/)
     const bad3 = structuredClone(json) as unknown as { bass: { push: { chord: unknown } }[] }
     bad3.bass[0]!.push.chord = ['C', 4, 'G']
-    expect(() => parseProfile(bad3)).toThrow(/bass\[0\]\.push\.chord : accord illisible/)
+    expect(() => parseProfile(bad3)).toThrow(expect.objectContaining({ path: 'bass[0].push.chord', code: 'bad-chord' }))
     bad3.bass[0]!.push.chord = ['C', null, 'G']
     expect(() => parseProfile(bad3)).toThrow(/bass\[0\]\.push\.chord/)
-    expect(() => parseProfile('{"format":"notenn-instrument",}')).toThrow(/profil : JSON mal formé/)
-    expect(() => parseProfile({ ...json, family: 'piano' })).toThrow(/pas encore prise en charge/)
-    expect(() => parseProfile({ ...json, version: 2 })).toThrow(/version 2 inconnue/)
-    expect(() => parseProfile('{"format":"notenn-instrument","version":1,"id":"x","name":"X","family":"diatonic-accordion","rows":[{"id":"a","name":"A","buttons":[["C4","D4"]]},{"id":"a","name":"B","buttons":[["C4","D4"]]}]}')).toThrow(/déjà utilisé/)
+    expect(() => parseProfile('{"format":"notenn-instrument",}')).toThrow(expect.objectContaining({ code: 'invalid-json' }))
+    expect(() => parseProfile({ ...json, family: 'piano' })).toThrow(expect.objectContaining({ code: 'unsupported-family', params: { family: 'piano' } }))
+    expect(() => parseProfile({ ...json, version: 2 })).toThrow(expect.objectContaining({ code: 'unknown-version' }))
+    expect(() => parseProfile('{"format":"notenn-instrument","version":1,"id":"x","name":"X","family":"diatonic-accordion","rows":[{"id":"a","name":"A","buttons":[["C4","D4"]]},{"id":"a","name":"B","buttons":[["C4","D4"]]}]}')).toThrow(expect.objectContaining({ path: 'rows[1].id', code: 'duplicate-id' }))
   })
 })

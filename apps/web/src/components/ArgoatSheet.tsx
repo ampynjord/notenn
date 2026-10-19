@@ -1,6 +1,7 @@
 'use client'
 
 import type { DrawOp, SystemLine } from '@notenn/argoat'
+import { useTranslations } from 'next-intl'
 import React from 'react'
 
 const fill = (ink: string) => `var(--${ink})`
@@ -70,19 +71,20 @@ export interface Cursor {
   time: number
   note: number
   bass: number
-  /** Début et durée de la note jouée, pour la bande de surbrillance. */
+  /** Start and duration of the sounding note, for the highlight band. */
   noteStart?: number
   noteDur?: number
 }
 
 export function ArgoatSheet({ lines, width, cursor }: { lines: SystemLine[]; width: number; cursor: Cursor | null }) {
+  const t = useTranslations('workshop')
   return (
     <div>
       {lines.map((l) => {
         const active = cursor && cursor.time >= l.start && cursor.time < l.end
         const x = active ? l.x0 + (cursor.time - l.start) * l.scale : 0
         return (
-          <svg key={l.firstBar} viewBox={`0 0 ${width} ${l.height}`} role="img" aria-label={`Mesures ${l.firstBar} à ${l.lastBar}`}>
+          <svg key={l.firstBar} viewBox={`0 0 ${width} ${l.height}`} role="img" aria-label={t('barsAria', { from: l.firstBar, to: l.lastBar })}>
             {active && cursor.noteStart !== undefined && cursor.noteDur !== undefined && (
               <rect
                 x={l.x0 + (cursor.noteStart - l.start) * l.scale - 6}

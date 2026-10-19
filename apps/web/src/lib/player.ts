@@ -1,13 +1,13 @@
 import type { Arrangement, InstrumentProfile } from '@notenn/engine'
 
 export interface Playback {
-  /** Position courante, en noires depuis le début du morceau. */
+  /** Current position, in quarter notes from the start of the tune. */
   position(): number
   stop(): void
   readonly endsAt: number
 }
 
-/** Lecture avec un son d'accordéon simplifié : deux voix légèrement désaccordées (effet « musette »). */
+/** Playback with a simplified accordion sound: two slightly detuned voices ("musette" effect). */
 export function play(arr: Arrangement, profile: InstrumentProfile, bpm: number): Playback {
   const ctx = new AudioContext()
   const spb = 60 / bpm
@@ -45,7 +45,7 @@ export function play(arr: Arrangement, profile: InstrumentProfile, bpm: number):
     if (st < t0 - 0.01) continue
     const g = profile.bassGroups.find((x) => x.id === ev.group)
     if (!g) continue
-    const side = ev.bellows === 'P' ? g.push : g.pull
+    const side = g[ev.bellows]
     const d = arr.meter.beat * spb * 0.55
     if (ev.isBass) voice(36 + side.bass, st, d, 0.5)
     else side.chord.forEach((pc) => voice(48 + pc, st, d, 0.18))

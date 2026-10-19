@@ -1,6 +1,19 @@
 import type { Meter, Song, Track } from '@notenn/engine'
 
-/** Fichier MIDI : une piste par instrument (batterie et doublons écartés). */
+export type ImportErrorCode = 'unreadable-musicxml' | 'no-score-in-mxl' | 'unreadable-abc' | 'unknown-format'
+
+/** Import failure; `code` lets the interface show a translated message, `message` is an English fallback. */
+export class ImportError extends Error {
+  constructor(
+    readonly code: ImportErrorCode,
+    message: string,
+  ) {
+    super(message)
+    this.name = 'ImportError'
+  }
+}
+
+/** MIDI file: one track per instrument (drums and duplicates left out). */
 export async function fromMidi(buffer: ArrayBuffer, fallbackTitle = ''): Promise<Song> {
   const { Midi } = await import('@tonejs/midi')
   const midi = new Midi(buffer)
@@ -15,9 +28,8 @@ export async function fromMidi(buffer: ArrayBuffer, fallbackTitle = ''): Promise
     const sig = notes.map((n) => `${n.pitch}@${n.start}/${n.dur}`).join(',')
     if (seen.has(sig)) continue
     seen.add(sig)
-    const name = t.name.trim()
-    const inst = t.instrument?.name ?? ''
-    tracks.push({ name: (name || `Piste ${tracks.length + 1}`) + (inst && !name ? ` · ${inst}` : ''), notes })
+    const instrument = t.instrument?.name
+    tracks.push({ name: t.name.trim(), ...(instrument ? { instrument } : {}), notes })
   }
   const tempo = midi.header.tempos[0] ? Math.round(midi.header.tempos[0].bpm) : 90
   return { title: midi.name || fallbackTitle, tracks, meter, pickup: 0, tempo }
@@ -25,10 +37,10 @@ export async function fromMidi(buffer: ArrayBuffer, fallbackTitle = ''): Promise
 
 const STEP: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
 
-/** MusicXML non compressé : voix 1 de chaque partie, liaisons fusionnées, anacrouse détectée. */
+/** Uncompressed MusicXML: voice 1 of each part, ties merged, pickup detected. */
 export function fromMusicXML(text: string, fallbackTitle = ''): Song {
   const doc = new DOMParser().parseFromString(text, 'application/xml')
-  if (doc.querySelector('parsererror')) throw new Error('Le fichier MusicXML est illisible.')
+  if (doc.querySelector('parsererror')) throw new ImportError('unreadable-musicxml', 'The MusicXML file cannot be read.')
   const names: Record<string, string> = {}
   doc.querySelectorAll('score-part').forEach((sp) => (names[sp.id] = sp.querySelector('part-name')?.textContent?.trim() ?? ''))
   let meter: Meter | null = null
@@ -67,7 +79,7 @@ export function fromMusicXML(text: string, fallbackTitle = ''): Song {
             Number(pe.querySelector('alter')?.textContent ?? 0) +
             (Number(pe.querySelector('octave')?.textContent) + 1) * 12
           const tieStop = [...el.querySelectorAll('tie')].some((x) => x.getAttribute('type') === 'stop')
-          // La note liée n'est pas forcément la dernière insérée (accords) : on cherche la bonne.
+          // The tied note is not necessarily the last one added (chords): look for the right one.
           const prev = tieStop ? [...notes].reverse().find((x) => x.pitch === pitch && Math.abs(x.start + x.dur - start) < 1e-6) : undefined
           if (prev) prev.dur += dur
           else notes.push({ start, dur, pitch })
@@ -79,14 +91,14 @@ export function fromMusicXML(text: string, fallbackTitle = ''): Song {
       }
       t = maxT
       if (mi === 0 && pi === 0) {
-        // Levée : mesure marquée implicite, ou première mesure plus courte que la mesure indiquée.
+        // Pickup: a measure marked implicit, or a first measure shorter than the time signature.
         const sig = meter as Meter | null
         const full = sig ? (sig.num * 4) / sig.den : Infinity
         const len = maxT - mStart
         if (m.getAttribute('implicit') === 'yes' || (len > 1e-6 && len < full - 1e-6)) pickup = len
       }
     })
-    if (notes.length) tracks.push({ name: names[part.id] || `Partie ${pi + 1}`, notes })
+    if (notes.length) tracks.push({ name: names[part.id] ?? '', notes })
   })
   const title = (doc.querySelector('work-title') ?? doc.querySelector('movement-title'))?.textContent?.trim() || fallbackTitle
   return { title, tracks, meter: meter ?? { num: 4, den: 4 }, pickup, tempo: 90 }
@@ -102,16 +114,16 @@ export async function fromMxl(buffer: ArrayBuffer, fallbackTitle = ''): Promise<
     path = x.querySelector('rootfile')?.getAttribute('full-path') ?? null
   }
   path ??= Object.keys(zip.files).find((n) => /\.(xml|musicxml)$/i.test(n) && !n.startsWith('META-INF')) ?? null
-  if (!path) throw new Error('Aucune partition trouvée dans le fichier .mxl.')
+  if (!path) throw new ImportError('no-score-in-mxl', 'No score found in the .mxl file.')
   return fromMusicXML(await zip.file(path)!.async('string'), fallbackTitle)
 }
 
-/** Air en notation ABC, converti par abcjs (reprises dépliées). */
+/** Tune in ABC notation, converted by abcjs (repeats unfolded). */
 export async function fromAbc(abc: string): Promise<Song> {
   const ABCJS = (await import('abcjs')).default
   const host = document.createElement('div')
   const visual = ABCJS.renderAbc(host, abc)[0]
-  if (!visual || !visual.lines?.length) throw new Error("Je n'arrive pas à lire cet ABC : il faut au moins les lignes X:, M:, K: et des notes.")
+  if (!visual || !visual.lines?.length) throw new ImportError('unreadable-abc', 'Cannot read this ABC: it needs at least the X:, M:, K: lines and some notes.')
   const frac = visual.getMeterFraction()
   const pickup = visual.getPickupLength() * 4
   const out = ABCJS.synth.getMidiFile(abc, { midiOutputType: 'binary' }) as unknown
@@ -120,7 +132,11 @@ export async function fromAbc(abc: string): Promise<Song> {
   song.meter = { num: frac.num ?? 4, den: frac.den ?? 4 }
   song.pickup = pickup
   song.title = abc.match(/^T:\s*(.+)$/m)?.[1]?.trim() ?? ''
-  song.tracks.forEach((t, i) => (t.name = i === 0 ? 'Mélodie' : `Voix ${i + 1}`))
+  // abcjs names its generated tracks itself; voices have no name of their own in ABC.
+  song.tracks.forEach((t) => {
+    t.name = ''
+    delete t.instrument
+  })
   return song
 }
 
@@ -131,5 +147,5 @@ export async function fromFile(file: File): Promise<Song> {
   if (name.endsWith('.mxl')) return fromMxl(await file.arrayBuffer(), title)
   if (/\.(xml|musicxml)$/.test(name)) return fromMusicXML(await file.text(), title)
   if (name.endsWith('.abc')) return fromAbc(await file.text())
-  throw new Error('Format non reconnu : utilise un fichier .mid, .musicxml, .xml, .mxl ou .abc.')
+  throw new ImportError('unknown-format', 'Unknown format: use a .mid, .musicxml, .xml, .mxl or .abc file.')
 }
