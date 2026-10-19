@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { arrange, hohner2915GC, type Song } from '@notenn/engine'
-import { layout } from '../src/index'
+import { layout, splitDuration } from '../src/index'
 
 // Amazing Grace, début (air traditionnel, domaine public), 3/4 avec levée.
 const song: Song = {
@@ -78,5 +78,35 @@ describe('cas particuliers de la mise en page', () => {
     expect(lines[1]!.ops.some((o) => o.kind === 'line' && o.ink === 'line' && o.x1 < 44)).toBe(true)
     const labels = lines.flatMap((l) => l.ops).filter((o) => o.kind === 'text' && o.note !== undefined)
     expect(labels).toHaveLength(arr.notes.length)
+  })
+})
+
+describe('découpage des durées pour la portée', () => {
+  const shapes = (from: number, to: number, pickup = 0, bar = 4) => splitDuration(from, to, pickup, bar).map((p) => [p.t, p.shape, p.triplet])
+
+  it('écrit 2,5 noires en blanche liée à une croche', () => {
+    expect(shapes(0, 2.5)).toEqual([[0, 2, false], [2, 0.5, false]])
+  })
+  it('coupe à la barre de mesure', () => {
+    expect(shapes(3, 5)).toEqual([[3, 1, false], [4, 1, false]])
+  })
+  it('respecte l’anacrouse', () => {
+    expect(shapes(0, 2, 1)).toEqual([[0, 1, false], [1, 1, false]])
+  })
+  it('écrit les tiers de noire en triolets', () => {
+    expect(shapes(0, 1 / 3)).toEqual([[0, 0.5, true]])
+    expect(shapes(0, 2 / 3)).toEqual([[0, 1, true]])
+    const mixed = splitDuration(0, 4 / 3, 0, 4)
+    expect(mixed.map((p) => p.triplet)).toEqual([true, false])
+    expect(mixed.reduce((s, p) => s + (p.triplet ? (p.shape === 1 ? 2 / 3 : 1 / 3) : p.shape), 0)).toBeCloseTo(4 / 3)
+  })
+  it('lie les figures d’une note longue et marque les triolets sur la portée', () => {
+    const s: Song = { title: 't', meter: { num: 4, den: 4 }, pickup: 0, tempo: 90, tracks: [{ name: 'm', notes: [
+      { start: 0, dur: 2.5, pitch: 72 }, { start: 2.5, dur: 0.5, pitch: 74 }, { start: 3, dur: 1 / 3, pitch: 76 }, { start: 3 + 1 / 3, dur: 1 / 3, pitch: 74 }, { start: 3 + 2 / 3, dur: 1 / 3, pitch: 72 }, { start: 4, dur: 4, pitch: 72 },
+    ] }] }
+    const arr = arrange(s, hohner2915GC, { transpose: 0 })
+    const ops = layout(arr, hohner2915GC, s.meter, { staff: true, barsPerLine: 2 }).flatMap((l) => l.ops)
+    expect(ops.filter((o) => o.kind === 'polyline' && o.points.length === 7)).toHaveLength(1)
+    expect(ops.filter((o) => o.kind === 'text' && o.text === '3')).toHaveLength(1)
   })
 })
