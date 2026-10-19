@@ -29,6 +29,10 @@ describe('banc de tests sur de vrais fichiers', () => {
     for (const ext of ['.abc', '.mid', 'xml']) expect(files.some((f) => f.endsWith(ext))).toBe(true)
   })
 
+  it('reconnaît une levée même sans implicit="yes" (BWV 269 : 3/4, levée d’une noire)', async () => {
+    expect((await load('bach-bwv269.musicxml')).pickup).toBe(1)
+  })
+
   it.each(files)('%s', async (name) => {
     const song = await load(name)
     expect(song.tracks.length).toBeGreaterThan(0)
@@ -60,6 +64,7 @@ describe('banc de tests sur de vrais fichiers', () => {
     const lines = layout(arr, hohner2915GC, song.meter, { staff: true })
     expect(lines[0]!.firstBar).toBe(arr.fromBar)
     expect(lines.at(-1)!.lastBar).toBe(arr.toBar)
+    for (let i = 1; i < lines.length; i++) expect(lines[i]!.firstBar).toBe(lines[i - 1]!.lastBar + 1)
     for (const op of lines.flatMap((l) => l.ops))
       for (const v of Object.values(op)) if (typeof v === 'number') expect(Number.isFinite(v)).toBe(true)
 
