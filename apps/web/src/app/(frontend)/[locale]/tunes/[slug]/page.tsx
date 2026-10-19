@@ -37,7 +37,7 @@ export default async function TunePage({ params }: Props) {
         </p>
         {tune.notes && <p className="intro">{tune.notes}</p>}
       </header>
-      <Workshop abc={tune.abc} />
+      <Workshop abc={tune.abc} showTitle={false} />
     </>
   )
 }
