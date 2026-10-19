@@ -10,6 +10,7 @@ export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from '
 export { chooseFingering } from './fingering'
 export { chooseBass } from './bass'
 export { hohner2915GC } from './profiles/hohner-2915-gc'
+export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileJson } from './profile-format'
 
 /** Du morceau importé à la tablature : mélodie, transposition, doigté, basses. */
 export function arrange(song: Song, profile: InstrumentProfile, options: ArrangeOptions = {}): Arrangement {
