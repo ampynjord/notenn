@@ -1,13 +1,13 @@
 import type { Meter, MeterInfo, Note, Track } from './types'
 
-/** Recale sur la double croche, ou sur le triolet quand il est nettement plus proche (fichiers joués « en live »). */
+/** Snaps to the sixteenth-note grid, or to triplets when clearly closer (for files recorded live). */
 export function snap(x: number): number {
   const a = Math.round(x * 4) / 4
   const b = Math.round(x * 3) / 3
   return Math.abs(b - x) < Math.abs(a - x) - 0.04 ? b : a
 }
 
-/** Une note à la fois (la plus aiguë), durées recalées, petites coupures liées. */
+/** One note at a time (the highest), durations snapped, small gaps tied over. */
 export function extractMelody(track: Track): Note[] {
   const byStart = new Map<number, Note>()
   for (const n of track.notes) {
@@ -27,7 +27,8 @@ export function extractMelody(track: Track): Note[] {
   return notes.filter((n) => n.dur > 0.05)
 }
 
-/** Note de « mélodie probable » d'une piste : monodie, variété, registre, nom. */
+/** How likely a track is to be the melody: monophony, variety, register, name.
+ * The name patterns match English and French track names on purpose. */
 export function melodyScore(track: Track): number {
   const n = track.notes.length
   if (n < 12) return 0
@@ -47,16 +48,16 @@ export function melodyScore(track: Track): number {
   score *= repeats / Math.max(1, n - 1) > 0.6 ? 0.45 : 1
   const name = track.name.toLowerCase()
   if (/melod|mélod|lead|right|droite|vocal|voice|voix|chant|solo|flute|flûte|whistle|violin|soprano|sopran|cantus|treble|dessus/.test(name)) score *= 1.6
-  // Voix intérieures d'un chœur (pas les instruments : « alto sax », « tenor sax » restent neutres).
+  // Inner choir voices (not instruments: "alto sax", "tenor sax" stay neutral).
   if (/\balto\b|tenor|ténor/.test(name) && !/sax|clar|flute|flûte|recorder|horn|trombone|viol|banjo|uku|guit|bugle|cornet/.test(name)) score *= 0.7
   if (/bass|basse|left|gauche|drum|batt|perc|pad|chord|accord|accomp|string/.test(name)) score *= 0.45
   return score
 }
 
 /**
- * Piste mélodie la plus probable ; à score égal (pistes courtes), celle qui a le plus de notes. Les pistes vides
- * sont ignorées. Parmi des voix qui jouent ensemble (choral, chœur), la mélodie est en général la plus aiguë :
- * la piste au registre moyen le plus haut reçoit un bonus.
+ * Most likely melody track; on equal scores (short tracks), the one with the most notes. Empty tracks are
+ * ignored. Among voices singing together (chorale, choir) the melody is usually the highest one, so the
+ * track with the highest average register gets a bonus.
  */
 export function pickMelodyTrack(tracks: Track[]): number {
   let best = 0
@@ -74,7 +75,7 @@ export function pickMelodyTrack(tracks: Track[]): number {
   return best
 }
 
-/** Mesures composées (6/8, 9/8, 12/8, 6/4…) : le temps vaut trois subdivisions. */
+/** Compound meters (6/8, 9/8, 12/8, 6/4…): the beat spans three subdivisions. */
 export function meterInfo(m: Meter): MeterInfo {
   const barLength = (m.num * 4) / m.den
   const beat = m.num % 3 === 0 && m.num > 3 ? (3 * 4) / m.den : 4 / m.den

@@ -13,7 +13,7 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Dossier persistant en production (volume Docker), dossier local en développement.
+    // Persistent folder in production (Docker volume), local folder in development.
     staticDir: process.env.MEDIA_DIR || 'media',
   },
 }

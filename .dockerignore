@@ -1,7 +1,8 @@
-# Jamais dans l'image ni dans le cache de construction : secrets, sauvegardes, fichiers locaux.
+# Never in the image or the build cache: secrets, backups, local files.
 **/.env
 **/.env.*
 !**/.env.example
+deploy/backups
 deploy/sauvegardes
 **/node_modules
 **/.next

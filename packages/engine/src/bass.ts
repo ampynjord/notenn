@@ -1,11 +1,12 @@
 import { pitchClass } from './keyboard'
 import type { BassEvent, Fingering, InstrumentProfile, MeterInfo, Note } from './types'
 
-const PRIOR = { P: [0.3, 0.2, 0.1, 0], T: [0.3, 0.2, 0.15, 0.1] }
+/** Small preference for the first groups (the most common basses), per bellows direction. */
+const PRIOR = { push: [0.3, 0.2, 0.1, 0], pull: [0.3, 0.2, 0.15, 0.1] }
 
 /**
- * Une basse ou un accord par temps, toujours dans le sens du soufflet de la note jouée
- * et contenant cette note. Basse au 1er temps de la mesure, accord ensuite.
+ * One bass or chord per beat, always in the bellows direction of the sounding note and
+ * containing that note. Bass button on the first beat of the bar, chord on the others.
  */
 export function chooseBass(
   notes: Note[],
@@ -34,7 +35,7 @@ export function chooseBass(
       let best: number | null = null
       let bestScore = -1
       profile.bassGroups.forEach((g, gi) => {
-        const chord = (bellows === 'P' ? g.push : g.pull).chord
+        const chord = g[bellows].chord
         if (!chord.includes(pc)) return
         const s =
           1 +

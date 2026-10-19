@@ -2,9 +2,9 @@ import { fingeringsFor, pitchClass } from './keyboard'
 import type { Fingering, InstrumentProfile, MeterInfo, Note } from './types'
 
 /**
- * Doigté par programmation dynamique : pour chaque note, le bouton qui minimise
- * changements de soufflet (surtout en legato), changements de rang et déplacements,
- * en évitant les notes sur un temps qu'aucun accord de basse ne peut accompagner.
+ * Fingering by dynamic programming: for each note, the button that minimises bellows changes
+ * (especially in legato), row changes and hand movement, while avoiding on-beat notes that
+ * no bass chord can accompany.
  */
 export function chooseFingering(
   notes: Note[],
@@ -19,7 +19,7 @@ export function chooseFingering(
     return Math.abs(b - Math.round(b)) < 1e-6
   }
   const harmonizable = (f: Fingering, pitch: number) =>
-    profile.bassGroups.some((g) => (f.bellows === 'P' ? g.push : g.pull).chord.includes(pitchClass(pitch)))
+    profile.bassGroups.some((g) => g[f.bellows].chord.includes(pitchClass(pitch)))
 
   const nodeCost = (n: Note, f: Fingering) =>
     (rowCost.get(f.row) ?? 0) + (onBeat(n) && !harmonizable(f, n.pitch) ? 0.6 : 0)

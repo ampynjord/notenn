@@ -1,11 +1,11 @@
 # Image de production de Notenn (monorepo pnpm).
-# À construire depuis la racine du dépôt :
+# Build from the repository root:
 #   docker build -f apps/web/Dockerfile -t notenn-web .
 
 FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat && corepack enable pnpm
 
-# Dépendances du workspace (manifestes d'abord pour profiter du cache)
+# Workspace dependencies (manifests first, to benefit from the layer cache)
 FROM base AS deps
 WORKDIR /repo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
