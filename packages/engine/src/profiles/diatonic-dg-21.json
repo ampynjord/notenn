@@ -1,0 +1,158 @@
+{
+  "format": "notenn-instrument",
+  "version": 1,
+  "id": "diatonic-dg-21",
+  "name": "Diatonic D/G, 21 buttons (standard layout)",
+  "family": "diatonic-accordion",
+  "source": "Standard 2-row D/G layout: the Hohner 2915 chart transposed by +7 semitones. Makers sometimes vary the first buttons or the basses: check against your instrument's keyboard chart.",
+  "rows": [
+    {
+      "id": "g",
+      "name": "G row (inner)",
+      "suffix": "'",
+      "offset": 0.5,
+      "cost": 0,
+      "buttons": [
+        [
+          "B3",
+          "D4"
+        ],
+        [
+          "D4",
+          "F#4"
+        ],
+        [
+          "G4",
+          "A4"
+        ],
+        [
+          "B4",
+          "C5"
+        ],
+        [
+          "D5",
+          "E5"
+        ],
+        [
+          "G5",
+          "F#5"
+        ],
+        [
+          "B5",
+          "A5"
+        ],
+        [
+          "D6",
+          "C6"
+        ],
+        [
+          "G6",
+          "E6"
+        ],
+        [
+          "B6",
+          "F#6"
+        ]
+      ]
+    },
+    {
+      "id": "d",
+      "name": "D row (outer)",
+      "suffix": "",
+      "offset": 0,
+      "cost": 0.8,
+      "buttons": [
+        [
+          "F#3",
+          "A3"
+        ],
+        [
+          "A3",
+          "C#4"
+        ],
+        [
+          "D4",
+          "E4"
+        ],
+        [
+          "F#4",
+          "G4"
+        ],
+        [
+          "A4",
+          "B4"
+        ],
+        [
+          "D5",
+          "C#5"
+        ],
+        [
+          "F#5",
+          "E5"
+        ],
+        [
+          "A5",
+          "G5"
+        ],
+        [
+          "D6",
+          "B5"
+        ],
+        [
+          "F#6",
+          "C#6"
+        ],
+        [
+          "A6",
+          "E6"
+        ]
+      ]
+    }
+  ],
+  "bass": [
+    {
+      "id": 1,
+      "push": {
+        "bass": "G",
+        "chord": "G"
+      },
+      "pull": {
+        "bass": "D",
+        "chord": "D"
+      }
+    },
+    {
+      "id": 2,
+      "push": {
+        "bass": "D",
+        "chord": "D"
+      },
+      "pull": {
+        "bass": "A",
+        "chord": "A"
+      }
+    },
+    {
+      "id": 3,
+      "push": {
+        "bass": "C",
+        "chord": "C"
+      },
+      "pull": {
+        "bass": "C",
+        "chord": "C"
+      }
+    },
+    {
+      "id": 4,
+      "push": {
+        "bass": "B",
+        "chord": "B"
+      },
+      "pull": {
+        "bass": "E",
+        "chord": "Em"
+      }
+    }
+  ]
+}

@@ -10,6 +10,7 @@ export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from '
 export { chooseFingering, chooseGroupFingering, groupOptions, type NoteGroup } from './fingering'
 export { chooseBass } from './bass'
 export { hohner2915GC } from './profiles/hohner-2915-gc'
+export { getProfile, profiles } from './profiles'
 export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileErrorCode, type ProfileJson } from './profile-format'
 
 /** From an imported song to a tab: melody, transposition, fingering, basses. */
