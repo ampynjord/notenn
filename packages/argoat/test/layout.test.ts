@@ -109,4 +109,25 @@ describe('découpage des durées pour la portée', () => {
     expect(ops.filter((o) => o.kind === 'polyline' && o.points.length === 7)).toHaveLength(1)
     expect(ops.filter((o) => o.kind === 'text' && o.text === '3')).toHaveLength(1)
   })
+
+  const song4 = (notes: { start: number; dur: number; pitch: number }[]): Song => ({ title: 't', meter: { num: 4, den: 4 }, pickup: 0, tempo: 90, tracks: [{ name: 'm', notes }] })
+  const threes = (s: Song) => layout(arrange(s, hohner2915GC, { transpose: 0 }), hohner2915GC, s.meter, { staff: true, barsPerLine: 1 }).flatMap((l) => l.ops).filter((o) => o.kind === 'text' && o.text === '3')
+
+  it('ne met qu’un « 3 » pour trois noires de triolet sur deux temps', () => {
+    expect(threes(song4([0, 2 / 3, 4 / 3].map((start, i) => ({ start, dur: 2 / 3, pitch: [72, 74, 76][i]! })).concat([{ start: 2, dur: 2, pitch: 72 }])))).toHaveLength(1)
+  })
+
+  it('met deux « 3 » pour deux groupes de croches de triolet sur deux temps', () => {
+    const notes = [0, 1, 2, 3, 4, 5].map((k) => ({ start: k / 3, dur: 1 / 3, pitch: 72 + (k % 2) * 2 }))
+    expect(threes(song4([...notes, { start: 2, dur: 2, pitch: 72 }]))).toHaveLength(2)
+  })
+
+  it('dessine la liaison sortante quand une note passe à la ligne suivante', () => {
+    const s = song4([{ start: 0, dur: 3, pitch: 72 }, { start: 3, dur: 3, pitch: 74 }, { start: 6, dur: 2, pitch: 72 }])
+    const lines = layout(arrange(s, hohner2915GC, { transpose: 0 }), hohner2915GC, s.meter, { staff: true, barsPerLine: 1, width: 900 })
+    const ties = (i: number) => lines[i]!.ops.filter((o) => o.kind === 'polyline' && o.points.length === 7)
+    // Ligne 1 : blanche pointée, puis noire liée vers la ligne 2 ; ligne 2 : liaison entrante.
+    expect(ties(0).some((o) => o.kind === 'polyline' && o.points.at(-1)![0] > 880)).toBe(true)
+    expect(ties(1).some((o) => o.kind === 'polyline' && o.points[0]![0] < 44)).toBe(true)
+  })
 })
