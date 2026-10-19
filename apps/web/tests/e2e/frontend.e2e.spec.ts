@@ -8,14 +8,14 @@ test.describe('Frontend', () => {
     await expect(page.locator('.hero-tab svg').first()).toBeVisible()
   })
 
-  test('serves the workshop in both languages', async ({ page }) => {
+  test('serves the editor in both languages', async ({ page }) => {
     await page.goto('http://localhost:3000/fr/atelier')
-    await expect(page.locator('h1').first()).toHaveText('Atelier')
+    await expect(page.locator('h1').first()).toHaveText('Éditeur')
     await page.goto('http://localhost:3000/en/workshop')
-    await expect(page.locator('h1').first()).toHaveText('Workshop')
+    await expect(page.locator('h1').first()).toHaveText('Editor')
   })
 
-  test('lists the library and opens a tune', async ({ page }) => {
+  test('lists the tune bank and opens a preview', async ({ page }) => {
     await page.goto('http://localhost:3000/fr/airs')
     await page.getByRole('link', { name: /Au clair de la lune/ }).click()
     await expect(page.locator('h1').first()).toHaveText('Au clair de la lune')

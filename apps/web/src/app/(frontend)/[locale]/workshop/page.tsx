@@ -4,7 +4,10 @@ import React from 'react'
 
 import { Workshop } from '@/components/Workshop'
 
-type Props = { params: Promise<{ locale: string }> }
+type Props = {
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ item?: string | string[] }>
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
@@ -12,10 +15,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t('title'), description: t('intro') }
 }
 
-export default async function WorkshopPage({ params }: Props) {
+export default async function WorkshopPage({ params, searchParams }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations('workshop')
+  const { item } = await searchParams
 
   return (
     <>
@@ -23,7 +27,7 @@ export default async function WorkshopPage({ params }: Props) {
         <h1>{t('title')}</h1>
         <p className="intro">{t('intro')}</p>
       </header>
-      <Workshop />
+      <Workshop itemId={typeof item === 'string' && /^\d+$/.test(item) ? item : undefined} />
     </>
   )
 }

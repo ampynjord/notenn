@@ -5,3 +5,6 @@ export const SITE = {
   donateUrl: 'https://liberapay.com/notenn/donate',
   contactEmail: 'contact@ampynjord.bzh',
 } as const
+
+/** Public address of the site: links in e-mails and the only origin allowed to use the session cookie. */
+export const publicUrl = () => (process.env.PUBLIC_URL || SITE.url).replace(/\/$/, '')
