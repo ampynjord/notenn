@@ -12,5 +12,8 @@ export const Media: CollectionConfig = {
       required: true,
     },
   ],
-  upload: true,
+  upload: {
+    // Dossier persistant en production (volume Docker), dossier local en développement.
+    staticDir: process.env.MEDIA_DIR || 'media',
+  },
 }
