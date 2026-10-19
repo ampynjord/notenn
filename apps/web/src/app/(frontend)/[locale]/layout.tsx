@@ -13,6 +13,7 @@ import { ServiceWorker } from '@/components/ServiceWorker'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
 import { routing } from '@/i18n/routing'
+import { AccountProvider } from '@/lib/account'
 import { SITE } from '@/lib/site'
 import '../styles.css'
 
@@ -43,14 +44,16 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale}>
       <body>
         <NextIntlClientProvider>
-          <a className="skip" href="#content">
-            {(await getTranslations({ locale, namespace: 'nav' }))('skip')}
-          </a>
-          <SiteHeader />
-          <main id="content">{children}</main>
-          <SiteFooter />
-          <ServiceWorker />
-          <Script src="/stats.js" strategy="afterInteractive" />
+          <AccountProvider>
+            <a className="skip" href="#content">
+              {(await getTranslations({ locale, namespace: 'nav' }))('skip')}
+            </a>
+            <SiteHeader />
+            <main id="content">{children}</main>
+            <SiteFooter />
+            <ServiceWorker />
+            <Script src="/stats.js" strategy="afterInteractive" />
+          </AccountProvider>
         </NextIntlClientProvider>
       </body>
     </html>

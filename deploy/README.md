@@ -54,6 +54,10 @@ docker compose up -d --build --remove-orphans
 mv sauvegardes/* backups/ 2>/dev/null; rmdir sauvegardes 2>/dev/null
 ```
 
+### Mise à jour du 19/10/2026 (comptes et bibliothèque)
+
+Remplir `RESEND_API_KEY` dans `.env` (section 6) avant ou juste après la mise à jour. Les tables des comptes se créent toutes seules au démarrage.
+
 ## 5. Sauvegardes
 
 Le conteneur `backup` fait une sauvegarde au démarrage puis chaque nuit à 3 h UTC, dans `deploy/backups/` :
@@ -74,7 +78,24 @@ docker compose run --rm -v "$PWD/backups:/s" --entrypoint sh web -c "tar -xzf /s
 docker compose start web
 ```
 
-## 6. Statistiques de visite (Umami)
+## 6. E-mails des comptes (Resend)
+
+Les comptes reçoivent deux e-mails : la confirmation d'adresse à l'inscription et le lien « mot de passe oublié ». Ils partent par [Resend](https://resend.com). Sans clé, personne ne peut activer son compte.
+
+1. Créer un compte Resend, puis *Domains* → *Add domain* : `ampynjord.bzh`. Ajouter chez OVH (zone DNS) les enregistrements que Resend affiche (SPF, DKIM, éventuellement MX de retour) et attendre qu'il passe en *Verified*.
+2. *API Keys* → *Create API key*, droit *Sending access* limité au domaine.
+3. Dans `.env` :
+   ```sh
+   RESEND_API_KEY=re_…
+   EMAIL_FROM=notenn@ampynjord.bzh
+   ```
+4. `docker compose up -d` pour relancer l'appli.
+
+Tester : créer un compte sur le site avec sa propre adresse. En cas de souci, `docker compose logs web | grep -i mail`.
+
+Les comptes du site (« membres ») sont distincts des administrateurs : ils n'ouvrent jamais `/admin`. Leurs bibliothèques sont privées, même pour l'administrateur ; il voit seulement la liste des comptes (Membres) et peut en supprimer un.
+
+## 7. Statistiques de visite (Umami)
 
 Umami compte les visites sans cookie : pas besoin de bandeau de consentement. Il tourne à part, sur https://stats.ampynjord.bzh.
 

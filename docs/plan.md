@@ -30,7 +30,8 @@ Document de référence vivant : ce fichier est le résumé versionné du plan d
 | Voix | Mélodie + basses ; moteur multi-voix en place (phase 0) ; accords main droite, duos et paroles dans les phases suivantes |
 | Bibliothèque | Domaine public, trad, licences libres, créations des membres ; tout membre propose, des membres de confiance valident ; classée par instrument, région/style, niveau ; recherche |
 | Communauté | Comptes, favoris, partage, notes, commentaires, corrections ; modération par membres de confiance |
-| Connexion | E-mail + mot de passe d'abord, Google et Apple ensuite ; atelier utilisable sans compte ; bêta sans comptes |
+| Connexion | E-mail + mot de passe (confirmation et mot de passe oublié par e-mail via Resend) dès la bêta, Google et Apple ensuite. Sans compte : uniquement ce qui ne demande rien de gardé (aperçu des airs, éditeur sans enregistrement). Avec compte : bibliothèque, doigtés, réglages *(change la décision « bêta sans comptes », 19/10/2026)* |
+| Site | Quatre espaces : site, banque d'airs (aperçu : tablature, écoute avec curseur, clavier, PDF ; bouton « Ajouter à ma bibliothèque »), ma bibliothèque (airs de la banque, fichiers importés gardés sur le serveur et privés, doigtés par air), éditeur (ouvre un air de la bibliothèque ou un fichier) |
 | Hors ligne | Favoris jouables sans internet |
 | Organisation | Répertoires (setlists), mode scène ; groupes et classes plus tard |
 | Paiement | Dons via Liberapay ; paiement à l'usage via Stripe pour toute fonction très coûteuse en argent ou en ressources serveur (photo/PDF de partition en tête) |
@@ -41,7 +42,7 @@ Document de référence vivant : ce fichier est le résumé versionné du plan d
 ## Droit d'auteur
 
 - Bibliothèque publique : uniquement domaine public, airs trad (transcriptions libres), licences libres, créations des membres. Fiche avec auteur, date, licence ; modération ; signalement et retrait rapide.
-- Atelier personnel : fichiers de l'utilisateur convertis dans son navigateur, jamais publiés.
+- Éditeur : fichiers de l'utilisateur convertis dans son navigateur ; gardés sur le serveur seulement s'il les enregistre dans sa bibliothèque, privés, jamais publiés.
 - Morceaux récents : seulement avec licences d'éditeurs, plus tard.
 - Consulter un juriste PI avant l'ouverture publique.
 
@@ -72,7 +73,7 @@ Protection du code : build minifié et obscurci, calculs sensibles côté serveu
 | Pratique | | Curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte | Clavier animé, mode scène | (Micro, mis de côté) |
 | Édition | | Bouton/rang/soufflet au clic (dans la bêta) ; préférences | Historique des versions | |
 | Exports | | PDF : avec ou sans portée, mesures par ligne, couleur ou N&B | MIDI, MusicXML, PNG, lien | Livret |
-| Communauté | | Atelier sans compte, airs libres | Comptes, bibliothèque, partage, modération, notes, commentaires, corrections | Licences d'éditeurs |
+| Communauté | | Comptes, bibliothèque personnelle, banque d'airs libres ; éditeur sans compte (rien de gardé) | Partage, propositions d'airs, modération, notes, commentaires, corrections | Licences d'éditeurs |
 | Organisation | | | Setlists | Groupes, classes (après photo/PDF de partition) |
 | Revenus | | Dons | | Paiement à l'usage (fonctions coûteuses) |
 | Langues | | FR + EN | | |
@@ -106,6 +107,9 @@ Tests seul sur le Hohner, puis bêta ouverte marquée « bêta » ; bouche-à-or
 - [x] Bibliothèque de 20 airs libres (à compléter avec des airs bretons)
 - [x] Site : accueil, Système Argoat, airs, soutenir (Liberapay), confidentialité, mentions légales, FR/EN
 - [x] PWA (installable, atelier hors ligne) et statistiques Umami
+- [x] Comptes (inscription, confirmation par e-mail, mot de passe oublié, suppression du compte)
+- [x] Banque d'airs en aperçu, « Ma bibliothèque », éditeur qui ouvre la bibliothèque et enregistre doigtés et réglages
+- [ ] Créer le compte Resend et vérifier le domaine (deploy/README.md, section 6)
 - [ ] Ouvrir le compte Liberapay « notenn » et l'adresse de contact
 - [ ] Lancer Umami sur le VPS (deploy/README.md)
 
