@@ -62,7 +62,7 @@ const CHORD_SHAPES: Record<string, number[]> = { '': [0, 4, 7], m: [0, 3, 7], '7
 /** Accord par son nom (« C », « Am », « D7 », « Em7 ») ou par ses notes (« ["C","E","G"] »). */
 export function chordOf(chord: string | string[]): number[] | null {
   if (Array.isArray(chord)) {
-    const pcs = chord.map(pitchClassOf)
+    const pcs = chord.map((n: unknown) => (typeof n === 'string' ? pitchClassOf(n) : null))
     return pcs.length && pcs.every((p) => p !== null) ? (pcs as number[]) : null
   }
   const m = /^([A-G][#b]?)(m7|m|7|)$/.exec(chord.trim())
@@ -75,7 +75,14 @@ const isObject = (x: unknown): x is Record<string, unknown> => typeof x === 'obj
 
 /** Lit et vérifie un profil JSON ; lève une ProfileError en français qui dit où est le problème. */
 export function parseProfile(input: unknown): InstrumentProfile {
-  const d = typeof input === 'string' ? (JSON.parse(input) as unknown) : input
+  let d: unknown = input
+  if (typeof input === 'string') {
+    try {
+      d = JSON.parse(input)
+    } catch (e) {
+      throw new ProfileError('profil', `JSON mal formé (${e instanceof Error ? e.message : String(e)})`)
+    }
+  }
   if (!isObject(d)) throw new ProfileError('profil', 'un objet JSON est attendu')
   if (d.format !== 'notenn-instrument') throw new ProfileError('format', 'doit valoir "notenn-instrument"')
   if (d.version !== 1) throw new ProfileError('version', `version ${String(d.version)} inconnue (seule la version 1 existe)`)
