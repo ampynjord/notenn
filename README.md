@@ -9,6 +9,8 @@ Projet privé — tous droits réservés.
 | Dossier | Contenu |
 | --- | --- |
 | `docs/` | Plan du projet, définition du Système Argoat, plan de clavier Hohner 2915 |
+| `apps/web/` | Application Next.js + Payload CMS 3 (PostgreSQL) |
+| `packages/engine/` | Moteur musical TypeScript : mélodie, transposition, doigté, basses, profils de claviers |
 | `prototype/` | Prototype fonctionnel en une page HTML (import MIDI/MusicXML/ABC, doigté, basses, portée, curseur, PDF) |
 
 Le prototype s'ouvre directement dans un navigateur : `prototype/systeme-argoat.html`.
@@ -31,3 +33,15 @@ Le prototype s'ouvre directement dans un navigateur : `prototype/systeme-argoat.
 | 3 · Ensuite | Photo/PDF de partition, paiement à l'usage, groupes et classes, duos et paroles |
 
 Détail complet : [`docs/plan.md`](docs/plan.md).
+
+## Démarrer en local
+
+Prérequis : Node 22, pnpm 10, Docker.
+
+```bash
+pnpm install
+pnpm db:up                      # PostgreSQL de développement
+cp apps/web/.env.example apps/web/.env   # puis mettre un PAYLOAD_SECRET aléatoire
+pnpm dev                        # http://localhost:3000 et /admin
+pnpm test                       # tests du moteur
+```
