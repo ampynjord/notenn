@@ -82,7 +82,57 @@ const CLEF: [number, number][] = [
   [0.9, 2.2], [0.5, 2.6], [0.1, 2.3], [0.3, 1.9], [0.8, 2.1], [1.0, 1.0], [0.9, -2.5], [1.0, -4.0], [1.5, -4.6],
   [1.6, -3.6], [0.6, -2.2], [-0.2, -1.0], [-0.4, 0.2], [0.2, 0.9], [1.2, 0.9], [1.6, 0.2], [1.2, -0.5], [0.6, -0.4], [0.4, 0.1],
 ]
-const VALUES = [4, 3, 2, 1.5, 1, 0.75, 0.5, 1 / 3, 0.25]
+const VALUES = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25]
+
+export interface DurationPiece {
+  t: number
+  /** Valeur dessinée, en noires (pour un triolet : la figure écrite, croche = 0,5). */
+  shape: number
+  triplet: boolean
+}
+
+/**
+ * Découpe une durée en figures écrites, liées entre elles : coupure aux barres de mesure,
+ * puis valeurs simples ou pointées ; les tiers de noire deviennent des triolets.
+ */
+export function splitDuration(from: number, to: number, pickup: number, barLength: number): DurationPiece[] {
+  const out: DurationPiece[] = []
+  let t = from
+  while (to - t > 1e-6) {
+    const nextBar = pickup + (Math.floor((t - pickup) / barLength + 1e-6) + 1) * barLength
+    const segEnd = Math.min(to, t < pickup - 1e-6 ? Math.min(pickup, to) : nextBar)
+    let n12 = Math.round((segEnd - t) * 12)
+    if (n12 <= 0) break
+    // n12 = 4a (triolets, en tiers de noire) + 3b (doubles croches) ; a minimal.
+    let a = 0
+    while (a * 4 <= n12 && (n12 - a * 4) % 3 !== 0) a++
+    if (a * 4 > n12) {
+      // Durée irrégulière : arrondie au quart de temps le plus proche, au moins une double croche.
+      a = 0
+      n12 = Math.max(3, Math.round(n12 / 3) * 3)
+    }
+    for (let k = a; k > 0; ) {
+      const q = k >= 2 ? 2 : 1
+      out.push({ t, shape: q === 2 ? 1 : 0.5, triplet: true })
+      t += q / 3
+      k -= q
+    }
+    let rest = (n12 - a * 4) / 12
+    while (rest > 1e-6) {
+      const v = VALUES.find((val) => val <= rest + 1e-6) ?? 0.25
+      out.push({ t, shape: v, triplet: false })
+      t += v
+      rest -= v
+    }
+    t = Math.max(t, segEnd)
+  }
+  return out
+}
+
+function tieArc(x1: number, x2: number, y: number, dir: 1 | -1): [number, number][] {
+  const h = Math.min(4, Math.max(2, (x2 - x1) / 8)) * dir
+  return [0, 0.15, 0.35, 0.5, 0.65, 0.85, 1].map((f) => [x1 + (x2 - x1) * f, y + h * Math.sin(Math.PI * f)])
+}
 
 /** Octave d'affichage la plus lisible sur la portée (médiane des notes autour du Si central). */
 function displayOctave(arr: Arrangement) {
@@ -130,38 +180,74 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bot, ink: 'ink', width: 0.8 })
       // Altérations : un dièse vaut jusqu'à la barre, d'où un bécarre si la même ligne revient naturelle.
       const sharpened = new Map<number, Set<number>>()
+      const triplets: { from: number; to: number; x: number; ey: number }[] = []
       arr.notes.forEach((n, ni) => {
-        if (!inLine(n.start)) return
+        const nEnd = n.start + n.dur
+        const own = inLine(n.start)
+        // Une note commencée sur une ligne précédente se poursuit ici en notes liées.
+        if (!own && !(n.start < start - 1e-6 && nEnd > start + 1e-6)) return
         const ps = pitchStep(n.pitch)
-        const barIdx = Math.floor((n.start - arr.pickup) / arr.meter.barLength + 1e-6)
-        const inBar = sharpened.get(barIdx) ?? new Set<number>()
-        sharpened.set(barIdx, inBar)
-        const natural = !ps.sharp && inBar.has(ps.step)
-        if (ps.sharp) inBar.add(ps.step)
-        else inBar.delete(ps.step)
+        let natural = false
+        if (own) {
+          const barIdx = Math.floor((n.start - arr.pickup) / arr.meter.barLength + 1e-6)
+          const inBar = sharpened.get(barIdx) ?? new Set<number>()
+          sharpened.set(barIdx, inBar)
+          natural = !ps.sharp && inBar.has(ps.step)
+          if (ps.sharp) inBar.add(ps.step)
+          else inBar.delete(ps.step)
+        }
         const st = ps.step + octave * 7
-        const x = X(n.start) + 4
         const y = yS(st)
         const ink: Ink = n.approx ? 'warn' : 'ink'
-        for (let l = 28; l >= st; l -= 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
-        for (let l = 40; l <= st; l += 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
-        const v = VALUES.find((val) => val <= n.dur + 1e-6) ?? 0.25
-        ops.push({ kind: 'ellipse', x, y, rx: 3.2, ry: 2.3, ink, filled: v < 2, note: ni })
-        if (ps.sharp) ops.push({ kind: 'text', x: x - 11, y: y + 3.2, text: '#', ink, size: 9, bold: true })
-        if (natural) ops.push({ kind: 'text', x: x - 11, y: y + 3.6, text: '♮', ink, size: 10, bold: true })
-        if (v === 3 || v === 1.5 || v === 0.75) ops.push({ kind: 'ellipse', x: x + 6.2, y: st % 2 === 0 ? y - 2 : y, rx: 0.9, ry: 0.9, ink, filled: true })
-        if (v < 4) {
-          const up = st < 34
-          const sx = up ? x + 2.9 : x - 2.9
-          const ey = up ? y - 17 : y + 17
-          ops.push({ kind: 'line', x1: sx, y1: y, x2: sx, y2: ey, ink, width: 0.8 })
-          const flags = v <= 0.25 + 1e-6 ? 2 : v < 1 ? 1 : 0
-          for (let f = 0; f < flags; f++) {
-            const fy = ey + (up ? f * 3.5 : -f * 3.5)
-            ops.push({ kind: 'line', x1: sx, y1: fy, x2: sx + 4.5, y2: fy + (up ? 6 : -6), ink, width: 1.1 })
+        const up = st < 34
+        const pieces = splitDuration(Math.max(n.start, start), Math.min(nEnd, end), arr.pickup, arr.meter.barLength)
+        let prevX: number | null = own ? null : X0 - 6
+        pieces.forEach((pc, k) => {
+          const x = X(pc.t) + 4
+          for (let l = 28; l >= st; l -= 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
+          for (let l = 40; l <= st; l += 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
+          const v = pc.shape
+          ops.push({ kind: 'ellipse', x, y, rx: 3.2, ry: 2.3, ink, filled: v < 2, ...(own && k === 0 ? { note: ni } : {}) })
+          if (own && k === 0 && ps.sharp) ops.push({ kind: 'text', x: x - 11, y: y + 3.2, text: '#', ink, size: 9, bold: true })
+          if (own && k === 0 && natural) ops.push({ kind: 'text', x: x - 11, y: y + 3.6, text: '♮', ink, size: 10, bold: true })
+          if (v === 3 || v === 1.5 || v === 0.75) ops.push({ kind: 'ellipse', x: x + 6.2, y: st % 2 === 0 ? y - 2 : y, rx: 0.9, ry: 0.9, ink, filled: true })
+          if (v < 4) {
+            const sx = up ? x + 2.9 : x - 2.9
+            const ey = up ? y - 17 : y + 17
+            ops.push({ kind: 'line', x1: sx, y1: y, x2: sx, y2: ey, ink, width: 0.8 })
+            const flags = v <= 0.25 + 1e-6 ? 2 : v < 1 ? 1 : 0
+            for (let f = 0; f < flags; f++) {
+              const fy = ey + (up ? f * 3.5 : -f * 3.5)
+              ops.push({ kind: 'line', x1: sx, y1: fy, x2: sx + 4.5, y2: fy + (up ? 6 : -6), ink, width: 1.1 })
+            }
+            if (pc.triplet) {
+              // Étendue du groupe : une noire pour des croches de triolet, une blanche pour des noires de triolet,
+              // comptée depuis le début de la mesure.
+              const span = pc.shape === 1 ? 2 : 1
+              const barStart = arr.pickup + Math.floor((pc.t - arr.pickup) / arr.meter.barLength + 1e-6) * arr.meter.barLength
+              const from = barStart + Math.floor((pc.t - barStart) / span + 1e-6) * span
+              triplets.push({ from, to: from + span, x, ey })
+            }
           }
-        }
+          // Liaison avec la figure précédente de la même note (côté opposé à la hampe).
+          if (prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, x - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
+          prevX = x
+        })
+        // La note continue sur la ligne suivante : liaison jusqu'au bord droit.
+        if (nEnd > end + 1e-6 && prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, width - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
       })
+      // Un « 3 » par groupe de triolet ; les groupes qui se chevauchent (figures mêlées) n'en font qu'un.
+      triplets.sort((a, c) => a.from - c.from)
+      const groups: (typeof triplets)[] = []
+      for (const tr of triplets) {
+        const last = groups.at(-1)
+        if (last && tr.from < Math.max(...last.map((g) => g.to)) - 1e-6) last.push(tr)
+        else groups.push([tr])
+      }
+      for (const g of groups) {
+        const xs = g.map((tr) => tr.x)
+        ops.push({ kind: 'text', x: (Math.min(...xs) + Math.max(...xs)) / 2 + 2, y: Math.min(...g.map((tr) => tr.ey), top) - 3, text: '3', ink: 'ink', size: 8, bold: true, anchor: 'middle' })
+      }
     }
 
     ops.push({ kind: 'text', x: 6, y: yP, text: 'P', ink: 'push', size: 12, bold: true })
