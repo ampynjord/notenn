@@ -11,6 +11,8 @@ Projet privé — tous droits réservés.
 | `docs/` | Plan du projet, définition du Système Argoat, format des profils d'instruments, plan de clavier Hohner 2915 |
 | `apps/web/` | Application Next.js + Payload CMS 3 (PostgreSQL) |
 | `packages/engine/` | Moteur musical TypeScript : mélodie, transposition, doigté, basses, profils de claviers |
+| `packages/argoat/` | Mise en page du Système Argoat (portée, lignes P/T, basses), indépendante du support |
+| `packages/import/` | Lecture des fichiers MIDI, MusicXML (.mxl compris) et ABC ; banc de tests sur de vrais fichiers |
 | `prototype/` | Prototype fonctionnel en une page HTML (import MIDI/MusicXML/ABC, doigté, basses, portée, curseur, PDF) |
 
 Le prototype s'ouvre directement dans un navigateur : `prototype/systeme-argoat.html`.

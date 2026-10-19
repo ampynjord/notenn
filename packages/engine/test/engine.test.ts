@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { arrange, hohner2915GC, meterInfo, snap, type Note, type Song } from '../src/index'
+import { arrange, hohner2915GC, meterInfo, melodyScore, pickMelodyTrack, snap, type Note, type Song } from '../src/index'
 
 /** Construit des notes à partir de « hauteur:durée » (durées en noires). */
 function seq(spec: string, start = 0): Note[] {
@@ -117,5 +117,25 @@ describe('cas limites relevés en revue', () => {
   it('ignore une piste vide placée avant une mélodie courte', () => {
     const r = arrange(song(seq('72:1 74:1 76:1'), [[]]), hohner2915GC)
     expect(r.notes).toHaveLength(3)
+  })
+})
+
+describe('choix de la piste mélodie', () => {
+  it('préfère la voix la plus aiguë dans un choral, même si une voix intérieure a plus de notes', () => {
+    const voice = (name: string, base: number, step: number) => ({
+      name,
+      notes: Array.from({ length: 32 / step }, (_, i) => ({ start: i * step, dur: step, pitch: base + [0, 2, 4, 5, 7, 5, 4, 2][i % 8]! })),
+    })
+    // Alto avec des croches de passage : 25 % de notes en plus que le soprano, comme dans un vrai choral.
+    const alto = voice('Voix 2', 65, 1)
+    alto.notes = alto.notes.flatMap((n, i) => (i % 4 === 3 ? [{ ...n, dur: 0.5 }, { start: n.start + 0.5, dur: 0.5, pitch: n.pitch + 2 }] : [n]))
+    const tracks = [voice('Voix 1', 72, 1), alto, voice('Voix 3', 57, 1), voice('Voix 4', 45, 1)]
+    expect(pickMelodyTrack(tracks)).toBe(0)
+  })
+
+  it('ne pénalise pas un saxophone alto ou ténor comme une voix de chœur', () => {
+    const t = (name: string, base: number) => ({ name, notes: Array.from({ length: 32 }, (_, i) => ({ start: i, dur: 1, pitch: base + [0, 2, 4, 5, 7, 5, 4, 2][i % 8]! })) })
+    expect(melodyScore(t('Tenor Sax', 67))).toBeCloseTo(melodyScore(t('Piste 1', 67)))
+    expect(melodyScore(t('Alto', 67))).toBeLessThan(melodyScore(t('Piste 1', 67)))
   })
 })

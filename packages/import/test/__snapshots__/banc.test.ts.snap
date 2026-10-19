@@ -1,0 +1,295 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`banc de tests sur de vrais fichiers > aird-fy-let-us-a-to-the-bridal.abc 1`] = `
+{
+  "anacrouse": 0.5,
+  "changementsSoufflet": 43,
+  "melodie": "Mélodie",
+  "mesure": "9/8",
+  "mesures": 16,
+  "notes": 146,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > aird-german-waltz.abc 1`] = `
+{
+  "anacrouse": 0.5,
+  "changementsSoufflet": 50,
+  "melodie": "Mélodie",
+  "mesure": "3/8",
+  "mesures": 65,
+  "notes": 218,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > aird-moon-and-seven-stars.abc 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 40,
+  "melodie": "Mélodie",
+  "mesure": "6/8",
+  "mesures": 32,
+  "notes": 158,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > aird-moon-and-seven-stars.mid 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 64,
+  "melodie": "Piste 1 · acoustic grand piano",
+  "mesure": "6/8",
+  "mesures": 48,
+  "notes": 238,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > aird-ranting-highlandman.abc 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 72,
+  "melodie": "Mélodie",
+  "mesure": "2/2",
+  "mesures": 32,
+  "notes": 168,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > aird-ross-castle.abc 1`] = `
+{
+  "anacrouse": 0.5,
+  "changementsSoufflet": 63,
+  "melodie": "Mélodie",
+  "mesure": "3/4",
+  "mesures": 24,
+  "notes": 200,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > aird-soldiers-joy.abc 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 36,
+  "melodie": "Mélodie",
+  "mesure": "2/2",
+  "mesures": 32,
+  "notes": 210,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > arrangement-acrobats-hornpipe.mid 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 40,
+  "melodie": "Violin",
+  "mesure": "2/2",
+  "mesures": 16,
+  "notes": 123,
+  "pistes": 4,
+  "remplacees": 6,
+  "transposition": 2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > auld-lang-syne.abc 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 12,
+  "melodie": "Mélodie",
+  "mesure": "4/4",
+  "mesures": 16,
+  "notes": 57,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > bach-bwv66-6.mid 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 13,
+  "melodie": "Soprano",
+  "mesure": "4/4",
+  "mesures": 9,
+  "notes": 36,
+  "pistes": 4,
+  "remplacees": 1,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > bach-bwv66-6.mxl 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 13,
+  "melodie": "Soprano",
+  "mesure": "4/4",
+  "mesures": 9,
+  "notes": 36,
+  "pistes": 4,
+  "remplacees": 1,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > bach-bwv269.musicxml 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 10,
+  "melodie": "Soprano",
+  "mesure": "3/4",
+  "mesures": 21,
+  "notes": 46,
+  "pistes": 4,
+  "remplacees": 0,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > foster-jeanie-light-brown-hair.mxl 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 34,
+  "melodie": "Partie 1",
+  "mesure": "4/4",
+  "mesures": 35,
+  "notes": 95,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": 7,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > handel-lascia-chio-pianga.xml 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 34,
+  "melodie": "Partie 1",
+  "mesure": "4/4",
+  "mesures": 44,
+  "notes": 164,
+  "pistes": 2,
+  "remplacees": 11,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > joplin-maple-leaf-rag.mid 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 75,
+  "melodie": "Piano",
+  "mesure": "2/4",
+  "mesures": 129,
+  "notes": 688,
+  "pistes": 2,
+  "remplacees": 26,
+  "transposition": -13,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > joplin-maple-leaf-rag.mxl 1`] = `
+{
+  "anacrouse": 0.5,
+  "changementsSoufflet": 72,
+  "melodie": "Piano",
+  "mesure": "2/4",
+  "mesures": 84,
+  "notes": 438,
+  "pistes": 1,
+  "remplacees": 23,
+  "transposition": -8,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > nottingham-cuckoos-nest.abc 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 68,
+  "melodie": "Mélodie",
+  "mesure": "4/4",
+  "mesures": 32,
+  "notes": 222,
+  "pistes": 2,
+  "remplacees": 4,
+  "transposition": 5,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > oneill-dan-rogers-jig.abc 1`] = `
+{
+  "anacrouse": 1.5,
+  "changementsSoufflet": 44,
+  "melodie": "Mélodie",
+  "mesure": "12/8",
+  "mesures": 16,
+  "notes": 174,
+  "pistes": 1,
+  "remplacees": 6,
+  "transposition": 0,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > oneill-enchanted-valley.abc 1`] = `
+{
+  "anacrouse": 0,
+  "changementsSoufflet": 24,
+  "melodie": "Mélodie",
+  "mesure": "2/4",
+  "mesures": 24,
+  "notes": 118,
+  "pistes": 1,
+  "remplacees": 1,
+  "transposition": 2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > oneill-i-leave-you-to-guess.abc 1`] = `
+{
+  "anacrouse": 1.5,
+  "changementsSoufflet": 4,
+  "melodie": "Mélodie",
+  "mesure": "5/4",
+  "mesures": 9,
+  "notes": 59,
+  "pistes": 1,
+  "remplacees": 0,
+  "transposition": -2,
+}
+`;
+
+exports[`banc de tests sur de vrais fichiers > ryan-acrobats-hornpipe.abc 1`] = `
+{
+  "anacrouse": 1,
+  "changementsSoufflet": 80,
+  "melodie": "Mélodie",
+  "mesure": "2/2",
+  "mesures": 32,
+  "notes": 246,
+  "pistes": 1,
+  "remplacees": 12,
+  "transposition": 2,
+}
+`;

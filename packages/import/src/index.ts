@@ -30,7 +30,7 @@ export function fromMusicXML(text: string, fallbackTitle = ''): Song {
   const doc = new DOMParser().parseFromString(text, 'application/xml')
   if (doc.querySelector('parsererror')) throw new Error('Le fichier MusicXML est illisible.')
   const names: Record<string, string> = {}
-  doc.querySelectorAll('score-part').forEach((sp) => (names[sp.id] = sp.querySelector('part-name')?.textContent ?? sp.id))
+  doc.querySelectorAll('score-part').forEach((sp) => (names[sp.id] = sp.querySelector('part-name')?.textContent?.trim() ?? ''))
   let meter: Meter | null = null
   let pickup = 0
   const tracks: Track[] = []
@@ -78,9 +78,15 @@ export function fromMusicXML(text: string, fallbackTitle = ''): Song {
         }
       }
       t = maxT
-      if (mi === 0 && pi === 0 && m.getAttribute('implicit') === 'yes') pickup = maxT - mStart
+      if (mi === 0 && pi === 0) {
+        // Levée : mesure marquée implicite, ou première mesure plus courte que la mesure indiquée.
+        const sig = meter as Meter | null
+        const full = sig ? (sig.num * 4) / sig.den : Infinity
+        const len = maxT - mStart
+        if (m.getAttribute('implicit') === 'yes' || (len > 1e-6 && len < full - 1e-6)) pickup = len
+      }
     })
-    if (notes.length) tracks.push({ name: names[part.id] ?? `Partie ${pi + 1}`, notes })
+    if (notes.length) tracks.push({ name: names[part.id] || `Partie ${pi + 1}`, notes })
   })
   const title = (doc.querySelector('work-title') ?? doc.querySelector('movement-title'))?.textContent?.trim() || fallbackTitle
   return { title, tracks, meter: meter ?? { num: 4, den: 4 }, pickup, tempo: 90 }
