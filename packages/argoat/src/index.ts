@@ -180,7 +180,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bot, ink: 'ink', width: 0.8 })
       // Altérations : un dièse vaut jusqu'à la barre, d'où un bécarre si la même ligne revient naturelle.
       const sharpened = new Map<number, Set<number>>()
-      const triplets = new Map<number, number[]>()
+      const triplets: { from: number; to: number; x: number; ey: number }[] = []
       arr.notes.forEach((n, ni) => {
         const nEnd = n.start + n.dur
         const own = inLine(n.start)
@@ -221,22 +221,32 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
               ops.push({ kind: 'line', x1: sx, y1: fy, x2: sx + 4.5, y2: fy + (up ? 6 : -6), ink, width: 1.1 })
             }
             if (pc.triplet) {
-              const beatIdx = Math.floor(pc.t / arr.meter.beat + 1e-6)
-              const g = triplets.get(beatIdx) ?? []
-              g.push(x, ey)
-              triplets.set(beatIdx, g)
+              // Étendue du groupe : une noire pour des croches de triolet, une blanche pour des noires de triolet,
+              // comptée depuis le début de la mesure.
+              const span = pc.shape === 1 ? 2 : 1
+              const barStart = arr.pickup + Math.floor((pc.t - arr.pickup) / arr.meter.barLength + 1e-6) * arr.meter.barLength
+              const from = barStart + Math.floor((pc.t - barStart) / span + 1e-6) * span
+              triplets.push({ from, to: from + span, x, ey })
             }
           }
           // Liaison avec la figure précédente de la même note (côté opposé à la hampe).
           if (prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, x - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
           prevX = x
         })
+        // La note continue sur la ligne suivante : liaison jusqu'au bord droit.
+        if (nEnd > end + 1e-6 && prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, width - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
       })
-      // Un « 3 » au-dessus de chaque groupe de triolet (un groupe par temps).
-      for (const g of triplets.values()) {
-        const xs = g.filter((_, i) => i % 2 === 0)
-        const ys = g.filter((_, i) => i % 2 === 1)
-        ops.push({ kind: 'text', x: (Math.min(...xs) + Math.max(...xs)) / 2 + 2, y: Math.min(...ys, top) - 3, text: '3', ink: 'ink', size: 8, bold: true, anchor: 'middle' })
+      // Un « 3 » par groupe de triolet ; les groupes qui se chevauchent (figures mêlées) n'en font qu'un.
+      triplets.sort((a, c) => a.from - c.from)
+      const groups: (typeof triplets)[] = []
+      for (const tr of triplets) {
+        const last = groups.at(-1)
+        if (last && tr.from < Math.max(...last.map((g) => g.to)) - 1e-6) last.push(tr)
+        else groups.push([tr])
+      }
+      for (const g of groups) {
+        const xs = g.map((tr) => tr.x)
+        ops.push({ kind: 'text', x: (Math.min(...xs) + Math.max(...xs)) / 2 + 2, y: Math.min(...g.map((tr) => tr.ey), top) - 3, text: '3', ink: 'ink', size: 8, bold: true, anchor: 'middle' })
       }
     }
 
