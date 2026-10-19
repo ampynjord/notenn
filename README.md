@@ -1,0 +1,33 @@
+# Notenn
+
+Application web qui transforme une partition, un MIDI ou un enregistrement en tablature, avec curseur de lecture et export PDF. Première cible : l'accordéon diatonique, avec le **Système Argoat** (tablature gestuelle pour accordéon diatonique).
+
+Projet privé — tous droits réservés.
+
+## Contenu du dépôt
+
+| Dossier | Contenu |
+| --- | --- |
+| `docs/` | Plan du projet, définition du Système Argoat, plan de clavier Hohner 2915 |
+| `prototype/` | Prototype fonctionnel en une page HTML (import MIDI/MusicXML/ABC, doigté, basses, portée, curseur, PDF) |
+
+Le prototype s'ouvre directement dans un navigateur : `prototype/systeme-argoat.html`.
+
+## Stack prévue
+
+- Next.js (React, TypeScript), application web installable (PWA)
+- Payload CMS 3 intégré à Next.js
+- PostgreSQL
+- Hébergement sur VPS : Docker + Traefik
+- Plus tard : service Python séparé pour la lecture de partitions (photo/PDF)
+
+## Feuille de route
+
+| Phase | Contenu |
+| --- | --- |
+| 0 · Moteur universel | Moteur TypeScript multi-instruments et multi-voix, projet Next.js + Payload, banc de tests sur vrais fichiers |
+| 1 · V1 | Accordéon diatonique, Système Argoat, import MIDI/MusicXML/ABC/MP3, export PDF, FR + EN, dons |
+| 2 · Mois suivants | Autres instruments, Corgeron et CADB, comptes et communauté, exports MIDI/MusicXML/PNG |
+| 3 · Ensuite | Photo/PDF de partition, paiement à l'usage, groupes et classes, duos et paroles |
+
+Détail complet : [`docs/plan.md`](docs/plan.md).
