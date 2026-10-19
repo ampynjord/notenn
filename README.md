@@ -8,7 +8,7 @@ Projet privé — tous droits réservés.
 
 | Dossier | Contenu |
 | --- | --- |
-| `docs/` | Plan du projet, définition du Système Argoat, plan de clavier Hohner 2915 |
+| `docs/` | Plan du projet, définition du Système Argoat, format des profils d'instruments, plan de clavier Hohner 2915 |
 | `apps/web/` | Application Next.js + Payload CMS 3 (PostgreSQL) |
 | `packages/engine/` | Moteur musical TypeScript : mélodie, transposition, doigté, basses, profils de claviers |
 | `packages/argoat/` | Mise en page du Système Argoat (portée, lignes P/T, basses), indépendante du support |
