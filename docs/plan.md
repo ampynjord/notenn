@@ -27,14 +27,14 @@ Document de référence vivant : le plan détaillé est tenu dans le doc « Plan
 | Exports | PDF, MIDI, MusicXML, PNG, lien de partage |
 | Impression | Taille réglable, mise en page, couleur ou N&B, livret avec sommaire |
 | Édition | Bouton/rang/soufflet au clic, préférences de jeu, annotations, historique des versions |
-| Voix | Mélodie + basses, accords main droite ; duos et paroles plus tard (moteur multi-voix dès la phase 0, sans changer l'affichage) |
+| Voix | Mélodie + basses ; moteur multi-voix en place (phase 0) ; accords main droite, duos et paroles dans les phases suivantes |
 | Bibliothèque | Domaine public, trad, licences libres, créations des membres ; tout membre propose, des membres de confiance valident ; classée par instrument, région/style, niveau ; recherche |
 | Communauté | Comptes, favoris, partage, notes, commentaires, corrections ; modération par membres de confiance |
 | Connexion | E-mail + mot de passe d'abord, Google et Apple ensuite ; atelier utilisable sans compte ; bêta sans comptes |
 | Hors ligne | Favoris jouables sans internet |
 | Organisation | Répertoires (setlists), mode scène ; groupes et classes plus tard |
-| Paiement | Dons via plateforme sans frais fixes ; paiement à l'usage via Stripe pour toute fonction très coûteuse en argent ou en ressources serveur (photo/PDF de partition en tête) |
-| Statistiques | Suivi complet, bandeau de consentement RGPD |
+| Paiement | Dons via Liberapay ; paiement à l'usage via Stripe pour toute fonction très coûteuse en argent ou en ressources serveur (photo/PDF de partition en tête) |
+| Statistiques | Umami auto-hébergé, sans cookie |
 | Style | Sobre et moderne |
 | Langues | Interface en français et en anglais, adresses /fr/… et /en/… ; code, structure, commentaires et tests en anglais |
 
@@ -65,10 +65,10 @@ Protection du code : build minifié et obscurci, calculs sensibles côté serveu
 
 | Domaine | 0 · Moteur universel | 1 · V1 | 2 · Mois suivants | 3 · Ensuite |
 | --- | --- | --- | --- | --- |
-| Technique | Moteur multi-instruments/multi-voix ; Next.js + Payload + PostgreSQL sur VPS ; banc de tests | PWA ; statistiques + consentement | Synchro hors ligne des favoris | Service Python partitions |
+| Technique | Moteur multi-instruments/multi-voix ; Next.js + Payload + PostgreSQL sur VPS ; banc de tests | PWA ; statistiques Umami sans cookie (pas de bandeau) | Synchro hors ligne des favoris | Service Python partitions |
 | Instruments | Format des profils, Hohner 2915 | Diatonique : Sol/Do 2 rangs courants, autres tonalités (La/Ré, Do/Fa…), 3 rangs | D'abord accordéon chromatique / piano, guitare, ukulélé ; puis harmonica, concertina ; éditeur de clavier | Saxophone, flûtes (tin whistle, flûte à bec), bombarde / biniou, piano |
 | Imports | MIDI, MusicXML, ABC | Choix de piste, plage, transposition ; MP3 juste après la bêta | Saisie à la main | Photo/PDF de partition (en premier de la phase) |
-| Tablature | Doigté, basses ; moteur multi-voix | Système Argoat (avec 3e rang) ; portée ; accords main droite | Corgeron, CADB ; annotations | Duos, paroles |
+| Tablature | Doigté, basses ; moteur multi-voix | Système Argoat (avec 3e rang) ; portée | Corgeron, CADB ; annotations ; accords main droite | Duos, paroles |
 | Pratique | | Curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte | Clavier animé, mode scène | (Micro, mis de côté) |
 | Édition | | Bouton/rang/soufflet au clic (dans la bêta) ; préférences | Historique des versions | |
 | Exports | | PDF : avec ou sans portée, mesures par ligne, couleur ou N&B | MIDI, MusicXML, PNG, lien | Livret |
@@ -90,8 +90,22 @@ Tests seul sur le Hohner, puis bêta ouverte marquée « bêta » ; bouche-à-or
 - [x] Préparer le déploiement VPS (Docker, Traefik, HTTPS, sauvegardes) — reste la mise en ligne (deploy/README.md)
 - [x] Extraire le moteur du prototype en module TypeScript
 - [x] Définir le format JSON des profils d'instruments, y décrire le Hohner 2915
-- [ ] Prévoir plusieurs voix et accords main droite dans le moteur
+- [x] Prévoir plusieurs voix dans le moteur (accords main droite affichés plus tard)
 - [x] Banc de tests : une vingtaine de vrais fichiers MIDI, MusicXML, ABC
 - [x] Tests automatiques du moteur (lecture, choix de piste, doigté, basses)
 - [x] Porter le rendu Système Argoat dans le nouveau projet
 - [ ] e-Soleau du Système Argoat une fois finalisé
+
+## Phase 1 (bêta) — fait
+
+- [x] Claviers : Hohner 2915, Sol/Do standard, Ré/Sol, La/Ré, Do/Fa, Sib/Mib, Sol/Do/Fa 3 rangs (à vérifier sur instruments réels)
+- [x] Atelier : choix de piste, passage, transposition, clavier et rangs, portée, basses
+- [x] Pratique : curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte
+- [x] Édition au clic (bouton, rang, soufflet) et préférences mémorisées
+- [x] Export PDF : avec ou sans portée, mesures par ligne, couleur ou N&B
+- [x] Bibliothèque de 20 airs libres (à compléter avec des airs bretons)
+- [x] Site : accueil, Système Argoat, airs, soutenir (Liberapay), confidentialité, mentions légales, FR/EN
+- [x] PWA (installable, atelier hors ligne) et statistiques Umami
+- [ ] Ouvrir le compte Liberapay « notenn » et l'adresse de contact
+- [ ] Lancer Umami sur le VPS (deploy/README.md)
+

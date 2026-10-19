@@ -7,6 +7,9 @@ import React from 'react'
 import '@fontsource/atkinson-hyperlegible/400.css'
 import '@fontsource/atkinson-hyperlegible/700.css'
 
+import Script from 'next/script'
+
+import { ServiceWorker } from '@/components/ServiceWorker'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
 import { routing } from '@/i18n/routing'
@@ -22,7 +25,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Omit<Props, 'children'>): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return { title: { default: t('title'), template: `%s · ${t('title')}` }, description: t('description'), metadataBase: new URL(SITE.url) }
+  return {
+    title: { default: t('title'), template: `%s · ${t('title')}` },
+    description: t('description'),
+    metadataBase: new URL(SITE.url),
+    manifest: '/manifest.webmanifest',
+    icons: { icon: '/icons/favicon-32.png', apple: '/icons/apple-touch-icon.png' },
+  }
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
@@ -40,6 +49,8 @@ export default async function LocaleLayout({ children, params }: Props) {
           <SiteHeader />
           <main id="content">{children}</main>
           <SiteFooter />
+          <ServiceWorker />
+          <Script src="/stats.js" strategy="afterInteractive" />
         </NextIntlClientProvider>
       </body>
     </html>
