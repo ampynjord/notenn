@@ -4,6 +4,9 @@ import { bestTranspose, nearestPlayable, playablePitches } from './keyboard'
 import { extractLowerVoices, extractMelody, meterInfo, pickMelodyTrack } from './melody'
 import type { Arrangement, ArrangeOptions, InstrumentProfile, PlacedNote, Song } from './types'
 
+/** Stable key of a melody note, used to remember a fingering chosen by hand. */
+export const noteKey = (start: number) => start.toFixed(4)
+
 export * from './types'
 export { extractLowerVoices, extractMelody, meterInfo, melodyScore, pickMelodyTrack, snap } from './melody'
 export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from './keyboard'
@@ -60,8 +63,14 @@ export function arrange(song: Song, profile: InstrumentProfile, options: Arrange
     pitches: [m.pitch, ...lower.flatMap((v) => v.filter((n) => n.start === m.start && n.pitch < m.pitch).map((n) => n.pitch))],
   }))
 
-  const fingered = chooseGroupFingering(groups, profile, rows, meter, song.pickup)
-  const notes: PlacedNote[] = melodyNotes.map((n, i) => ({ ...n, fingering: fingered[i]![0]!, voice: 0 }))
+  const fixed = groups.map((g) => options.fingerings?.[noteKey(g.start)])
+  const fingered = chooseGroupFingering(groups, profile, rows, meter, song.pickup, fixed)
+  const notes: PlacedNote[] = melodyNotes.map((n, i) => {
+    const f = fingered[i]![0]!
+    const c = fixed[i]
+    const edited = !!c && f.row === c.row && f.button === c.button && f.bellows === c.bellows
+    return { ...n, fingering: f, voice: 0, ...(edited ? { edited } : {}) }
+  })
   const voices: PlacedNote[][] = [notes, ...lower.map(() => [] as PlacedNote[])]
   let droppedCount = 0
   groups.forEach((g, i) => {

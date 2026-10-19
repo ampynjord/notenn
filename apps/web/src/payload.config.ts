@@ -1,4 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { en } from '@payloadcms/translations/languages/en'
+import { fr } from '@payloadcms/translations/languages/fr'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -7,6 +9,7 @@ import sharp from 'sharp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Tunes } from './collections/Tunes'
 import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
@@ -19,7 +22,10 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Tunes, Media, Users],
+  // Content in both interface languages; the administration itself in French or English.
+  localization: { locales: ['fr', 'en'], defaultLocale: 'fr', fallback: true },
+  i18n: { supportedLanguages: { fr, en }, fallbackLanguage: 'fr' },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

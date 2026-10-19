@@ -7,6 +7,12 @@ export const routing = defineRouting({
   pathnames: {
     '/': '/',
     '/workshop': { fr: '/atelier', en: '/workshop' },
+    '/tunes': { fr: '/airs', en: '/tunes' },
+    '/tunes/[slug]': { fr: '/airs/[slug]', en: '/tunes/[slug]' },
+    '/notation': { fr: '/systeme-argoat', en: '/systeme-argoat' },
+    '/support': { fr: '/soutenir', en: '/support' },
+    '/privacy': { fr: '/confidentialite', en: '/privacy' },
+    '/legal': { fr: '/mentions-legales', en: '/legal-notice' },
   },
 })
 
