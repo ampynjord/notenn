@@ -12,6 +12,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json apps/web/.npmrc apps/web/
 COPY packages/engine/package.json packages/engine/
 COPY packages/argoat/package.json packages/argoat/
+COPY packages/import/package.json packages/import/
 RUN pnpm install --frozen-lockfile
 
 # Build Next.js (sortie standalone)

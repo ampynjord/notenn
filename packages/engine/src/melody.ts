@@ -46,18 +46,25 @@ export function melodyScore(track: Track): number {
   score *= avg >= 58 && avg <= 86 ? 1 : avg >= 52 && avg <= 92 ? 0.55 : 0.2
   score *= repeats / Math.max(1, n - 1) > 0.6 ? 0.45 : 1
   const name = track.name.toLowerCase()
-  if (/melod|mélod|lead|right|droite|vocal|voice|voix|chant|solo|flute|flûte|whistle|violin/.test(name)) score *= 1.6
+  if (/melod|mélod|lead|right|droite|vocal|voice|voix|chant|solo|flute|flûte|whistle|violin|soprano|sopran|cantus|treble|dessus/.test(name)) score *= 1.6
+  if (/\balto\b|tenor|ténor/.test(name)) score *= 0.7
   if (/bass|basse|left|gauche|drum|batt|perc|pad|chord|accord|accomp|string/.test(name)) score *= 0.45
   return score
 }
 
-/** Piste mélodie la plus probable ; à score égal (pistes courtes), celle qui a le plus de notes. Les pistes vides sont ignorées. */
+/**
+ * Piste mélodie la plus probable ; à score égal (pistes courtes), celle qui a le plus de notes. Les pistes vides
+ * sont ignorées. Parmi des voix qui jouent ensemble (choral, chœur), la mélodie est en général la plus aiguë :
+ * la piste au registre moyen le plus haut reçoit un bonus.
+ */
 export function pickMelodyTrack(tracks: Track[]): number {
   let best = 0
   let bestScore = -1
+  const avg = tracks.map((t) => (t.notes.length ? t.notes.reduce((a, x) => a + x.pitch, 0) / t.notes.length : -Infinity))
+  const highest = avg.indexOf(Math.max(...avg))
   tracks.forEach((t, i) => {
     if (!t.notes.length) return
-    const s = melodyScore(t) + t.notes.length * 1e-6
+    const s = melodyScore(t) * (i === highest ? 1.25 : 1) + t.notes.length * 1e-6
     if (s > bestScore) {
       bestScore = s
       best = i
