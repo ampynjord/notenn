@@ -16,6 +16,9 @@ importers:
       '@notenn/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@notenn/import':
+        specifier: workspace:*
+        version: link:../../packages/import
       '@payloadcms/db-postgres':
         specifier: 3.91.0
         version: 3.91.0(payload@3.91.0(graphql@16.14.2)(typescript@5.7.3))
@@ -28,12 +31,6 @@ importers:
       '@payloadcms/ui':
         specifier: 3.91.0
         version: 3.91.0(@types/react@19.2.14)(monaco-editor@0.57.0)(next@16.3.3(@babel/core@7.29.7)(@playwright/test@1.58.2)(@types/node@22.19.9)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4))(payload@3.91.0(graphql@16.14.2)(typescript@5.7.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.7.3)
-      '@tonejs/midi':
-        specifier: 2.0.28
-        version: 2.0.28
-      abcjs:
-        specifier: 6.4.4
-        version: 6.4.4
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -43,9 +40,6 @@ importers:
       graphql:
         specifier: ^16.8.1
         version: 16.14.2
-      jszip:
-        specifier: 3.10.1
-        version: 3.10.1
       next:
         specifier: 16.3.3
         version: 16.3.3(@babel/core@7.29.7)(@playwright/test@1.58.2)(@types/node@22.19.9)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4)
@@ -103,7 +97,7 @@ importers:
         version: 6.0.5(typescript@5.7.3)(vite@7.3.7(@types/node@22.19.9)(sass@1.77.4)(tsx@4.23.15))
       vitest:
         specifier: 4.0.18
-        version: 4.0.18(@types/node@22.19.9)(happy-dom@20.14.6)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
+        version: 4.0.18(@types/node@22.19.9)(happy-dom@21.0.3)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
 
   packages/argoat:
     dependencies:
@@ -116,7 +110,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: 4.0.18
-        version: 4.0.18(@types/node@22.19.9)(happy-dom@20.14.6)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
+        version: 4.0.18(@types/node@22.19.9)(happy-dom@21.0.3)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
 
   packages/engine:
     devDependencies:
@@ -125,7 +119,38 @@ importers:
         version: 5.7.3
       vitest:
         specifier: 4.0.18
-        version: 4.0.18(@types/node@22.19.9)(happy-dom@20.14.6)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
+        version: 4.0.18(@types/node@22.19.9)(happy-dom@21.0.3)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
+
+  packages/import:
+    dependencies:
+      '@notenn/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@tonejs/midi':
+        specifier: 2.0.28
+        version: 2.0.28
+      abcjs:
+        specifier: 6.4.4
+        version: 6.4.4
+      jszip:
+        specifier: 3.10.1
+        version: 3.10.1
+    devDependencies:
+      '@notenn/argoat':
+        specifier: workspace:*
+        version: link:../argoat
+      '@types/node':
+        specifier: 22.19.1
+        version: 22.19.1
+      happy-dom:
+        specifier: 21.0.3
+        version: 21.0.3
+      typescript:
+        specifier: 5.7.3
+        version: 5.7.3
+      vitest:
+        specifier: 4.0.18
+        version: 4.0.18(@types/node@22.19.1)(happy-dom@21.0.3)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15)
 
 packages:
 
@@ -1665,6 +1690,9 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
+  '@types/node@22.19.1':
+    resolution: {integrity: sha512-LCCV0HdSZZZb34qifBsyWlUmok6W7ouER+oQIGBScS8EsZsQbrtFTUrDX4hOl+CS6p7cnNC4td+qrSVGSCTUfQ==}
+
   '@types/node@22.19.9':
     resolution: {integrity: sha512-PD03/U8g1F9T9MI+1OBisaIARhSzeidsUjQaf51fOxrfjeiKN9bLVO06lHuHYjxdnqLWJijJHfqXPSJri2EM2A==}
 
@@ -2785,6 +2813,10 @@ packages:
 
   happy-dom@20.14.6:
     resolution: {integrity: sha512-5DDsf4QmEIlRL6NkCv/fxSjYHHkZceL/IaYQdJc2h3G7DRTEai++VTjbfL0LB9geW2VrA3+vrjF3Efx+OTtX0Q==}
+    engines: {node: '>=20.0.0'}
+
+  happy-dom@21.0.3:
+    resolution: {integrity: sha512-PesNgu5BnIEmAwzKGewB3K1ORFeznFZJ4JrRz89ea1wkHnxskdpzX9sN/+zb4KO6k8oSMhyJSj/cwXAFrYBBNA==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
@@ -5795,6 +5827,10 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
+  '@types/node@22.19.1':
+    dependencies:
+      undici-types: 6.21.0
+
   '@types/node@22.19.9':
     dependencies:
       undici-types: 6.21.0
@@ -6012,6 +6048,14 @@ snapshots:
       '@vitest/utils': 4.0.18
       chai: 6.3.0
       tinyrainbow: 3.2.0
+
+  '@vitest/mocker@4.0.18(vite@7.3.7(@types/node@22.19.1)(sass@1.77.4)(tsx@4.23.15))':
+    dependencies:
+      '@vitest/spy': 4.0.18
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.7(@types/node@22.19.1)(sass@1.77.4)(tsx@4.23.15)
 
   '@vitest/mocker@4.0.18(vite@7.3.7(@types/node@22.19.9)(sass@1.77.4)(tsx@4.23.15))':
     dependencies:
@@ -7061,6 +7105,19 @@ snapshots:
   graphql@16.14.2: {}
 
   happy-dom@20.14.6:
+    dependencies:
+      '@types/node': 22.19.9
+      '@types/whatwg-mimetype': 3.0.2
+      '@types/ws': 8.18.2
+      buffer-image-size: 0.6.4
+      entities: 7.0.1
+      whatwg-mimetype: 3.0.0
+      ws: 8.22.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  happy-dom@21.0.3:
     dependencies:
       '@types/node': 22.19.9
       '@types/whatwg-mimetype': 3.0.2
@@ -8736,6 +8793,20 @@ snapshots:
       - supports-color
       - typescript
 
+  vite@7.3.7(@types/node@22.19.1)(sass@1.77.4)(tsx@4.23.15):
+    dependencies:
+      esbuild: 0.28.2
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
+      postcss: 8.5.31
+      rollup: 4.64.10
+      tinyglobby: 0.2.17
+    optionalDependencies:
+      '@types/node': 22.19.1
+      fsevents: 2.3.3
+      sass: 1.77.4
+      tsx: 4.23.15
+
   vite@7.3.7(@types/node@22.19.9)(sass@1.77.4)(tsx@4.23.15):
     dependencies:
       esbuild: 0.28.2
@@ -8750,7 +8821,46 @@ snapshots:
       sass: 1.77.4
       tsx: 4.23.15
 
-  vitest@4.0.18(@types/node@22.19.9)(happy-dom@20.14.6)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15):
+  vitest@4.0.18(@types/node@22.19.1)(happy-dom@21.0.3)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15):
+    dependencies:
+      '@vitest/expect': 4.0.18
+      '@vitest/mocker': 4.0.18(vite@7.3.7(@types/node@22.19.1)(sass@1.77.4)(tsx@4.23.15))
+      '@vitest/pretty-format': 4.0.18
+      '@vitest/runner': 4.0.18
+      '@vitest/snapshot': 4.0.18
+      '@vitest/spy': 4.0.18
+      '@vitest/utils': 4.0.18
+      es-module-lexer: 1.7.0
+      expect-type: 1.4.0
+      magic-string: 0.30.21
+      obug: 2.2.1
+      pathe: 2.0.3
+      picomatch: 4.0.7
+      std-env: 3.10.0
+      tinybench: 2.9.0
+      tinyexec: 1.3.1
+      tinyglobby: 0.2.17
+      tinyrainbow: 3.2.0
+      vite: 7.3.7(@types/node@22.19.1)(sass@1.77.4)(tsx@4.23.15)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 22.19.1
+      happy-dom: 21.0.3
+      jsdom: 28.0.0
+    transitivePeerDependencies:
+      - jiti
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
+
+  vitest@4.0.18(@types/node@22.19.9)(happy-dom@21.0.3)(jsdom@28.0.0)(sass@1.77.4)(tsx@4.23.15):
     dependencies:
       '@vitest/expect': 4.0.18
       '@vitest/mocker': 4.0.18(vite@7.3.7(@types/node@22.19.9)(sass@1.77.4)(tsx@4.23.15))
@@ -8774,7 +8884,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.19.9
-      happy-dom: 20.14.6
+      happy-dom: 21.0.3
       jsdom: 28.0.0
     transitivePeerDependencies:
       - jiti

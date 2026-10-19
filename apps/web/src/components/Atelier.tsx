@@ -4,7 +4,7 @@ import { layout } from '@notenn/argoat'
 import { arrange, hohner2915GC, meterInfo, pickMelodyTrack, type Song } from '@notenn/engine'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
-import { fromAbc, fromFile } from '@/lib/import'
+import { fromAbc, fromFile } from '@notenn/import'
 import { play, type Playback } from '@/lib/player'
 import { ArgoatSheet, type Cursor } from './ArgoatSheet'
 

@@ -84,14 +84,14 @@ Tests seul sur le Hohner, puis bêta ouverte marquée « bêta » ; bouche-à-or
 ## Tâches de la phase 0
 
 - [ ] Vérifier « Argoat » et « Notenn » sur data.inpi.fr (classes 9, 15, 41, 42)
-- [ ] Réserver le sous-domaine (ex. notenn.ampynjord.bzh)
+- [x] Choisir le sous-domaine : notenn.ampynjord.bzh (enregistrement DNS à créer)
 - [x] Créer le dépôt Git privé
 - [x] Créer le projet Next.js + Payload CMS 3 + PostgreSQL
-- [ ] Préparer le déploiement VPS (Docker, Traefik, HTTPS, sauvegardes)
+- [x] Préparer le déploiement VPS (Docker, Traefik, HTTPS, sauvegardes) — reste la mise en ligne (deploy/README.md)
 - [x] Extraire le moteur du prototype en module TypeScript
 - [x] Définir le format JSON des profils d'instruments, y décrire le Hohner 2915
 - [ ] Prévoir plusieurs voix et accords main droite dans le moteur
-- [ ] Banc de tests : une vingtaine de vrais fichiers MIDI, MusicXML, ABC
-- [ ] Tests automatiques du moteur (lecture, choix de piste, doigté, basses) — doigté, basses, mesures et profils couverts ; lecture des fichiers à couvrir avec le banc de tests
+- [x] Banc de tests : une vingtaine de vrais fichiers MIDI, MusicXML, ABC
+- [x] Tests automatiques du moteur (lecture, choix de piste, doigté, basses)
 - [x] Porter le rendu Système Argoat dans le nouveau projet
 - [ ] e-Soleau du Système Argoat une fois finalisé
