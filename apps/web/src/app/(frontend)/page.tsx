@@ -13,6 +13,7 @@ export default function HomePage() {
           {hohner2915GC.bassGroups.length * 2} basses).
         </p>
         <div className="links">
+          <a href="/atelier">Ouvrir l’atelier</a>
           <a className="admin" href="/admin">
             Administration
           </a>
