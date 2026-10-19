@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { useAccount } from './account'
 
@@ -53,20 +53,17 @@ export function sanitizePreferences(raw: unknown): Partial<Preferences> {
 export function usePreferences(): [Preferences, (patch: Partial<Preferences>) => void] {
   const { member, saveSettings } = useAccount()
   const [prefs, setPrefs] = useState(DEFAULT_PREFERENCES)
-  const loadedFor = useRef<number | null>(null)
+  const [loadedFor, setLoadedFor] = useState<number | null>(null)
 
-  // The account's settings are applied once, when the member is known.
-  useEffect(() => {
-    if (!member || loadedFor.current === member.id) return
-    loadedFor.current = member.id
+  // The account's settings are applied once, as soon as the member is known (during render,
+  // so the first drawing already uses them).
+  if (member && loadedFor !== member.id) {
+    setLoadedFor(member.id)
     setPrefs({ ...DEFAULT_PREFERENCES, ...sanitizePreferences(member.settings) })
-  }, [member])
+  }
 
-  const current = useRef(prefs)
-  current.current = prefs
   const update = (patch: Partial<Preferences>) => {
-    const next = { ...current.current, ...patch }
-    current.current = next
+    const next = { ...prefs, ...patch }
     setPrefs(next)
     if (member) saveSettings(next as unknown as Record<string, unknown>)
   }

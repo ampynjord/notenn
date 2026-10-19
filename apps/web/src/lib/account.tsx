@@ -84,15 +84,23 @@ const AccountContext = createContext<AccountState>({
 export function AccountProvider({ children }: { children: React.ReactNode }) {
   const [member, setMember] = useState<Member | null | undefined>(undefined)
 
-  const refresh = useCallback(async () => {
-    try {
-      const res = await api<{ user: Member | null }>('/members/me')
-      setMember(res.user ?? null)
-    } catch {
-      setMember(null)
+  const refresh = useCallback(
+    () =>
+      api<{ user: Member | null }>('/members/me')
+        .then((res) => setMember(res.user ?? null))
+        .catch(() => setMember(null)),
+    [],
+  )
+  // Who is signed in, once per page load.
+  useEffect(() => {
+    let alive = true
+    api<{ user: Member | null }>('/members/me')
+      .then((res) => alive && setMember(res.user ?? null))
+      .catch(() => alive && setMember(null))
+    return () => {
+      alive = false
     }
   }, [])
-  useEffect(() => void refresh(), [refresh])
 
   const logout = useCallback(async () => {
     await api('/members/logout', { method: 'POST' }).catch(() => {})
