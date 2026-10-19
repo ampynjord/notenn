@@ -4,8 +4,13 @@
 set -eu
 sauvegarder() {
   d=$(date +%Y-%m-%d_%H%M)
-  pg_dump -Fc -f "/sauvegardes/notenn_$d.dump.tmp" && mv "/sauvegardes/notenn_$d.dump.tmp" "/sauvegardes/notenn_$d.dump"
-  tar -czf "/sauvegardes/medias_$d.tar.gz" -C /data media
+  # Commandes séparées : au moindre échec, set -e arrête le script avant la purge (les anciennes sauvegardes
+  # restent) et Docker relance le conteneur.
+  rm -f /sauvegardes/*.tmp
+  pg_dump -Fc -f "/sauvegardes/notenn_$d.dump.tmp"
+  mv "/sauvegardes/notenn_$d.dump.tmp" "/sauvegardes/notenn_$d.dump"
+  tar -czf "/sauvegardes/medias_$d.tar.gz.tmp" -C /data media
+  mv "/sauvegardes/medias_$d.tar.gz.tmp" "/sauvegardes/medias_$d.tar.gz"
   find /sauvegardes -name 'notenn_*.dump' -mtime +"$KEEP_DAYS" -delete
   find /sauvegardes -name 'medias_*.tar.gz' -mtime +"$KEEP_DAYS" -delete
   echo "Sauvegarde $d faite"

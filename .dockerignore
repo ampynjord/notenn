@@ -1,0 +1,12 @@
+# Jamais dans l'image ni dans le cache de construction : secrets, sauvegardes, fichiers locaux.
+**/.env
+**/.env.*
+!**/.env.example
+deploy/sauvegardes
+**/node_modules
+**/.next
+.git
+media
+apps/web/media
+prototype
+docs
