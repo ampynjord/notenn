@@ -1,29 +1,55 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import React from 'react'
+import { useParams } from 'next/navigation'
+import React, { useState } from 'react'
 
 import { Link, usePathname } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 
-/** Site name, main links and the language switch (same page in the other language). */
+/** Site name, main sections and the language switch (same page in the other language). */
 export function SiteHeader() {
   const t = useTranslations('nav')
   const locale = useLocale()
   const pathname = usePathname()
+  const params = useParams()
   const other = routing.locales.find((l) => l !== locale) ?? routing.defaultLocale
+  const [open, setOpen] = useState(false)
+  const current = (href: string) => (pathname === href || pathname.startsWith(`${href}/`) ? 'page' : undefined)
+  // Dynamic routes (a tune page) need their params to be rebuilt in the other language.
+  const here = (params.slug ? { pathname, params: { slug: String(params.slug) } } : pathname) as never
 
   return (
     <header className="site-header">
-      <Link href="/" className="brand">
-        Notenn
-      </Link>
-      <nav aria-label={t('home')}>
-        <Link href="/workshop">{t('workshop')}</Link>
-        <Link href={pathname} locale={other} hrefLang={other} aria-label={t('language')}>
-          {t('switchTo')}
+      <div className="bar">
+        <Link href="/" className="brand" aria-label={t('home')}>
+          <span className="mark" aria-hidden="true">
+            <span className="p">P</span>
+            <span className="t">{locale === 'fr' ? 'T' : 'D'}</span>
+          </span>
+          Notenn
         </Link>
-      </nav>
+        <button type="button" className="menu" aria-expanded={open} aria-controls="site-nav" onClick={() => setOpen(!open)}>
+          {t('menu')}
+        </button>
+        <nav id="site-nav" className={open ? 'open' : undefined} aria-label={t('main')} onClick={() => setOpen(false)}>
+          <Link href="/workshop" aria-current={current('/workshop')}>
+            {t('workshop')}
+          </Link>
+          <Link href="/tunes" aria-current={current('/tunes')}>
+            {t('tunes')}
+          </Link>
+          <Link href="/notation" aria-current={current('/notation')}>
+            {t('notation')}
+          </Link>
+          <Link href="/support" aria-current={current('/support')} className="support">
+            {t('support')}
+          </Link>
+          <Link href={here} locale={other} hrefLang={other} lang={other} className="lang">
+            {t('switchTo')}
+          </Link>
+        </nav>
+      </div>
     </header>
   )
 }

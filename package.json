@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "pnpm --filter @notenn/web dev",
     "build": "pnpm --filter @notenn/web build",
-    "test": "pnpm -r --filter './packages/*' test",
+    "test": "pnpm -r --filter './packages/*' test && pnpm --filter @notenn/web test:unit",
     "typecheck": "pnpm -r --if-present typecheck",
     "db:up": "docker compose -f docker-compose.dev.yml up -d"
   }

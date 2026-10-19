@@ -61,6 +61,15 @@ describe('test bench on real files', () => {
       if (sounding) expect(b.bellows).toBe(sounding.fingering.bellows)
     }
 
+    // Two right-hand voices: the melody does not change, every second-voice note is playable with it.
+    const two = arrange(song, hohner2915GC, { voices: 2 })
+    expect(two.notes.map((n) => n.pitch)).toEqual(arr.notes.map((n) => n.pitch))
+    for (const n of two.voices[1] ?? []) {
+      const m = two.notes.find((x) => x.start === n.start)!
+      expect(n.pitch).toBeLessThan(m.pitch)
+      expect(n.fingering.bellows).toBe(m.fingering.bellows)
+    }
+
     const lines = layout(arr, hohner2915GC, song.meter, { staff: true })
     expect(lines[0]!.firstBar).toBe(arr.fromBar)
     expect(lines.at(-1)!.lastBar).toBe(arr.toBar)
