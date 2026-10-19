@@ -80,6 +80,9 @@ export function Atelier() {
     }
   }, [song, track, rows, fromBar, toBar, transpose, bass, staff])
 
+  // Un changement de réglage recalcule la partition : la lecture en cours n'y correspond plus.
+  useEffect(() => stop(), [result, tempo])
+
   function stop() {
     cancelAnimationFrame(raf.current)
     playback.current?.stop()
@@ -96,10 +99,10 @@ export function Atelier() {
     const tick = () => {
       const t = pb.position()
       if (t > pb.endsAt + 0.2) return stop()
-      let note = -1
-      for (let i = 0; i < arr.notes.length; i++) if (arr.notes[i]!.start <= t + 1e-6) note = i
-      let b = -1
-      for (let i = 0; i < arr.bass.length; i++) if (arr.bass[i]!.time <= t + 1e-6) b = i
+      // Seuls les événements qui sonnent encore restent surlignés (rien pendant les silences).
+      const note = arr.notes.findIndex((n) => n.start <= t + 1e-6 && t < n.start + n.dur)
+      const bassLen = arr.meter.beat * 0.55
+      const b = arr.bass.findIndex((ev) => ev.time <= t + 1e-6 && t < ev.time + bassLen)
       const n = arr.notes[note]
       setCursor({ time: Math.max(t, arr.notes[0]?.start ?? 0), note, bass: b, noteStart: n?.start, noteDur: n?.dur })
       raf.current = requestAnimationFrame(tick)

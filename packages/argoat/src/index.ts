@@ -128,9 +128,17 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bot, ink: 'ink', width: 0.8 })
       }
       ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bot, ink: 'ink', width: 0.8 })
+      // Altérations : un dièse vaut jusqu'à la barre, d'où un bécarre si la même ligne revient naturelle.
+      const sharpened = new Map<number, Set<number>>()
       arr.notes.forEach((n, ni) => {
         if (!inLine(n.start)) return
         const ps = pitchStep(n.pitch)
+        const barIdx = Math.floor((n.start - arr.pickup) / arr.meter.barLength + 1e-6)
+        const inBar = sharpened.get(barIdx) ?? new Set<number>()
+        sharpened.set(barIdx, inBar)
+        const natural = !ps.sharp && inBar.has(ps.step)
+        if (ps.sharp) inBar.add(ps.step)
+        else inBar.delete(ps.step)
         const st = ps.step + octave * 7
         const x = X(n.start) + 4
         const y = yS(st)
@@ -140,6 +148,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         const v = VALUES.find((val) => val <= n.dur + 1e-6) ?? 0.25
         ops.push({ kind: 'ellipse', x, y, rx: 3.2, ry: 2.3, ink, filled: v < 2, note: ni })
         if (ps.sharp) ops.push({ kind: 'text', x: x - 11, y: y + 3.2, text: '#', ink, size: 9, bold: true })
+        if (natural) ops.push({ kind: 'text', x: x - 11, y: y + 3.6, text: '♮', ink, size: 10, bold: true })
         if (v === 3 || v === 1.5 || v === 0.75) ops.push({ kind: 'ellipse', x: x + 6.2, y: st % 2 === 0 ? y - 2 : y, rx: 0.9, ry: 0.9, ink, filled: true })
         if (v < 4) {
           const up = st < 34
@@ -173,8 +182,14 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     }
 
     arr.notes.forEach((n, i) => {
-      if (!inLine(n.start)) return
       const y = n.fingering.bellows === 'P' ? yP : yT
+      // Note commencée sur la ligne précédente et encore tenue : on prolonge seulement le trait.
+      if (n.start < start - 1e-6 && n.start + n.dur > start + 1e-6) {
+        const z = X(Math.min(n.start + n.dur, end)) - 5
+        if (z > X0 + 2) ops.push({ kind: 'line', x1: X0 - 4, y1: y - 4, x2: z, y2: y - 4, ink: 'line', width: 2 })
+        return
+      }
+      if (!inLine(n.start)) return
       const label = buttonLabel(profile, n.fingering.row, n.fingering.button)
       const ink: Ink = n.approx ? 'warn' : n.fingering.bellows === 'P' ? 'push' : 'pull'
       ops.push({ kind: 'text', x: X(n.start), y, text: label, ink, size: 11.5, bold: true, mono: true, note: i })
