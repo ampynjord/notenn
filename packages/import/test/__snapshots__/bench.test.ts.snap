@@ -1,0 +1,316 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`test bench on real files > aird-fy-let-us-a-to-the-bridal.abc 1`] = `
+{
+  "bars": 16,
+  "bellowsChanges": 43,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "9/8",
+  "notes": 146,
+  "pickup": 0.5,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > aird-german-waltz.abc 1`] = `
+{
+  "bars": 65,
+  "bellowsChanges": 50,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "3/8",
+  "notes": 218,
+  "pickup": 0.5,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > aird-moon-and-seven-stars.abc 1`] = `
+{
+  "bars": 32,
+  "bellowsChanges": 40,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "6/8",
+  "notes": 158,
+  "pickup": 0,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > aird-moon-and-seven-stars.mid 1`] = `
+{
+  "bars": 48,
+  "bellowsChanges": 64,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "6/8",
+  "notes": 238,
+  "pickup": 0,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > aird-ranting-highlandman.abc 1`] = `
+{
+  "bars": 32,
+  "bellowsChanges": 72,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "2/2",
+  "notes": 168,
+  "pickup": 1,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > aird-ross-castle.abc 1`] = `
+{
+  "bars": 24,
+  "bellowsChanges": 63,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "3/4",
+  "notes": 200,
+  "pickup": 0.5,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > aird-soldiers-joy.abc 1`] = `
+{
+  "bars": 32,
+  "bellowsChanges": 36,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "2/2",
+  "notes": 210,
+  "pickup": 1,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > arrangement-acrobats-hornpipe.mid 1`] = `
+{
+  "bars": 16,
+  "bellowsChanges": 40,
+  "melodyName": "Violin",
+  "melodyTrack": 0,
+  "meter": "2/2",
+  "notes": 123,
+  "pickup": 0,
+  "replaced": 6,
+  "tracks": 4,
+  "transpose": 2,
+}
+`;
+
+exports[`test bench on real files > auld-lang-syne.abc 1`] = `
+{
+  "bars": 16,
+  "bellowsChanges": 12,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "4/4",
+  "notes": 57,
+  "pickup": 1,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > bach-bwv66-6.mid 1`] = `
+{
+  "bars": 9,
+  "bellowsChanges": 13,
+  "melodyName": "Soprano",
+  "melodyTrack": 0,
+  "meter": "4/4",
+  "notes": 36,
+  "pickup": 0,
+  "replaced": 1,
+  "tracks": 4,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > bach-bwv66-6.mxl 1`] = `
+{
+  "bars": 9,
+  "bellowsChanges": 13,
+  "melodyName": "Soprano",
+  "melodyTrack": 0,
+  "meter": "4/4",
+  "notes": 36,
+  "pickup": 1,
+  "replaced": 1,
+  "tracks": 4,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > bach-bwv269.musicxml 1`] = `
+{
+  "bars": 21,
+  "bellowsChanges": 10,
+  "melodyName": "Soprano",
+  "melodyTrack": 0,
+  "meter": "3/4",
+  "notes": 46,
+  "pickup": 1,
+  "replaced": 0,
+  "tracks": 4,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > foster-jeanie-light-brown-hair.mxl 1`] = `
+{
+  "bars": 35,
+  "bellowsChanges": 34,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "4/4",
+  "notes": 95,
+  "pickup": 0,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": 7,
+}
+`;
+
+exports[`test bench on real files > handel-lascia-chio-pianga.xml 1`] = `
+{
+  "bars": 44,
+  "bellowsChanges": 34,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "4/4",
+  "notes": 164,
+  "pickup": 0,
+  "replaced": 11,
+  "tracks": 2,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > joplin-maple-leaf-rag.mid 1`] = `
+{
+  "bars": 129,
+  "bellowsChanges": 75,
+  "melodyName": "Piano",
+  "melodyTrack": 0,
+  "meter": "2/4",
+  "notes": 688,
+  "pickup": 0,
+  "replaced": 26,
+  "tracks": 2,
+  "transpose": -13,
+}
+`;
+
+exports[`test bench on real files > joplin-maple-leaf-rag.mxl 1`] = `
+{
+  "bars": 84,
+  "bellowsChanges": 72,
+  "melodyName": "Piano",
+  "melodyTrack": 0,
+  "meter": "2/4",
+  "notes": 438,
+  "pickup": 0.5,
+  "replaced": 23,
+  "tracks": 1,
+  "transpose": -8,
+}
+`;
+
+exports[`test bench on real files > nottingham-cuckoos-nest.abc 1`] = `
+{
+  "bars": 32,
+  "bellowsChanges": 68,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "4/4",
+  "notes": 222,
+  "pickup": 1,
+  "replaced": 4,
+  "tracks": 2,
+  "transpose": 5,
+}
+`;
+
+exports[`test bench on real files > oneill-dan-rogers-jig.abc 1`] = `
+{
+  "bars": 16,
+  "bellowsChanges": 44,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "12/8",
+  "notes": 174,
+  "pickup": 1.5,
+  "replaced": 6,
+  "tracks": 1,
+  "transpose": 0,
+}
+`;
+
+exports[`test bench on real files > oneill-enchanted-valley.abc 1`] = `
+{
+  "bars": 24,
+  "bellowsChanges": 24,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "2/4",
+  "notes": 118,
+  "pickup": 0,
+  "replaced": 1,
+  "tracks": 1,
+  "transpose": 2,
+}
+`;
+
+exports[`test bench on real files > oneill-i-leave-you-to-guess.abc 1`] = `
+{
+  "bars": 9,
+  "bellowsChanges": 4,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "5/4",
+  "notes": 59,
+  "pickup": 1.5,
+  "replaced": 0,
+  "tracks": 1,
+  "transpose": -2,
+}
+`;
+
+exports[`test bench on real files > ryan-acrobats-hornpipe.abc 1`] = `
+{
+  "bars": 32,
+  "bellowsChanges": 80,
+  "melodyName": "",
+  "melodyTrack": 0,
+  "meter": "2/2",
+  "notes": 246,
+  "pickup": 1,
+  "replaced": 12,
+  "tracks": 1,
+  "transpose": 2,
+}
+`;

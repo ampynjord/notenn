@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "title": "Notenn",
+    "description": "Diatonic accordion tabs in the Système Argoat notation.",
+    "workshopTitle": "Workshop · Notenn"
+  },
+  "nav": {
+    "home": "Home",
+    "workshop": "Workshop",
+    "admin": "Admin",
+    "language": "Language",
+    "switchTo": "Français"
+  },
+  "instruments": {
+    "hohner-2915-gc": "Hohner 2915 G/C"
+  },
+  "home": {
+    "tagline": "Diatonic accordion tabs in the Système Argoat notation.",
+    "keyboard": "Reference keyboard: {name} ({rows} rows, {basses} basses).",
+    "openWorkshop": "Open the workshop"
+  },
+  "workshop": {
+    "title": "Workshop",
+    "intro": "Import a tune: Notenn extracts the melody and writes it in Système Argoat.",
+    "song": "Tune",
+    "file": "MIDI, MusicXML (.musicxml, .xml, .mxl) or ABC file",
+    "pasteAbc": "…or paste a tune in ABC notation:",
+    "abcLabel": "ABC notation",
+    "loadAbc": "Load the ABC",
+    "settings": "Settings",
+    "melodyTrack": "Melody track",
+    "trackOption": "{name} ({count} notes)",
+    "trackFallback": "Track {n}",
+    "trackInstrument": "Track {n} · {instrument}",
+    "fromBar": "From bar",
+    "toBar": "to",
+    "end": "end",
+    "rows": "Rows",
+    "rowsAll": "C + G",
+    "rowsInner": "C only",
+    "transpose": "Transpose",
+    "auto": "Automatic",
+    "semitones": "{value, plural, one {{signed} semitone} other {{signed} semitones}}",
+    "tempo": "Tempo",
+    "staff": "Staff",
+    "basses": "Basses",
+    "listen": "Listen",
+    "stop": "Stop",
+    "untitled": "Untitled",
+    "subtitle": "{instrument} · {meter} · bars {from} to {to}",
+    "originalKey": "Original key",
+    "transposed": "Transposed by {signed} semitones",
+    "bellowsChanges": "{count, plural, one {# bellows change} other {# bellows changes}}",
+    "replaced": "{count, plural, one {# note replaced, in orange} other {# notes replaced, in orange}}",
+    "legendPush": "push",
+    "legendPull": "draw",
+    "legendRows": "4’ = inner row (C) · 4 = outer row (G)",
+    "legendHold": "Grey line = held note",
+    "legendBass": "bass",
+    "legendChord": "chord",
+    "legendBeats": "Dots = beats, tick = start of bar",
+    "barsAria": "Bars {from} to {to}"
+  },
+  "lines": {
+    "push": "P",
+    "pull": "D",
+    "bass": "Basses"
+  },
+  "errors": {
+    "noNotes": "No notes found in this file.",
+    "unknown": "This tune could not be processed.",
+    "import": {
+      "unreadable-musicxml": "The MusicXML file cannot be read.",
+      "no-score-in-mxl": "No score found in the .mxl file.",
+      "unreadable-abc": "Cannot read this ABC: it needs at least the X:, M:, K: lines and some notes.",
+      "unknown-format": "Unknown format: use a .mid, .musicxml, .xml, .mxl or .abc file."
+    }
+  }
+}

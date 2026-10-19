@@ -1,4 +1,4 @@
-# Base PostgreSQL pour le développement local : docker compose -f docker-compose.dev.yml up -d
+# PostgreSQL for local development: docker compose -f docker-compose.dev.yml up -d
 services:
   postgres:
     image: postgres:17-alpine
