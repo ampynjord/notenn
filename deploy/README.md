@@ -74,6 +74,24 @@ docker compose run --rm -v "$PWD/backups:/s" --entrypoint sh web -c "tar -xzf /s
 docker compose start web
 ```
 
+## 6. Statistiques de visite (Umami)
+
+Umami compte les visites sans cookie : pas besoin de bandeau de consentement. Il tourne à part, sur https://stats.ampynjord.bzh.
+
+```sh
+cd ~/notenn/deploy
+sed -i "s/^UMAMI_DB_PASSWORD=.*/UMAMI_DB_PASSWORD=$(openssl rand -hex 32)/" .env
+sed -i "s/^UMAMI_APP_SECRET=.*/UMAMI_APP_SECRET=$(openssl rand -hex 32)/" .env
+docker compose --profile stats up -d
+```
+
+1. Ouvrir https://stats.ampynjord.bzh, se connecter avec `admin` / `umami` et **changer tout de suite le mot de passe**.
+2. Ajouter un site « Notenn » (domaine `notenn.ampynjord.bzh`) et copier son identifiant (*Website ID*).
+3. Dans `.env` : `UMAMI_SCRIPT_URL=https://stats.ampynjord.bzh/script.js` et `UMAMI_WEBSITE_ID=<identifiant>`.
+4. `docker compose --profile stats up -d` pour relancer l'appli avec les statistiques.
+
+Pour mettre Umami à jour en même temps que Notenn, ajouter `--profile stats` à la commande `docker compose up -d --build`.
+
 ## Commandes utiles
 
 | Besoin | Commande |

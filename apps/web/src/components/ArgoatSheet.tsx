@@ -76,15 +76,32 @@ export interface Cursor {
   noteDur?: number
 }
 
-export function ArgoatSheet({ lines, width, cursor }: { lines: SystemLine[]; width: number; cursor: Cursor | null }) {
+interface Props {
+  lines: SystemLine[]
+  width: number
+  cursor: Cursor | null
+  /** Practised passage, in quarter notes: everything outside it is dimmed. */
+  passage?: { start: number; end: number }
+  /** Index of the note whose fingering is being edited. */
+  selected?: number
+  /** Called with the note index and the clicked element when a button number is chosen. */
+  onNoteClick?: (note: number, target: Element) => void
+  /** Accessible name of a note's button, e.g. "6' push". */
+  describeNote?: (note: number) => string
+}
+
+export function ArgoatSheet({ lines, width, cursor, passage, selected, onNoteClick, describeNote }: Props) {
   const t = useTranslations('workshop')
   return (
-    <div>
+    <div className="argoat-sheet">
       {lines.map((l) => {
         const active = cursor && cursor.time >= l.start && cursor.time < l.end
         const x = active ? l.x0 + (cursor.time - l.start) * l.scale : 0
+        const X = (q: number) => l.x0 + (q - l.start) * l.scale
+        const dimBefore = passage && passage.start > l.start ? Math.min(X(passage.start), width) : 0
+        const dimAfter = passage && passage.end < l.end ? Math.max(X(passage.end), 0) : width
         return (
-          <svg key={l.firstBar} viewBox={`0 0 ${width} ${l.height}`} role="img" aria-label={t('barsAria', { from: l.firstBar, to: l.lastBar })}>
+          <svg key={l.firstBar} viewBox={`0 0 ${width} ${l.height}`} role="group" aria-label={t('barsAria', { from: l.firstBar, to: l.lastBar })}>
             {active && cursor.noteStart !== undefined && cursor.noteDur !== undefined && (
               <rect
                 x={l.x0 + (cursor.noteStart - l.start) * l.scale - 6}
@@ -97,6 +114,32 @@ export function ArgoatSheet({ lines, width, cursor }: { lines: SystemLine[]; wid
             {l.ops.map((op, i) => (
               <Op key={i} op={op} hotNote={active ? cursor.note : -1} hotBass={active ? cursor.bass : -1} />
             ))}
+            {passage && dimBefore > 0 && <rect x={0} y={0} width={dimBefore} height={l.height} className="dim" />}
+            {passage && dimAfter < width && <rect x={dimAfter} y={0} width={width - dimAfter} height={l.height} className="dim" />}
+            {onNoteClick &&
+              l.ops.map((op, i) =>
+                op.kind === 'text' && op.note !== undefined ? (
+                  <rect
+                    key={`hit${i}`}
+                    x={op.x - 4}
+                    y={op.y - 14}
+                    width={op.text.length * 7.6 + 8}
+                    height={19}
+                    rx={4}
+                    className={op.note === selected ? 'note-hit selected' : 'note-hit'}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={describeNote?.(op.note)}
+                    onClick={(e) => onNoteClick(op.note!, e.currentTarget)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        onNoteClick(op.note!, e.currentTarget)
+                      }
+                    }}
+                  />
+                ) : null,
+              )}
             {active && <line x1={x} x2={x} y1={2} y2={l.height - 6} style={{ stroke: 'var(--cur)' }} strokeWidth={2.2} opacity={0.85} />}
           </svg>
         )

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { arrange, hohner2915GC, meterInfo, melodyScore, pickMelodyTrack, snap, type Note, type Song } from '../src/index'
+import { arrange, fingeringsFor, hohner2915GC, meterInfo, melodyScore, noteKey, pickMelodyTrack, snap, type Note, type Song } from '../src/index'
 
 /** Builds notes from "pitch:duration" tokens (durations in quarter notes). */
 function seq(spec: string, start = 0): Note[] {
@@ -137,5 +137,73 @@ describe('melody track selection', () => {
     const t = (name: string, base: number) => ({ name, notes: Array.from({ length: 32 }, (_, i) => ({ start: i, dur: 1, pitch: base + [0, 2, 4, 5, 7, 5, 4, 2][i % 8]! })) })
     expect(melodyScore(t('Tenor Sax', 67))).toBeCloseTo(melodyScore(t('Track 1', 67)))
     expect(melodyScore(t('Alto', 67))).toBeLessThan(melodyScore(t('Track 1', 67)))
+  })
+})
+
+describe('several right-hand voices', () => {
+  // Melody in thirds over C major (written for this test), two notes per onset.
+  const thirds: Song = {
+    title: 'thirds',
+    meter: { num: 4, den: 4 },
+    pickup: 0,
+    tempo: 90,
+    tracks: [
+      {
+        name: 'Melody',
+        notes: [72, 74, 76, 77, 79, 77, 76, 74, 72, 76, 79, 84].flatMap((p, i) => [
+          { start: i, dur: 1, pitch: p },
+          { start: i, dur: 1, pitch: p - (p === 72 || p === 77 || p === 84 ? 5 : p === 74 || p === 79 ? 3 : 4) },
+        ]),
+      },
+    ],
+  }
+
+  it('keeps the melody identical when only one voice is asked for', () => {
+    const one = arrange(thirds, hohner2915GC)
+    expect(one.voices).toHaveLength(1)
+    expect(one.voices[0]).toBe(one.notes)
+    expect(one.droppedCount).toBe(0)
+    const two = arrange(thirds, hohner2915GC, { voices: 2 })
+    expect(two.notes.map((n) => n.pitch)).toEqual(one.notes.map((n) => n.pitch))
+  })
+
+  it('plays the second voice with the melody, same bellows, other buttons, within reach', () => {
+    const r = arrange(thirds, hohner2915GC, { voices: 2, transpose: 0 })
+    expect(r.voices).toHaveLength(2)
+    const second = r.voices[1]!
+    expect(second.length + r.droppedCount).toBe(12)
+    expect(second.length).toBeGreaterThan(6)
+    for (const n of second) {
+      const m = r.notes.find((x) => x.start === n.start)!
+      expect(n.voice).toBe(1)
+      expect(n.pitch).toBeLessThan(m.pitch)
+      expect(n.fingering.bellows).toBe(m.fingering.bellows)
+      expect(n.fingering.row !== m.fingering.row || n.fingering.button !== m.fingering.button).toBe(true)
+      expect(Math.abs(n.fingering.y - m.fingering.y)).toBeLessThanOrEqual(4)
+      const row = hohner2915GC.rows.find((x) => x.id === n.fingering.row)!
+      expect(row.buttons[n.fingering.button - 1]![n.fingering.bellows]).toBe(n.pitch)
+    }
+  })
+})
+
+describe('fingerings chosen by hand', () => {
+  it('keeps the chosen button and lets the rest of the tab adapt', () => {
+    const auto = arrange(auld, hohner2915GC)
+    const target = auto.notes[3]!
+    const alt = fingeringsFor(target.pitch, hohner2915GC, ['c', 'g']).find(
+      (f) => f.row !== target.fingering.row || f.button !== target.fingering.button || f.bellows !== target.fingering.bellows,
+    )!
+    const edited = arrange(auld, hohner2915GC, { fingerings: { [noteKey(target.start)]: alt } })
+    const n = edited.notes[3]!
+    expect([n.fingering.row, n.fingering.button, n.fingering.bellows]).toEqual([alt.row, alt.button, alt.bellows])
+    expect(n.edited).toBe(true)
+    expect(edited.notes.filter((x) => x.edited)).toHaveLength(1)
+  })
+
+  it('ignores a choice that does not play the note any more', () => {
+    const auto = arrange(auld, hohner2915GC)
+    const r = arrange(auld, hohner2915GC, { fingerings: { [noteKey(auto.notes[0]!.start)]: { row: 'c', button: 10, bellows: 'pull' } } })
+    expect(r.notes[0]!.fingering).toEqual(auto.notes[0]!.fingering)
+    expect(r.notes[0]!.edited).toBeUndefined()
   })
 })

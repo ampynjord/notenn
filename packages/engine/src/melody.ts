@@ -27,6 +27,28 @@ export function extractMelody(track: Track): Note[] {
   return notes.filter((n) => n.dur > 0.05)
 }
 
+/**
+ * Lower voices under a melody: for each melody note, the notes of the track that start with it
+ * (on the same snapped onset) and sit below it, highest first. Returns one list per extra voice;
+ * each note keeps the melody note's start and is cut to its duration.
+ */
+export function extractLowerVoices(track: Track, melody: Note[], extra: number): Note[][] {
+  const voices: Note[][] = Array.from({ length: extra }, () => [])
+  if (extra <= 0) return voices
+  const byStart = new Map<number, number[]>()
+  for (const n of track.notes) {
+    const start = Math.round(snap(n.start) * 12) / 12
+    const list = byStart.get(start) ?? []
+    list.push(n.pitch)
+    byStart.set(start, list)
+  }
+  for (const m of melody) {
+    const below = [...new Set(byStart.get(m.start) ?? [])].filter((p) => p < m.pitch).sort((a, b) => b - a)
+    below.slice(0, extra).forEach((pitch, v) => voices[v]!.push({ start: m.start, dur: m.dur, pitch }))
+  }
+  return voices
+}
+
 /** How likely a track is to be the melody: monophony, variety, register, name.
  * The name patterns match English and French track names on purpose. */
 export function melodyScore(track: Track): number {
