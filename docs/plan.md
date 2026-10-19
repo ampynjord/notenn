@@ -9,12 +9,12 @@ Document de référence vivant : ce fichier est le résumé versionné du plan d
 | Élément | Affichage |
 | --- | --- |
 | Sens du soufflet | Une ligne P (poussé) et une ligne T (tiré) |
-| Rang | Numéro avec apostrophe = rang intérieur, sans = rang extérieur ; signe à définir pour un 3e rang |
+| Rang | Numéro avec apostrophe = rang intérieur, sans = rang extérieur ; double apostrophe (6'') = 3e rang |
 | Rythme | Espacement proportionnel au temps + points discrets sur chaque temps, trait court en début de mesure |
 | Note tenue | Trait après le numéro jusqu'à la fin de la note |
 | Main gauche | Ligne de basses : rond plein = basse, rond vide = accord, chiffre = groupe de boutons (adapté au clavier) |
 | Portée | Partition classique au-dessus, optionnelle, alignée sur la tablature |
-| Autres notations | Corgeron et CADB en phase 2 |
+| Autres notations | Corgeron et CADB, tous deux en phase 2 |
 
 ## Périmètre
 
@@ -23,20 +23,20 @@ Document de référence vivant : ce fichier est le résumé versionné du plan d
 | Claviers | Modèles existants fournis (Hohner, Castagnari, Saltarelle…) + éditeur visuel de clavier |
 | Pratique | Curseur, boucle, ralenti, métronome avec décompte, clavier animé ; écoute au micro mise de côté |
 | Son | Synthé léger (pas d'échantillons) |
-| Imports | MIDI, MusicXML, ABC, MP3 (calcul dans le navigateur), saisie à la main ; photo/PDF de partition en dernière phase |
+| Imports | MIDI, MusicXML, ABC, saisie à la main ; MP3 (calcul dans le navigateur) juste après la bêta ; photo/PDF de partition en phase 3, en premier |
 | Exports | PDF, MIDI, MusicXML, PNG, lien de partage |
 | Impression | Taille réglable, mise en page, couleur ou N&B, livret avec sommaire |
 | Édition | Bouton/rang/soufflet au clic, préférences de jeu, annotations, historique des versions |
-| Voix | Mélodie + basses, accords main droite ; duos et paroles plus tard (moteur multi-voix dès le départ) |
-| Bibliothèque | Domaine public, trad, licences libres, créations des membres ; classée par instrument, région/style, niveau ; recherche |
+| Voix | Mélodie + basses, accords main droite ; duos et paroles plus tard (moteur multi-voix dès la phase 0, sans changer l'affichage) |
+| Bibliothèque | Domaine public, trad, licences libres, créations des membres ; tout membre propose, des membres de confiance valident ; classée par instrument, région/style, niveau ; recherche |
 | Communauté | Comptes, favoris, partage, notes, commentaires, corrections ; modération par membres de confiance |
-| Connexion | E-mail + mot de passe, Google, Apple ; atelier utilisable sans compte |
+| Connexion | E-mail + mot de passe d'abord, Google et Apple ensuite ; atelier utilisable sans compte ; bêta sans comptes |
 | Hors ligne | Favoris jouables sans internet |
 | Organisation | Répertoires (setlists), mode scène ; groupes et classes plus tard |
-| Paiement | Dons via plateforme sans frais fixes ; paiement à l'usage via Stripe |
+| Paiement | Dons via plateforme sans frais fixes ; paiement à l'usage via Stripe pour toute fonction très coûteuse en argent ou en ressources serveur (photo/PDF de partition en tête) |
 | Statistiques | Suivi complet, bandeau de consentement RGPD |
 | Style | Sobre et moderne |
-| Langues | Français, anglais |
+| Langues | Interface en français et en anglais, adresses /fr/… et /en/… ; code, structure, commentaires et tests en anglais |
 
 ## Droit d'auteur
 
@@ -66,15 +66,15 @@ Protection du code : build minifié et obscurci, calculs sensibles côté serveu
 | Domaine | 0 · Moteur universel | 1 · V1 | 2 · Mois suivants | 3 · Ensuite |
 | --- | --- | --- | --- | --- |
 | Technique | Moteur multi-instruments/multi-voix ; Next.js + Payload + PostgreSQL sur VPS ; banc de tests | PWA ; statistiques + consentement | Synchro hors ligne des favoris | Service Python partitions |
-| Instruments | Format des profils, Hohner 2915 | Diatonique (modèles courants) | Chromatique, harmonica, concertina, accordéon piano, guitare, ukulélé ; éditeur de clavier | Flûtes, bombarde, piano… |
-| Imports | MIDI, MusicXML, ABC | Choix de piste, plage, transposition ; MP3 | Saisie à la main | Photo/PDF de partition |
-| Tablature | Doigté, basses | Système Argoat ; portée ; accords main droite | Corgeron, CADB ; annotations | Duos, paroles |
-| Pratique | | Curseur, boucle, ralenti, métronome | Clavier animé, mode scène | (Micro, mis de côté) |
-| Édition | | Bouton/soufflet au clic ; préférences | Historique des versions | |
-| Exports | | PDF personnalisable | MIDI, MusicXML, PNG, lien | Livret |
+| Instruments | Format des profils, Hohner 2915 | Diatonique : Sol/Do 2 rangs courants, autres tonalités (La/Ré, Do/Fa…), 3 rangs | D'abord accordéon chromatique / piano, guitare, ukulélé ; puis harmonica, concertina ; éditeur de clavier | Saxophone, flûtes (tin whistle, flûte à bec), bombarde / biniou, piano |
+| Imports | MIDI, MusicXML, ABC | Choix de piste, plage, transposition ; MP3 juste après la bêta | Saisie à la main | Photo/PDF de partition (en premier de la phase) |
+| Tablature | Doigté, basses ; moteur multi-voix | Système Argoat (avec 3e rang) ; portée ; accords main droite | Corgeron, CADB ; annotations | Duos, paroles |
+| Pratique | | Curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte | Clavier animé, mode scène | (Micro, mis de côté) |
+| Édition | | Bouton/rang/soufflet au clic (dans la bêta) ; préférences | Historique des versions | |
+| Exports | | PDF : avec ou sans portée, mesures par ligne, couleur ou N&B | MIDI, MusicXML, PNG, lien | Livret |
 | Communauté | | Atelier sans compte, airs libres | Comptes, bibliothèque, partage, modération, notes, commentaires, corrections | Licences d'éditeurs |
-| Organisation | | | Setlists | Groupes, classes |
-| Revenus | | Dons | | Paiement à l'usage |
+| Organisation | | | Setlists | Groupes, classes (après photo/PDF de partition) |
+| Revenus | | Dons | | Paiement à l'usage (fonctions coûteuses) |
 | Langues | | FR + EN | | |
 
 ## Lancement
