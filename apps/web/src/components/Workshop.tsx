@@ -54,6 +54,10 @@ type Problem = { key: string } | null
 /** Hand-made fingerings, by `<track>.<keyboard id>` then by note start. */
 type AllEdits = Record<string, Record<string, FingerChoice>>
 
+const problemOf = (e: unknown): Problem => ({
+  key: e instanceof ImportError ? `import.${e.code}` : 'unknown',
+})
+
 const signed = (n: number) => (n > 0 ? `+${n}` : String(n))
 
 interface Props {
@@ -102,6 +106,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
   const [library, setLibrary] = useState<FullLibraryItem[] | null>(null)
   const [saving, setSaving] = useState(false)
   const [libProblem, setLibProblem] = useState<string | null>(null)
+  const libNotice = libProblem ?? (editor && itemId && member === null ? 'itemLoginRequired' : null)
   const [editing, setEditing] = useState<{ note: number; x: number; y: number } | null>(null)
   const [pdfBusy, setPdfBusy] = useState(false)
   const playback = useRef<Playback | null>(null)
@@ -152,24 +157,24 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
       setAllEdits((origin.item?.fingerings as AllEdits | null | undefined) ?? {})
       setLibProblem(null)
     } catch (e) {
-      setProblem({ key: e instanceof ImportError ? `import.${e.code}` : 'unknown' })
+      setProblem(problemOf(e))
     }
   }
 
-  const openItem = async (id: number | string) => {
-    try {
-      const it = await getLibraryItem(id)
-      const file = itemFile(it)
-      const abcText = it.tune && typeof it.tune === 'object' ? it.tune.abc : null
-      if (abcText) await attempt(() => fromAbc(abcText), { item: it })
-      else if (file) await attempt(() => fromFile(file), { item: it })
-      else setProblem({ key: 'unknown' })
-      window.history.replaceState(null, '', `?item=${it.id}`)
-    } catch {
+  /** Shows a library item; its fingerings are then saved to it. */
+  const showItem = async (it: FullLibraryItem) => {
+    const file = itemFile(it)
+    const abcText = it.tune && typeof it.tune === 'object' ? it.tune.abc : null
+    if (abcText) await attempt(() => fromAbc(abcText), { item: it })
+    else if (file) await attempt(() => fromFile(file), { item: it })
+    else setProblem({ key: 'unknown' })
+    window.history.replaceState(null, '', `?item=${it.id}`)
+  }
+  const openItem = (id: number | string) =>
+    getLibraryItem(id).then(showItem, () => {
       setProblem(null)
       setLibProblem('itemMissing')
-    }
-  }
+    })
 
   // The tune to show first: a library item (editor), the page's tune or the sample.
   const started = useRef(false)
@@ -178,19 +183,19 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
     if (editor && itemId) {
       if (member === undefined) return
       started.current = true
-      if (member === null) setLibProblem('itemLoginRequired')
-      else void openItem(itemId)
+      // Signed out: nothing to open, the notice below says why.
+      if (member) void openItem(itemId)
       return
     }
     started.current = true
-    void attempt(() => fromAbc(initialAbc ?? SAMPLE_ABC))
+    fromAbc(initialAbc ?? SAMPLE_ABC).then(load, (e) => setProblem(problemOf(e)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [member])
   useEffect(() => () => stop(), [])
 
   // The editor lists the member's library to open a tune from it.
   useEffect(() => {
-    if (!editor || !member) return setLibrary(null)
+    if (!editor || !member) return
     listLibrary()
       .then(setLibrary)
       .catch(() => setLibrary([]))
@@ -327,7 +332,6 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
       }
       raf.current = requestAnimationFrame(tick)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [arr, passage, profile, tempo, prefs.speed, prefs.metronome, prefs.countIn, prefs.loop],
   )
 
@@ -669,12 +673,12 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
             {te(shownProblem.key)}
           </p>
         )}
-        {libProblem && (
+        {libNotice && (
           <p className="notice error" role="alert">
-            {libProblem === 'itemLoginRequired' || libProblem === 'itemMissing'
-              ? t(libProblem)
-              : ta(`errors.${libProblem}`)}
-            {libProblem === 'itemLoginRequired' && (
+            {libNotice === 'itemLoginRequired' || libNotice === 'itemMissing'
+              ? t(libNotice)
+              : ta(`errors.${libNotice}`)}
+            {libNotice === 'itemLoginRequired' && (
               <>
                 {' '}
                 <Link href="/account/login">{ta('login')}</Link>
