@@ -43,6 +43,17 @@ Chaque groupe porte le numéro affiché dans la tablature (`id`, entier à parti
 
 Les noms des rangs et du modèle sont écrits en anglais dans le JSON ; l'interface affiche leur traduction quand elle existe.
 
+## Claviers fournis
+
+| Id | Clavier |
+|---|---|
+| `hohner-2915-gc` | Hohner 2915 Sol/Do, 21 boutons (plan de clavier fourni) |
+| `diatonic-gc-21` | Sol/Do 21 boutons, clavier standard (Hohner, Castagnari, Saltarelle… dans leur version courante) |
+| `diatonic-dg-21`, `diatonic-ad-21`, `diatonic-cf-21`, `diatonic-bbeb-21` | Ré/Sol, La/Ré, Do/Fa, Sib/Mib : le clavier standard transposé |
+| `diatonic-gcf-31` | Sol/Do/Fa 3 rangs, 3e rang (Fa, le plus intérieur) noté `''` |
+
+Seul le 2915 vient d'un plan de clavier réel. Les autres sont construits à partir de lui : les fabricants varient parfois les premiers boutons, les basses ou surtout le 3e rang, d'où le champ `source` qui le signale.
+
 ## Évolutions prévues
 
 Nouvelles familles (chromatique, concertina, piano, cordes…) et accords main droite : ils viendront avec une version 2 du format, la version 1 restant lisible.

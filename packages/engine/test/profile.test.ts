@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chordOf, hohner2915GC, midiOf, parseProfile, pitchClassOf } from '../src/index'
+import { arrange, chordOf, getProfile, hohner2915GC, midiOf, parseProfile, pitchClassOf, profiles, type Song } from '../src/index'
 import json from '../src/profiles/hohner-2915-gc.json'
 
 describe('JSON profile format', () => {
@@ -59,5 +59,36 @@ describe('JSON profile format', () => {
     expect(() => parseProfile({ ...json, family: 'piano' })).toThrow(expect.objectContaining({ code: 'unsupported-family', params: { family: 'piano' } }))
     expect(() => parseProfile({ ...json, version: 2 })).toThrow(expect.objectContaining({ code: 'unknown-version' }))
     expect(() => parseProfile('{"format":"notenn-instrument","version":1,"id":"x","name":"X","family":"diatonic-accordion","rows":[{"id":"a","name":"A","buttons":[["C4","D4"]]},{"id":"a","name":"B","buttons":[["C4","D4"]]}]}')).toThrow(expect.objectContaining({ path: 'rows[1].id', code: 'duplicate-id' }))
+  })
+})
+
+describe('built-in keyboards', () => {
+  it('all parse, with unique ids and a mark per row', () => {
+    expect(new Set(profiles.map((p) => p.id)).size).toBe(profiles.length)
+    for (const p of profiles) {
+      expect(p.rows.length).toBeGreaterThanOrEqual(2)
+      expect(new Set(p.rows.map((r) => r.suffix)).size).toBe(p.rows.length)
+      expect(p.bassGroups.length).toBe(4)
+    }
+    expect(getProfile('diatonic-gcf-31')!.rows.map((r) => r.suffix)).toEqual(["''", "'", ''])
+  })
+
+  it('transposed keyboards keep the G/C layout a fixed interval away', () => {
+    const gc = getProfile('diatonic-gc-21')!
+    for (const [id, t] of [['diatonic-dg-21', 7], ['diatonic-ad-21', 2], ['diatonic-cf-21', 5], ['diatonic-bbeb-21', 3]] as const) {
+      const p = getProfile(id)!
+      p.rows.forEach((r, ri) => r.buttons.forEach((b, bi) => {
+        expect(b.push - gc.rows[ri]!.buttons[bi]!.push).toBe(t)
+        expect(b.pull - gc.rows[ri]!.buttons[bi]!.pull).toBe(t)
+      }))
+      p.bassGroups.forEach((g, gi) => expect(g.push.bass).toBe((gc.bassGroups[gi]!.push.bass + t) % 12))
+    }
+  })
+
+  it('arranges the same tune the same way on a transposed keyboard', () => {
+    const song: Song = { title: 't', meter: { num: 3, den: 4 }, pickup: 1, tempo: 80, tracks: [{ name: 'm', notes: [67, 72, 76, 72, 76, 74, 72, 69, 67, 67, 72, 76].map((p, i) => ({ start: i, dur: 1, pitch: p })) }] }
+    const gc = arrange(song, getProfile('diatonic-gc-21')!)
+    const dg = arrange({ ...song, tracks: [{ name: 'm', notes: song.tracks[0]!.notes.map((n) => ({ ...n, pitch: n.pitch + 7 })) }] }, getProfile('diatonic-dg-21')!)
+    expect(dg.notes.map((n) => [n.fingering.button, n.fingering.bellows])).toEqual(gc.notes.map((n) => [n.fingering.button, n.fingering.bellows]))
   })
 })
