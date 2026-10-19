@@ -14,6 +14,11 @@ services:
     environment:
       DATABASE_URL: postgres://notenn:${POSTGRES_PASSWORD:?must be set in .env}@db:5432/notenn
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?must be set in .env}
+      # Links in e-mails and the only origin allowed to use the session cookie.
+      PUBLIC_URL: https://${DOMAIN:-notenn.ampynjord.bzh}
+      # Account e-mails (confirmation, password) through Resend, see README.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-notenn@ampynjord.bzh}
       # Visit statistics (optional): filled in once Umami is running, see README.
       UMAMI_SCRIPT_URL: ${UMAMI_SCRIPT_URL:-}
       UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
