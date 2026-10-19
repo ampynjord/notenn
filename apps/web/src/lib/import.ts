@@ -12,7 +12,7 @@ export async function fromMidi(buffer: ArrayBuffer, fallbackTitle = ''): Promise
   for (const t of midi.tracks) {
     if (!t.notes.length || t.channel === 9 || t.instrument?.percussion) continue
     const notes = t.notes.map((n) => ({ start: n.ticks / ppq, dur: n.durationTicks / ppq, pitch: n.midi }))
-    const sig = notes.length + ':' + notes.slice(0, 40).map((n) => `${n.pitch}@${n.start.toFixed(2)}`).join(',')
+    const sig = notes.map((n) => `${n.pitch}@${n.start}/${n.dur}`).join(',')
     if (seen.has(sig)) continue
     seen.add(sig)
     const name = t.name.trim()
@@ -67,8 +67,9 @@ export function fromMusicXML(text: string, fallbackTitle = ''): Song {
             Number(pe.querySelector('alter')?.textContent ?? 0) +
             (Number(pe.querySelector('octave')?.textContent) + 1) * 12
           const tieStop = [...el.querySelectorAll('tie')].some((x) => x.getAttribute('type') === 'stop')
-          const prev = notes.at(-1)
-          if (tieStop && prev && prev.pitch === pitch && Math.abs(prev.start + prev.dur - start) < 1e-6) prev.dur += dur
+          // La note liée n'est pas forcément la dernière insérée (accords) : on cherche la bonne.
+          const prev = tieStop ? [...notes].reverse().find((x) => x.pitch === pitch && Math.abs(x.start + x.dur - start) < 1e-6) : undefined
+          if (prev) prev.dur += dur
           else notes.push({ start, dur, pitch })
         } else if (el.tagName === 'backup') t -= Number(el.querySelector('duration')?.textContent) / div
         else if (el.tagName === 'forward') {
@@ -113,8 +114,6 @@ export async function fromAbc(abc: string): Promise<Song> {
   song.meter = { num: frac.num ?? 4, den: frac.den ?? 4 }
   song.pickup = pickup
   song.title = abc.match(/^T:\s*(.+)$/m)?.[1]?.trim() ?? ''
-  const q = abc.match(/^Q:.*?(\d+)\s*$/m)
-  if (q) song.tempo = Number(q[1])
   song.tracks.forEach((t, i) => (t.name = i === 0 ? 'Mélodie' : `Voix ${i + 1}`))
   return song
 }

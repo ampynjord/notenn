@@ -55,3 +55,28 @@ describe('mise en page Système Argoat', () => {
     for (let i = 1; i < lines.length; i++) expect(lines[i]!.firstBar).toBe(lines[i - 1]!.lastBar + 1)
   })
 })
+
+describe('cas particuliers de la mise en page', () => {
+  const make = (notes: [number, number][]): Song => ({
+    title: 'test',
+    meter: { num: 4, den: 4 },
+    pickup: 0,
+    tempo: 90,
+    tracks: [{ name: 'm', notes: notes.reduce<{ t: number; n: { start: number; dur: number; pitch: number }[] }>((a, [p, d]) => ({ t: a.t + d, n: [...a.n, { start: a.t, dur: d, pitch: p }] }), { t: 0, n: [] }).n }],
+  })
+
+  it('met un bécarre quand une note diésée revient naturelle dans la même mesure', () => {
+    const s = make([[66, 1], [65, 1], [67, 2]])
+    const ops = layout(arrange(s, hohner2915GC, { transpose: 0 }), hohner2915GC, s.meter).flatMap((l) => l.ops)
+    expect(ops.some((o) => o.kind === 'text' && o.text === '♮')).toBe(true)
+  })
+
+  it('prolonge le trait d’une note tenue sur la ligne suivante, sans répéter le bouton', () => {
+    const s = make([[67, 3], [72, 3], [76, 2]])
+    const arr = arrange(s, hohner2915GC, { transpose: 0 })
+    const lines = layout(arr, hohner2915GC, s.meter, { barsPerLine: 1, staff: false })
+    expect(lines[1]!.ops.some((o) => o.kind === 'line' && o.ink === 'line' && o.x1 < 44)).toBe(true)
+    const labels = lines.flatMap((l) => l.ops).filter((o) => o.kind === 'text' && o.note !== undefined)
+    expect(labels).toHaveLength(arr.notes.length)
+  })
+})
