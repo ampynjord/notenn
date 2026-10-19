@@ -1,0 +1,13 @@
+{
+  "name": "notenn",
+  "private": true,
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @notenn/web dev",
+    "build": "pnpm --filter @notenn/web build",
+    "test": "pnpm --filter @notenn/engine test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d"
+  }
+}
