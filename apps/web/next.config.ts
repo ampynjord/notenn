@@ -9,7 +9,7 @@ const dirname = path.dirname(__filename)
 const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.resolve(dirname, '../..'),
-  transpilePackages: ['@notenn/engine'],
+  transpilePackages: ['@notenn/engine', '@notenn/argoat'],
   images: {
     localPatterns: [
       {
