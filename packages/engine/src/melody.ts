@@ -51,11 +51,13 @@ export function melodyScore(track: Track): number {
   return score
 }
 
+/** Piste mélodie la plus probable ; à score égal (pistes courtes), celle qui a le plus de notes. Les pistes vides sont ignorées. */
 export function pickMelodyTrack(tracks: Track[]): number {
   let best = 0
   let bestScore = -1
   tracks.forEach((t, i) => {
-    const s = melodyScore(t)
+    if (!t.notes.length) return
+    const s = melodyScore(t) + t.notes.length * 1e-6
     if (s > bestScore) {
       bestScore = s
       best = i

@@ -92,3 +92,30 @@ describe('arrangement sur Hohner 2915', () => {
     expect(r.notes.every((n) => n.start >= 1 + 4 && n.start < 1 + 12)).toBe(true)
   })
 })
+
+describe('cas limites relevés en revue', () => {
+  const song = (notes: Note[], extraTracks: Note[][] = []): Song => ({
+    title: 't',
+    meter: { num: 4, den: 4 },
+    pickup: 0,
+    tempo: 90,
+    tracks: [...extraTracks.map((n, i) => ({ name: `vide ${i}`, notes: n })), { name: 'Mélodie', notes }],
+  })
+
+  it("garde une note tenue qui commence avant la plage choisie", () => {
+    const r = arrange(song(seq('72:3 76:2 74:3')), hohner2915GC, { fromBar: 2, transpose: 0 })
+    expect(r.notes[0]).toMatchObject({ start: 4, dur: 1, pitch: 76 })
+  })
+
+  it('ne perd aucune note hors du clavier, elle est remplacée et signalée', () => {
+    const r = arrange(song(seq('36:1 72:1')), hohner2915GC, { transpose: 0 })
+    expect(r.notes).toHaveLength(2)
+    expect(r.notes[0]!.approx).toBe(true)
+    expect(r.approxCount).toBe(1)
+  })
+
+  it('ignore une piste vide placée avant une mélodie courte', () => {
+    const r = arrange(song(seq('72:1 74:1 76:1'), [[]]), hohner2915GC)
+    expect(r.notes).toHaveLength(3)
+  })
+})

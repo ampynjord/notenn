@@ -26,9 +26,13 @@ export function arrange(song: Song, profile: InstrumentProfile, options: Arrange
   const toBar = Math.min(Math.max(fromBar, options.toBar ?? barCount), barCount)
   const t0 = fromBar === 1 ? 0 : song.pickup + (fromBar - 1) * meter.barLength
   const t1 = song.pickup + toBar * meter.barLength
+  // Notes qui chevauchent la plage : on les garde et on les coupe aux deux bouts.
   melody = melody
-    .filter((n) => n.start >= t0 - 1e-6 && n.start < t1 - 1e-6)
-    .map((n) => ({ ...n, dur: Math.min(n.dur, t1 - n.start) }))
+    .filter((n) => n.start < t1 - 1e-6 && n.start + n.dur > t0 + 1e-6)
+    .map((n) => {
+      const start = Math.max(n.start, t0)
+      return { ...n, start, dur: Math.min(n.start + n.dur, t1) - start }
+    })
 
   const playable = playablePitches(profile, rows)
   const transpose =
@@ -41,9 +45,9 @@ export function arrange(song: Song, profile: InstrumentProfile, options: Arrange
     const original = n.pitch + transpose
     const pitch = nearestPlayable(original, playable)
     if (pitch !== original) approxCount++
-    return { ...n, original, pitch: pitch ?? original, approx: pitch !== original }
+    return { ...n, original, pitch, approx: pitch !== original }
   })
-  const playableNotes = shifted.filter((n) => playable.has(n.pitch))
+  const playableNotes = shifted
 
   const fingering = chooseFingering(playableNotes, profile, rows, meter, song.pickup)
   const notes: PlacedNote[] = playableNotes.map((n, i) => ({ ...n, fingering: fingering[i]! }))
