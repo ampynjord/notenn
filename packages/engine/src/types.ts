@@ -75,6 +75,8 @@ export interface PlacedNote extends Note {
   original: number
   approx: boolean
   fingering: Fingering
+  /** 0 = melody (top voice), 1 = second voice below it, and so on. */
+  voice: number
 }
 
 export interface BassEvent {
@@ -100,10 +102,20 @@ export interface ArrangeOptions {
   /** Transposition in semitones, or 'auto'. */
   transpose?: number | 'auto'
   bass?: boolean
+  /**
+   * Right-hand voices to keep: 1 = melody only (default), 2 = melody plus the highest note played
+   * with it, etc. Lower voices are only kept where they can be played in the melody's bellows direction.
+   */
+  voices?: number
 }
 
 export interface Arrangement {
+  /** The melody (voice 0). */
   notes: PlacedNote[]
+  /** Every voice, voice 0 first; `voices[0]` is `notes`. */
+  voices: PlacedNote[][]
+  /** Lower-voice notes left out because no fingering fits them with the melody. */
+  droppedCount: number
   bass: BassEvent[]
   meter: MeterInfo
   pickup: number

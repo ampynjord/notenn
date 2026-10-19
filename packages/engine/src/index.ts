@@ -1,13 +1,13 @@
 import { chooseBass } from './bass'
-import { chooseFingering } from './fingering'
+import { chooseGroupFingering, type NoteGroup } from './fingering'
 import { bestTranspose, nearestPlayable, playablePitches } from './keyboard'
-import { extractMelody, meterInfo, pickMelodyTrack } from './melody'
+import { extractLowerVoices, extractMelody, meterInfo, pickMelodyTrack } from './melody'
 import type { Arrangement, ArrangeOptions, InstrumentProfile, PlacedNote, Song } from './types'
 
 export * from './types'
-export { extractMelody, meterInfo, melodyScore, pickMelodyTrack, snap } from './melody'
+export { extractLowerVoices, extractMelody, meterInfo, melodyScore, pickMelodyTrack, snap } from './melody'
 export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from './keyboard'
-export { chooseFingering } from './fingering'
+export { chooseFingering, chooseGroupFingering, groupOptions, type NoteGroup } from './fingering'
 export { chooseBass } from './bass'
 export { hohner2915GC } from './profiles/hohner-2915-gc'
 export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileErrorCode, type ProfileJson } from './profile-format'
@@ -42,20 +42,49 @@ export function arrange(song: Song, profile: InstrumentProfile, options: Arrange
       : options.transpose
 
   let approxCount = 0
-  const shifted = melody.map((n) => {
+  const place = (n: { start: number; dur: number; pitch: number }) => {
     const original = n.pitch + transpose
     const pitch = nearestPlayable(original, playable)
-    if (pitch !== original) approxCount++
     return { ...n, original, pitch, approx: pitch !== original }
-  })
-  const playableNotes = shifted
+  }
+  const melodyNotes = melody.map(place)
+  approxCount += melodyNotes.filter((n) => n.approx).length
 
-  const fingering = chooseFingering(playableNotes, profile, rows, meter, song.pickup)
-  const notes: PlacedNote[] = playableNotes.map((n, i) => ({ ...n, fingering: fingering[i]! }))
-  const bass = options.bass === false ? [] : chooseBass(playableNotes, fingering, profile, meter, song.pickup, fromBar, toBar)
+  // Lower voices share the melody's onsets: each melody note becomes a group of pitches.
+  const extra = Math.max(0, Math.floor(options.voices ?? 1) - 1)
+  const lower = extractLowerVoices(track, melody, extra).map((voice) => voice.map(place))
+  const groups: NoteGroup[] = melodyNotes.map((m) => ({
+    start: m.start,
+    dur: m.dur,
+    pitches: [m.pitch, ...lower.flatMap((v) => v.filter((n) => n.start === m.start && n.pitch < m.pitch).map((n) => n.pitch))],
+  }))
+
+  const fingered = chooseGroupFingering(groups, profile, rows, meter, song.pickup)
+  const notes: PlacedNote[] = melodyNotes.map((n, i) => ({ ...n, fingering: fingered[i]![0]!, voice: 0 }))
+  const voices: PlacedNote[][] = [notes, ...lower.map(() => [] as PlacedNote[])]
+  let droppedCount = 0
+  groups.forEach((g, i) => {
+    const opt = fingered[i]!
+    // Lower pitches of this group, in group order (voice 1 first); kept only if the option fingered them.
+    let k = 1
+    lower.forEach((voice, v) => {
+      const n = voice.find((x) => x.start === g.start && x.pitch < g.pitches[0]!)
+      if (!n) return
+      const f = opt[k]
+      if (f && g.pitches[k] === n.pitch) {
+        voices[v + 1]!.push({ ...n, fingering: f, voice: v + 1 })
+        if (n.approx) approxCount++
+        k++
+      } else droppedCount++
+    })
+  })
+  const bass =
+    options.bass === false
+      ? []
+      : chooseBass(melodyNotes, notes.map((n) => n.fingering), profile, meter, song.pickup, fromBar, toBar)
 
   let bellowsChanges = 0
   for (let i = 1; i < notes.length; i++) if (notes[i]!.fingering.bellows !== notes[i - 1]!.fingering.bellows) bellowsChanges++
 
-  return { notes, bass, meter, pickup: song.pickup, fromBar, toBar, transpose, approxCount, bellowsChanges }
+  return { notes, voices, droppedCount, bass, meter, pickup: song.pickup, fromBar, toBar, transpose, approxCount, bellowsChanges }
 }
