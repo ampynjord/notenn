@@ -33,7 +33,9 @@ K:C
 G2|c3c c2e2|d3c d2ed|c3c e2g2|a6a2|g3e e2c2|d3c d2e2|c3A A2G2|c6a2|
 g3e e2c2|d3c d2a2|g3e e2g2|a6c'2|g3e e2c2|d3c d2e2|c3A A2G2|c8|]`
 
-const WIDTH = 900
+/** Drawing width bounds: the tab is laid out at the width it is shown, so numbers stay readable on phones. */
+const MIN_WIDTH = 340
+const MAX_WIDTH = 1100
 
 /** Something went wrong, as a translation key (never a hard-coded message). */
 type Problem = { key: string } | null
@@ -43,9 +45,11 @@ const signed = (n: number) => (n > 0 ? `+${n}` : String(n))
 interface Props {
   /** Tune to open, in ABC notation (a library tune); the sample tune otherwise. */
   abc?: string
+  /** False when the page already shows the tune's title. */
+  showTitle?: boolean
 }
 
-export function Workshop({ abc: initialAbc }: Props) {
+export function Workshop({ abc: initialAbc, showTitle = true }: Props) {
   const t = useTranslations('workshop')
   const te = useTranslations('errors')
   const tl = useTranslations('lines')
@@ -69,6 +73,22 @@ export function Workshop({ abc: initialAbc }: Props) {
   const playback = useRef<Playback | null>(null)
   const raf = useRef(0)
   const scoreRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(900)
+
+  useEffect(() => {
+    const el = scoreRef.current
+    if (!el) return
+    const measure = () => {
+      const style = getComputedStyle(el)
+      const inner = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+      // Round to 20 px so small resizes do not recompute the whole layout.
+      setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(inner / 20) * 20)))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const profile: InstrumentProfile = getProfile(prefs.profileId) ?? hohner2915GC
   const rows = prefs.rows?.filter((r) => profile.rows.some((x) => x.id === r))
@@ -113,14 +133,19 @@ export function Workshop({ abc: initialAbc }: Props) {
     if (!song) return null
     try {
       const arr = arrange(song, profile, { trackIndex: track, rows: activeRows, transpose, bass: prefs.bass, fingerings: edits })
-      const lines = layout(arr, profile, song.meter, { width: WIDTH, staff: prefs.staff, labels: lineLabels })
+      const lines = layout(arr, profile, song.meter, {
+        width,
+        staff: prefs.staff,
+        labels: lineLabels,
+        maxBarsPerLine: width < 520 ? 2 : width < 760 ? 3 : arr.meter.beatsPerBar > 4 ? 2 : 4,
+      })
       return { arr, lines, failed: false }
     } catch {
       return { arr: null, lines: [], failed: true }
     }
     // activeRows is derived from prefs.rows and profile.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [song, track, profile, prefs.rows, transpose, prefs.bass, prefs.staff, lineLabels, edits])
+  }, [song, track, profile, prefs.rows, transpose, prefs.bass, prefs.staff, lineLabels, edits, width])
 
   const arr = result?.arr ?? null
   const lastBar = arr?.toBar ?? 1
@@ -417,7 +442,7 @@ export function Workshop({ abc: initialAbc }: Props) {
         {arr && song && (
           <>
             <header className="score-head">
-              <h2>{song.title || t('untitled')}</h2>
+              {showTitle && <h2>{song.title || t('untitled')}</h2>}
               <p className="sub">{subtitle()}</p>
               <ul className="facts">
                 <li>{arr.transpose === 0 ? t('originalKey') : t('transposed', { signed: signed(arr.transpose) })}</li>
@@ -456,7 +481,7 @@ export function Workshop({ abc: initialAbc }: Props) {
             </header>
             <ArgoatSheet
               lines={result!.lines}
-              width={WIDTH}
+              width={width}
               cursor={cursor}
               passage={passage && !passage.whole ? passage : undefined}
               selected={editing?.note}
