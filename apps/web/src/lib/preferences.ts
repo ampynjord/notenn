@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-/** Player preferences, kept in this browser only. */
+import { useAccount } from './account'
+
+/** Workshop settings: kept on the account when signed in, for this visit only otherwise. */
 export interface Preferences {
   profileId: string
   /** Rows to use; null = all the keyboard's rows. */
@@ -34,55 +36,39 @@ export const DEFAULT_PREFERENCES: Preferences = {
   pdfBarsPerLine: 0,
 }
 
-const KEY = 'notenn.preferences.v1'
-
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = window.localStorage.getItem(key)
-    return raw ? { ...fallback, ...(JSON.parse(raw) as Partial<T>) } : fallback
-  } catch {
-    return fallback
+/** Keeps only known keys with the right type, so an old or tampered value cannot break the workshop. */
+export function sanitizePreferences(raw: unknown): Partial<Preferences> {
+  if (!raw || typeof raw !== 'object') return {}
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const def = DEFAULT_PREFERENCES[k as keyof Preferences]
+    if (def === undefined) continue
+    if (k === 'rows') {
+      if (v === null || (Array.isArray(v) && v.every((x) => typeof x === 'string'))) out[k] = v
+    } else if (typeof v === typeof def) out[k] = v
   }
-}
-
-function write(key: string, value: unknown) {
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    // Private browsing or storage disabled: preferences simply last for this visit.
-  }
+  return out as Partial<Preferences>
 }
 
 export function usePreferences(): [Preferences, (patch: Partial<Preferences>) => void] {
+  const { member, saveSettings } = useAccount()
   const [prefs, setPrefs] = useState(DEFAULT_PREFERENCES)
-  useEffect(() => setPrefs(read(KEY, DEFAULT_PREFERENCES)), [])
-  const update = (patch: Partial<Preferences>) =>
-    setPrefs((p) => {
-      const next = { ...p, ...patch }
-      write(KEY, next)
-      return next
-    })
+  const loadedFor = useRef<number | null>(null)
+
+  // The account's settings are applied once, when the member is known.
+  useEffect(() => {
+    if (!member || loadedFor.current === member.id) return
+    loadedFor.current = member.id
+    setPrefs({ ...DEFAULT_PREFERENCES, ...sanitizePreferences(member.settings) })
+  }, [member])
+
+  const current = useRef(prefs)
+  current.current = prefs
+  const update = (patch: Partial<Preferences>) => {
+    const next = { ...current.current, ...patch }
+    current.current = next
+    setPrefs(next)
+    if (member) saveSettings(next as unknown as Record<string, unknown>)
+  }
   return [prefs, update]
-}
-
-/** Fingerings edited by hand, per tune and keyboard. */
-export function loadEdits(tuneKey: string): Record<string, { row: string; button: number; bellows: 'push' | 'pull' }> {
-  return read(`notenn.edits.${tuneKey}`, {})
-}
-
-export function saveEdits(tuneKey: string, edits: Record<string, unknown>) {
-  if (Object.keys(edits).length) write(`notenn.edits.${tuneKey}`, edits)
-  else
-    try {
-      window.localStorage.removeItem(`notenn.edits.${tuneKey}`)
-    } catch {
-      // Nothing to clean up.
-    }
-}
-
-/** Short stable key for a tune, from its title and notes. */
-export function tuneKey(title: string, pitches: number[]): string {
-  let h = 2166136261
-  for (const c of title + ':' + pitches.join(',')) h = Math.imul(h ^ c.charCodeAt(0), 16777619)
-  return (h >>> 0).toString(36)
 }

@@ -24,7 +24,17 @@ function Op({ op, hotNote, hotBass }: { op: DrawOp; hotNote: number; hotBass: nu
         </text>
       )
     case 'line':
-      return <line x1={op.x1} y1={op.y1} x2={op.x2} y2={op.y2} style={{ stroke: fill(op.ink) }} strokeWidth={op.width} strokeLinecap="round" />
+      return (
+        <line
+          x1={op.x1}
+          y1={op.y1}
+          x2={op.x2}
+          y2={op.y2}
+          style={{ stroke: fill(op.ink) }}
+          strokeWidth={op.width}
+          strokeLinecap="round"
+        />
+      )
     case 'ellipse':
       return (
         <ellipse
@@ -59,7 +69,14 @@ function Op({ op, hotNote, hotBass }: { op: DrawOp; hotNote: number; hotBass: nu
             strokeWidth={1.2}
             className={op.bass === hotBass ? 'hot' : undefined}
           />
-          <text x={op.x} y={op.y + 3} textAnchor="middle" fontSize={8} fontWeight={700} style={{ fill: op.filled ? 'var(--surface)' : 'var(--bass)' }}>
+          <text
+            x={op.x}
+            y={op.y + 3}
+            textAnchor="middle"
+            fontSize={8}
+            fontWeight={700}
+            style={{ fill: op.filled ? 'var(--surface)' : 'var(--bass)' }}
+          >
             {op.label}
           </text>
         </g>
@@ -90,7 +107,15 @@ interface Props {
   describeNote?: (note: number) => string
 }
 
-export function ArgoatSheet({ lines, width, cursor, passage, selected, onNoteClick, describeNote }: Props) {
+export function ArgoatSheet({
+  lines,
+  width,
+  cursor,
+  passage,
+  selected,
+  onNoteClick,
+  describeNote,
+}: Props) {
   const t = useTranslations('workshop')
   return (
     <div className="argoat-sheet">
@@ -101,7 +126,12 @@ export function ArgoatSheet({ lines, width, cursor, passage, selected, onNoteCli
         const dimBefore = passage && passage.start > l.start ? Math.min(X(passage.start), width) : 0
         const dimAfter = passage && passage.end < l.end ? Math.max(X(passage.end), 0) : width
         return (
-          <svg key={l.firstBar} viewBox={`0 0 ${width} ${l.height}`} role="group" aria-label={t('barsAria', { from: l.firstBar, to: l.lastBar })}>
+          <svg
+            key={l.firstBar}
+            viewBox={`0 0 ${width} ${l.height}`}
+            role="group"
+            aria-label={t('barsAria', { from: l.firstBar, to: l.lastBar })}
+          >
             {active && cursor.noteStart !== undefined && cursor.noteDur !== undefined && (
               <rect
                 x={l.x0 + (cursor.noteStart - l.start) * l.scale - 6}
@@ -112,10 +142,19 @@ export function ArgoatSheet({ lines, width, cursor, passage, selected, onNoteCli
               />
             )}
             {l.ops.map((op, i) => (
-              <Op key={i} op={op} hotNote={active ? cursor.note : -1} hotBass={active ? cursor.bass : -1} />
+              <Op
+                key={i}
+                op={op}
+                hotNote={active ? cursor.note : -1}
+                hotBass={active ? cursor.bass : -1}
+              />
             ))}
-            {passage && dimBefore > 0 && <rect x={0} y={0} width={dimBefore} height={l.height} className="dim" />}
-            {passage && dimAfter < width && <rect x={dimAfter} y={0} width={width - dimAfter} height={l.height} className="dim" />}
+            {passage && dimBefore > 0 && (
+              <rect x={0} y={0} width={dimBefore} height={l.height} className="dim" />
+            )}
+            {passage && dimAfter < width && (
+              <rect x={dimAfter} y={0} width={width - dimAfter} height={l.height} className="dim" />
+            )}
             {onNoteClick &&
               l.ops.map((op, i) =>
                 op.kind === 'text' && op.note !== undefined ? (
@@ -140,7 +179,17 @@ export function ArgoatSheet({ lines, width, cursor, passage, selected, onNoteCli
                   />
                 ) : null,
               )}
-            {active && <line x1={x} x2={x} y1={2} y2={l.height - 6} style={{ stroke: 'var(--cur)' }} strokeWidth={2.2} opacity={0.85} />}
+            {active && (
+              <line
+                x1={x}
+                x2={x}
+                y1={2}
+                y2={l.height - 6}
+                style={{ stroke: 'var(--cur)' }}
+                strokeWidth={2.2}
+                opacity={0.85}
+              />
+            )}
           </svg>
         )
       })}

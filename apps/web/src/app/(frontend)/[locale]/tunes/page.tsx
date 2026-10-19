@@ -12,8 +12,31 @@ type Props = {
   searchParams: Promise<{ q?: string; region?: string; kind?: string; level?: string }>
 }
 
-const REGIONS = ['brittany', 'france', 'ireland', 'scotland', 'england', 'germany', 'usa', 'international'] as const
-const KINDS = ['air', 'song', 'childrens-song', 'dance', 'jig', 'slip-jig', 'reel', 'march', 'waltz', 'shanty', 'lullaby', 'spiritual', 'classical'] as const
+const REGIONS = [
+  'brittany',
+  'france',
+  'ireland',
+  'scotland',
+  'england',
+  'germany',
+  'usa',
+  'international',
+] as const
+const KINDS = [
+  'air',
+  'song',
+  'childrens-song',
+  'dance',
+  'jig',
+  'slip-jig',
+  'reel',
+  'march',
+  'waltz',
+  'shanty',
+  'lullaby',
+  'spiritual',
+  'classical',
+] as const
 const LEVELS = ['beginner', 'intermediate', 'advanced'] as const
 
 export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
@@ -37,7 +60,12 @@ export default async function TunesPage({ params, searchParams }: Props) {
       <form className="filters" role="search" method="get">
         <label>
           <span>{t('search')}</span>
-          <input type="search" name="q" defaultValue={filters.q ?? ''} placeholder={t('searchPlaceholder')} />
+          <input
+            type="search"
+            name="q"
+            defaultValue={filters.q ?? ''}
+            placeholder={t('searchPlaceholder')}
+          />
         </label>
         <label>
           <span>{t('region')}</span>

@@ -63,12 +63,15 @@ export type SupportedTimezones =
 
 export interface Config {
   auth: {
+    members: MemberAuthOperations;
     users: UserAuthOperations;
   };
   blocks: {};
   collections: {
     tunes: Tune;
     media: Media;
+    members: Member;
+    'library-items': LibraryItem;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -79,6 +82,8 @@ export interface Config {
   collectionsSelect: {
     tunes: TunesSelect<false> | TunesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    members: MembersSelect<false> | MembersSelect<true>;
+    'library-items': LibraryItemsSelect<false> | LibraryItemsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -95,10 +100,28 @@ export interface Config {
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: Member | User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
+  };
+}
+export interface MemberAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
   };
 }
 export interface UserAuthOperations {
@@ -178,6 +201,69 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members".
+ */
+export interface Member {
+  id: number;
+  locale: 'fr' | 'en';
+  settings?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'members';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "library-items".
+ */
+export interface LibraryItem {
+  id: number;
+  owner: number | Member;
+  kind: 'tune' | 'file';
+  tune?: (number | null) | Tune;
+  title: string;
+  fileName?: string | null;
+  source?: string | null;
+  encoding?: ('text' | 'base64') | null;
+  fingerings?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -235,14 +321,27 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'members';
+        value: number | Member;
+      } | null)
+    | ({
+        relationTo: 'library-items';
+        value: number | LibraryItem;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'members';
+        value: number | Member;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -252,10 +351,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'members';
+        value: number | Member;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
   key?: string | null;
   value?:
     | {
@@ -315,6 +419,49 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members_select".
+ */
+export interface MembersSelect<T extends boolean = true> {
+  locale?: T;
+  settings?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  _verified?: T;
+  _verificationToken?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "library-items_select".
+ */
+export interface LibraryItemsSelect<T extends boolean = true> {
+  owner?: T;
+  kind?: T;
+  tune?: T;
+  title?: T;
+  fileName?: T;
+  source?: T;
+  encoding?: T;
+  fingerings?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

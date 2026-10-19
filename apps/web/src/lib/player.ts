@@ -94,10 +94,13 @@ export function play(arr: Arrangement, profile: InstrumentProfile, opts: PlayOpt
     const r = (q - arr.pickup) / arr.meter.barLength
     return Math.abs(r - Math.round(r)) < 1e-6
   }
-  const firstBeat = arr.pickup + Math.ceil((from - arr.pickup) / arr.meter.beat - 1e-6) * arr.meter.beat
+  const firstBeat =
+    arr.pickup + Math.ceil((from - arr.pickup) / arr.meter.beat - 1e-6) * arr.meter.beat
   if (opts.countIn)
-    for (let k = 0; k < arr.meter.beatsPerBar; k++) click(at(from - lead + k * arr.meter.beat), k === 0)
-  if (opts.metronome) for (let q = firstBeat; q < to - 1e-6; q += arr.meter.beat) click(at(q), isBarStart(q))
+    for (let k = 0; k < arr.meter.beatsPerBar; k++)
+      click(at(from - lead + k * arr.meter.beat), k === 0)
+  if (opts.metronome)
+    for (let q = firstBeat; q < to - 1e-6; q += arr.meter.beat) click(at(q), isBarStart(q))
 
   return {
     from,

@@ -1,3 +1,4 @@
+import { adminOnly, isAdmin } from '@/lib/access'
 import type { CollectionConfig } from 'payload'
 
 /** Library tunes: public-domain or traditional melodies in ABC notation, curated in the admin. */
@@ -9,11 +10,11 @@ export const Tunes: CollectionConfig = {
     defaultColumns: ['title', 'region', 'kind', 'level', 'published'],
   },
   access: {
-    // Visitors only see published tunes; editing is for signed-in administrators.
-    read: ({ req }) => (req.user ? true : { published: { equals: true } }),
-    create: ({ req }) => !!req.user,
-    update: ({ req }) => !!req.user,
-    delete: ({ req }) => !!req.user,
+    // Visitors and members only see published tunes; editing is for administrators.
+    read: ({ req }) => (isAdmin(req) ? true : { published: { equals: true } }),
+    create: adminOnly,
+    update: adminOnly,
+    delete: adminOnly,
   },
   defaultSort: 'title',
   fields: [
@@ -25,8 +26,14 @@ export const Tunes: CollectionConfig = {
       unique: true,
       index: true,
       label: { en: 'Address', fr: 'Adresse' },
-      admin: { description: { en: 'Lower case, dashes: auld-lang-syne', fr: 'Minuscules et tirets : auld-lang-syne' } },
-      validate: (value: unknown) => (typeof value === 'string' && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)) || 'a-z, 0-9, -',
+      admin: {
+        description: {
+          en: 'Lower case, dashes: auld-lang-syne',
+          fr: 'Minuscules et tirets : auld-lang-syne',
+        },
+      },
+      validate: (value: unknown) =>
+        (typeof value === 'string' && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(value)) || 'a-z, 0-9, -',
     },
     {
       type: 'row',
@@ -86,7 +93,12 @@ export const Tunes: CollectionConfig = {
       type: 'text',
       required: true,
       label: { en: 'Composer or tradition', fr: 'Compositeur ou tradition' },
-      admin: { description: { en: 'e.g. Traditional, or Ludwig van Beethoven, 1824', fr: 'Par exemple : Traditional, ou Ludwig van Beethoven, 1824' } },
+      admin: {
+        description: {
+          en: 'e.g. Traditional, or Ludwig van Beethoven, 1824',
+          fr: 'Par exemple : Traditional, ou Ludwig van Beethoven, 1824',
+        },
+      },
     },
     {
       name: 'licence',
@@ -99,7 +111,12 @@ export const Tunes: CollectionConfig = {
         { value: 'free-licence', label: { en: 'Free licence', fr: 'Licence libre' } },
       ],
     },
-    { name: 'notes', type: 'textarea', localized: true, label: { en: 'Short description', fr: 'Courte présentation' } },
+    {
+      name: 'notes',
+      type: 'textarea',
+      localized: true,
+      label: { en: 'Short description', fr: 'Courte présentation' },
+    },
     {
       name: 'abc',
       type: 'code',
@@ -107,6 +124,12 @@ export const Tunes: CollectionConfig = {
       label: { en: 'Melody (ABC notation)', fr: 'Mélodie (notation ABC)' },
       admin: { language: 'plaintext' },
     },
-    { name: 'published', type: 'checkbox', defaultValue: true, label: { en: 'Published', fr: 'Publié' }, admin: { position: 'sidebar' } },
+    {
+      name: 'published',
+      type: 'checkbox',
+      defaultValue: true,
+      label: { en: 'Published', fr: 'Publié' },
+      admin: { position: 'sidebar' },
+    },
   ],
 }

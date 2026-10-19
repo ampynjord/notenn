@@ -14,7 +14,13 @@ type Translate = (key: string, values?: Record<string, string | number>) => stri
  * Translated row name from its id (the row's key in English: "c", "g", "bb"…) and position on the
  * keyboard: "Rang de Do (intérieur)", "G row (outer)".
  */
-export function rowLabel(notes: Translate & { has: (key: string) => boolean }, id: string, index: number, count: number, t: Translate) {
+export function rowLabel(
+  notes: Translate & { has: (key: string) => boolean },
+  id: string,
+  index: number,
+  count: number,
+  t: Translate,
+) {
   const key = notes.has(id) ? notes(id) : id.toUpperCase()
   const position =
     count === 2

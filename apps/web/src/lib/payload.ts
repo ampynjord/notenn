@@ -21,8 +21,16 @@ export async function findTunes(locale: 'fr' | 'en', filters: TuneFilters = {}):
   const payload = await payloadClient()
   const and: Record<string, unknown>[] = [{ published: { equals: true } }]
   if (filters.q) and.push({ or: [{ title: { like: filters.q } }, { origin: { like: filters.q } }] })
-  for (const k of ['region', 'kind', 'level'] as const) if (filters[k]) and.push({ [k]: { equals: filters[k] } })
-  const res = await payload.find({ collection: 'tunes', locale, where: { and } as never, limit: 500, sort: 'title', overrideAccess: false })
+  for (const k of ['region', 'kind', 'level'] as const)
+    if (filters[k]) and.push({ [k]: { equals: filters[k] } })
+  const res = await payload.find({
+    collection: 'tunes',
+    locale,
+    where: { and } as never,
+    limit: 500,
+    sort: 'title',
+    overrideAccess: false,
+  })
   return res.docs
 }
 

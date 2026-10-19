@@ -40,7 +40,12 @@ const GREYS: Record<Ink, [number, number, number]> = {
 }
 
 /** Draws the Système Argoat layout on A4 pages and returns the PDF as a Blob. */
-export async function buildPdf(arr: Arrangement, profile: InstrumentProfile, meter: Meter, opts: PdfOptions): Promise<Blob> {
+export async function buildPdf(
+  arr: Arrangement,
+  profile: InstrumentProfile,
+  meter: Meter,
+  opts: PdfOptions,
+): Promise<Blob> {
   const { jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const palette = opts.color ? COLORS : GREYS
@@ -53,16 +58,25 @@ export async function buildPdf(arr: Arrangement, profile: InstrumentProfile, met
   })
 
   const header = () => {
-    doc.setFont('helvetica', 'bold').setFontSize(20).setTextColor(...COLORS.ink)
+    doc
+      .setFont('helvetica', 'bold')
+      .setFontSize(20)
+      .setTextColor(...COLORS.ink)
     doc.text(opts.title, MARGIN, MARGIN + 14)
-    doc.setFont('helvetica', 'normal').setFontSize(10).setTextColor(...COLORS.muted)
+    doc
+      .setFont('helvetica', 'normal')
+      .setFontSize(10)
+      .setTextColor(...COLORS.muted)
     doc.text(opts.subtitle, MARGIN, MARGIN + 32)
     doc.setFontSize(8.5)
     doc.text(doc.splitTextToSize(opts.legend, WIDTH) as string[], MARGIN, MARGIN + 48)
     return MARGIN + 66
   }
   const footer = (page: number) => {
-    doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor(...COLORS.muted)
+    doc
+      .setFont('helvetica', 'normal')
+      .setFontSize(8)
+      .setTextColor(...COLORS.muted)
     doc.text(`${opts.footer}   ${page}`, PAGE_W - MARGIN, PAGE_H - 22, { align: 'right' })
   }
 
@@ -91,7 +105,10 @@ export async function buildPdf(arr: Arrangement, profile: InstrumentProfile, met
           }
           break
         case 'ellipse':
-          doc.setDrawColor(...rgb(op.ink)).setFillColor(...rgb(op.ink)).setLineWidth(0.9)
+          doc
+            .setDrawColor(...rgb(op.ink))
+            .setFillColor(...rgb(op.ink))
+            .setLineWidth(0.9)
           doc.ellipse(X(op.x), Y(op.y), op.rx, op.ry, op.filled ? 'FD' : 'S')
           break
         case 'circle':
@@ -114,7 +131,9 @@ export async function buildPdf(arr: Arrangement, profile: InstrumentProfile, met
             doc.line(x0, y0 + 6.5, x0 + 3, y0 + 5.5)
             break
           }
-          doc.setFont(op.mono ? 'courier' : 'helvetica', op.bold ? 'bold' : 'normal').setFontSize(op.size)
+          doc
+            .setFont(op.mono ? 'courier' : 'helvetica', op.bold ? 'bold' : 'normal')
+            .setFontSize(op.size)
           doc.setTextColor(...rgb(op.ink))
           doc.text(op.text, X(op.x), Y(op.y), op.anchor === 'middle' ? { align: 'center' } : {})
           break
