@@ -1,5 +1,5 @@
 import { fingeringsFor, pitchClass } from './keyboard'
-import type { Fingering, InstrumentProfile, MeterInfo, Note } from './types'
+import type { FingerChoice, Fingering, InstrumentProfile, MeterInfo, Note } from './types'
 
 /**
  * Notes played together by the right hand: the first pitch is the melody (top voice), the others
@@ -49,6 +49,7 @@ export function chooseGroupFingering(
   rows: string[],
   meter: MeterInfo,
   pickup: number,
+  fixed: (FingerChoice | undefined)[] = [],
 ): Fingering[][] {
   const rowCost = new Map(profile.rows.map((r) => [r.id, r.cost]))
   const onBeat = (g: NoteGroup) => {
@@ -69,9 +70,19 @@ export function chooseGroupFingering(
     return c + Math.abs(fa.y - fb.y) * 0.12
   }
 
-  const options = groups.map((g) => {
-    const full = groupOptions(g.pitches, profile, rows)
-    return full.length ? full : groupOptions(g.pitches.slice(0, 1), profile, rows)
+  const same = (f: Fingering, c: FingerChoice) => f.row === c.row && f.button === c.button && f.bellows === c.bellows
+  const options = groups.map((g, i) => {
+    let opts = groupOptions(g.pitches, profile, rows)
+    if (!opts.length) opts = groupOptions(g.pitches.slice(0, 1), profile, rows)
+    const choice = fixed[i]
+    if (choice) {
+      // A hand-picked melody fingering wins; the lower voices keep whatever fits with it.
+      const kept = opts.filter((o) => same(o[0]!, choice))
+      const alone = groupOptions(g.pitches.slice(0, 1), profile, rows).filter((o) => same(o[0]!, choice))
+      if (kept.length) opts = kept
+      else if (alone.length) opts = alone
+    }
+    return opts
   })
   const cost: number[][] = []
   const back: number[][] = []

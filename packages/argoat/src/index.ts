@@ -60,15 +60,18 @@ export function buttonLabel(profile: InstrumentProfile, row: string, button: num
   return `${button}${r?.suffix ?? ''}`
 }
 
-function autoBarsPerLine(arr: Arrangement, width: number, staff: boolean, max: number) {
+function autoBarsPerLine(arr: Arrangement, profile: InstrumentProfile, width: number, staff: boolean, max: number) {
   const usable = width - X0 - RIGHT
   for (let b = max; b > 1; b--) {
     const sc = usable / (b * arr.meter.barLength + arr.pickup)
     let ok = true
     for (let i = 1; i < arr.notes.length; i++) {
-      const gap = (arr.notes[i]!.start - arr.notes[i - 1]!.start) * sc
-      const sameLine = arr.notes[i]!.fingering.bellows === arr.notes[i - 1]!.fingering.bellows
-      if ((sameLine && gap < 20) || (staff && gap < 12)) {
+      const prev = arr.notes[i - 1]!
+      const gap = (arr.notes[i]!.start - prev.start) * sc
+      const sameLine = arr.notes[i]!.fingering.bellows === prev.fingering.bellows
+      // Room needed after a button number on the same line: its width in the 11.5 px monospace.
+      const label = buttonLabel(profile, prev.fingering.row, prev.fingering.button)
+      if ((sameLine && gap < label.length * 6.9 + 2) || (staff && gap < 10)) {
         ok = false
         break
       }
@@ -156,7 +159,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
   const labels = { ...DEFAULT_LABELS, ...options.labels }
   const bpl =
     options.barsPerLine === undefined || options.barsPerLine === 'auto'
-      ? autoBarsPerLine(arr, width, staff, options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4))
+      ? autoBarsPerLine(arr, profile, width, staff, options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4))
       : options.barsPerLine
   const octave = displayOctave(arr)
   const H = lineHeight(staff)
@@ -290,6 +293,8 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       const label = buttonLabel(profile, n.fingering.row, n.fingering.button)
       const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
       ops.push({ kind: 'text', x: X(n.start), y, text: label, ink, size: 11.5, bold: true, mono: true, note: i })
+      // A fingering chosen by hand is underlined, so it is easy to spot and undo.
+      if (n.edited) ops.push({ kind: 'line', x1: X(n.start), y1: y + 3, x2: X(n.start) + label.length * 7, y2: y + 3, ink, width: 1.2 })
       if (n.dur > arr.meter.beat + 1e-6) {
         const a = X(n.start) + label.length * 7.6 + 3
         const z = X(Math.min(n.start + n.dur, end)) - 5

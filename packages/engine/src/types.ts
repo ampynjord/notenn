@@ -77,7 +77,12 @@ export interface PlacedNote extends Note {
   fingering: Fingering
   /** 0 = melody (top voice), 1 = second voice below it, and so on. */
   voice: number
+  /** True when the player chose this fingering by hand. */
+  edited?: boolean
 }
+
+/** A fingering chosen by hand, without the computed vertical position. */
+export type FingerChoice = Pick<Fingering, 'row' | 'button' | 'bellows'>
 
 export interface BassEvent {
   time: number
@@ -107,6 +112,11 @@ export interface ArrangeOptions {
    * with it, etc. Lower voices are only kept where they can be played in the melody's bellows direction.
    */
   voices?: number
+  /**
+   * Fingerings chosen by hand for melody notes, keyed by `noteKey(start)`. The rest of the tab adapts
+   * around them; a choice that no longer plays the note (other key or keyboard) is ignored.
+   */
+  fingerings?: Record<string, FingerChoice>
 }
 
 export interface Arrangement {

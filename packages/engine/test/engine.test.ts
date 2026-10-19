@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { arrange, hohner2915GC, meterInfo, melodyScore, pickMelodyTrack, snap, type Note, type Song } from '../src/index'
+import { arrange, fingeringsFor, hohner2915GC, meterInfo, melodyScore, noteKey, pickMelodyTrack, snap, type Note, type Song } from '../src/index'
 
 /** Builds notes from "pitch:duration" tokens (durations in quarter notes). */
 function seq(spec: string, start = 0): Note[] {
@@ -183,5 +183,27 @@ describe('several right-hand voices', () => {
       const row = hohner2915GC.rows.find((x) => x.id === n.fingering.row)!
       expect(row.buttons[n.fingering.button - 1]![n.fingering.bellows]).toBe(n.pitch)
     }
+  })
+})
+
+describe('fingerings chosen by hand', () => {
+  it('keeps the chosen button and lets the rest of the tab adapt', () => {
+    const auto = arrange(auld, hohner2915GC)
+    const target = auto.notes[3]!
+    const alt = fingeringsFor(target.pitch, hohner2915GC, ['c', 'g']).find(
+      (f) => f.row !== target.fingering.row || f.button !== target.fingering.button || f.bellows !== target.fingering.bellows,
+    )!
+    const edited = arrange(auld, hohner2915GC, { fingerings: { [noteKey(target.start)]: alt } })
+    const n = edited.notes[3]!
+    expect([n.fingering.row, n.fingering.button, n.fingering.bellows]).toEqual([alt.row, alt.button, alt.bellows])
+    expect(n.edited).toBe(true)
+    expect(edited.notes.filter((x) => x.edited)).toHaveLength(1)
+  })
+
+  it('ignores a choice that does not play the note any more', () => {
+    const auto = arrange(auld, hohner2915GC)
+    const r = arrange(auld, hohner2915GC, { fingerings: { [noteKey(auto.notes[0]!.start)]: { row: 'c', button: 10, bellows: 'pull' } } })
+    expect(r.notes[0]!.fingering).toEqual(auto.notes[0]!.fingering)
+    expect(r.notes[0]!.edited).toBeUndefined()
   })
 })

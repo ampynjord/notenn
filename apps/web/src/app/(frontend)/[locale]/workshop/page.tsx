@@ -8,8 +8,8 @@ type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'meta' })
-  return { title: t('workshopTitle') }
+  const t = await getTranslations({ locale, namespace: 'workshop' })
+  return { title: t('title'), description: t('intro') }
 }
 
 export default async function WorkshopPage({ params }: Props) {
@@ -19,8 +19,10 @@ export default async function WorkshopPage({ params }: Props) {
 
   return (
     <>
-      <h1>{t('title')}</h1>
-      <p className="intro">{t('intro')}</p>
+      <header className="page-head">
+        <h1>{t('title')}</h1>
+        <p className="intro">{t('intro')}</p>
+      </header>
       <Workshop />
     </>
   )

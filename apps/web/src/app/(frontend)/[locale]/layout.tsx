@@ -4,8 +4,13 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
+import '@fontsource/atkinson-hyperlegible/400.css'
+import '@fontsource/atkinson-hyperlegible/700.css'
+
+import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
 import { routing } from '@/i18n/routing'
+import { SITE } from '@/lib/site'
 import '../styles.css'
 
 type Props = { children: React.ReactNode; params: Promise<{ locale: string }> }
@@ -17,7 +22,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Omit<Props, 'children'>): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'meta' })
-  return { title: t('title'), description: t('description') }
+  return { title: { default: t('title'), template: `%s · ${t('title')}` }, description: t('description'), metadataBase: new URL(SITE.url) }
 }
 
 export default async function LocaleLayout({ children, params }: Props) {
@@ -29,8 +34,12 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale}>
       <body>
         <NextIntlClientProvider>
+          <a className="skip" href="#content">
+            {(await getTranslations({ locale, namespace: 'nav' }))('skip')}
+          </a>
           <SiteHeader />
-          <main>{children}</main>
+          <main id="content">{children}</main>
+          <SiteFooter />
         </NextIntlClientProvider>
       </body>
     </html>
