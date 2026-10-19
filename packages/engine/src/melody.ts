@@ -47,7 +47,8 @@ export function melodyScore(track: Track): number {
   score *= repeats / Math.max(1, n - 1) > 0.6 ? 0.45 : 1
   const name = track.name.toLowerCase()
   if (/melod|mélod|lead|right|droite|vocal|voice|voix|chant|solo|flute|flûte|whistle|violin|soprano|sopran|cantus|treble|dessus/.test(name)) score *= 1.6
-  if (/\balto\b|tenor|ténor/.test(name)) score *= 0.7
+  // Voix intérieures d'un chœur (pas les instruments : « alto sax », « tenor sax » restent neutres).
+  if (/\balto\b|tenor|ténor/.test(name) && !/sax|clar|flute|flûte|recorder|horn|trombone|viol|banjo|uku|guit|bugle|cornet/.test(name)) score *= 0.7
   if (/bass|basse|left|gauche|drum|batt|perc|pad|chord|accord|accomp|string/.test(name)) score *= 0.45
   return score
 }

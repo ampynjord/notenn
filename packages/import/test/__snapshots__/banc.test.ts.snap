@@ -156,7 +156,7 @@ exports[`banc de tests sur de vrais fichiers > bach-bwv66-6.mxl 1`] = `
 
 exports[`banc de tests sur de vrais fichiers > bach-bwv269.musicxml 1`] = `
 {
-  "anacrouse": 0,
+  "anacrouse": 1,
   "changementsSoufflet": 10,
   "melodie": "Soprano",
   "mesure": "3/4",
