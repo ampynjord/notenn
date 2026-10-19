@@ -1,6 +1,6 @@
-# Production de Notenn sur le VPS, derrière le Traefik existant.
-# Depuis ce dossier :  docker compose up -d --build
-# Variables : voir .env.example (copier en .env).
+# Notenn production on the VPS, behind the existing Traefik.
+# From this folder:  docker compose up -d --build
+# Variables: see .env.example (copy to .env).
 
 name: notenn
 
@@ -12,25 +12,25 @@ services:
     image: notenn-web:latest
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://notenn:${POSTGRES_PASSWORD:?à définir dans .env}@db:5432/notenn
-      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?à définir dans .env}
+      DATABASE_URL: postgres://notenn:${POSTGRES_PASSWORD:?must be set in .env}@db:5432/notenn
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?must be set in .env}
     volumes:
       - media:/data/media
     depends_on:
       db:
         condition: service_healthy
     networks:
-      - interne
+      - internal
       - traefik
     labels:
       - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik}
+      - traefik.docker.network=${TRAEFIK_NETWORK:-traefik-network}
       - traefik.http.routers.notenn.rule=Host(`${DOMAIN:-notenn.ampynjord.bzh}`)
       - traefik.http.routers.notenn.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}
       - traefik.http.routers.notenn.tls=true
       - traefik.http.routers.notenn.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}
       - traefik.http.services.notenn.loadbalancer.server.port=3000
-      # En-têtes de sécurité
+      # Security headers
       - traefik.http.routers.notenn.middlewares=notenn-entetes
       - traefik.http.middlewares.notenn-entetes.headers.stsSeconds=31536000
       - traefik.http.middlewares.notenn-entetes.headers.stsIncludeSubdomains=true
@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: notenn
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?à définir dans .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?must be set in .env}
       POSTGRES_DB: notenn
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -53,35 +53,35 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - interne
+      - internal
 
-  # Sauvegarde quotidienne de la base et des médias dans ./sauvegardes, gardée ${BACKUP_KEEP_DAYS} jours.
-  sauvegarde:
+  # Daily backup of the database and media into ./backups, kept ${BACKUP_KEEP_DAYS} days.
+  backup:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
       PGHOST: db
       PGUSER: notenn
-      PGPASSWORD: ${POSTGRES_PASSWORD:?à définir dans .env}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?must be set in .env}
       PGDATABASE: notenn
       KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
     volumes:
-      - ./sauvegardes:/sauvegardes
+      - ./backups:/backups
       - media:/data/media:ro
-      - ./sauvegarde.sh:/sauvegarde.sh:ro
-    entrypoint: ["sh", "/sauvegarde.sh"]
+      - ./backup.sh:/backup.sh:ro
+    entrypoint: ["sh", "/backup.sh"]
     depends_on:
       db:
         condition: service_healthy
     networks:
-      - interne
+      - internal
 
 volumes:
   pgdata:
   media:
 
 networks:
-  interne:
+  internal:
   traefik:
     external: true
-    name: ${TRAEFIK_NETWORK:-traefik}
+    name: ${TRAEFIK_NETWORK:-traefik-network}

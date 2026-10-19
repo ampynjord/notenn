@@ -6,8 +6,8 @@ export function fingeringsFor(pitch: number, profile: InstrumentProfile, rows: s
     if (!rows.includes(row.id)) continue
     row.buttons.forEach((b, i) => {
       const y = i + row.offset
-      if (b.push === pitch) out.push({ row: row.id, button: i + 1, bellows: 'P', y })
-      if (b.pull === pitch) out.push({ row: row.id, button: i + 1, bellows: 'T', y })
+      if (b.push === pitch) out.push({ row: row.id, button: i + 1, bellows: 'push', y })
+      if (b.pull === pitch) out.push({ row: row.id, button: i + 1, bellows: 'pull', y })
     })
   }
   return out
@@ -26,12 +26,12 @@ export function playablePitches(profile: InstrumentProfile, rows: string[]): Set
 }
 
 /**
- * Note jouable la plus proche : même note, puis voisines à un ou deux demi-tons,
- * puis même note à une autre octave, puis la note jouable la plus proche tout court.
- * Ne renvoie jamais rien d'injouable : aucune note n'est perdue, elle est signalée comme remplacée.
+ * Closest playable pitch: the same pitch, then neighbours one to three semitones away,
+ * then the same pitch in another octave, then simply the closest playable pitch.
+ * Never returns an unplayable pitch: no note is lost, it is flagged as replaced instead.
  */
 export function nearestPlayable(pitch: number, playable: Set<number>): number {
-  if (!playable.size) throw new Error('Clavier sans aucune note')
+  if (!playable.size) throw new Error('Keyboard has no notes')
   for (const d of [0, -1, 1, -2, 2, -3, 3]) if (playable.has(pitch + d)) return pitch + d
   for (const o of [12, 24, 36, 48]) {
     for (const d of [0, -1, 1, -2, 2]) {
@@ -45,7 +45,7 @@ export function nearestPlayable(pitch: number, playable: Set<number>): number {
   return best
 }
 
-/** Transposition qui rend le plus de notes jouables, en restant près de la tonalité d'origine. */
+/** Transposition that makes the most notes playable while staying close to the original key. */
 export function bestTranspose(pitches: number[], playable: Set<number>): number {
   let best = 0
   let bestCost = Infinity

@@ -1,4 +1,4 @@
-/** Temps exprimés en noires (1 = une noire) ; hauteurs en numéros MIDI. */
+/** Times are in quarter notes (1 = one quarter note); pitches are MIDI numbers. */
 export interface Note {
   start: number
   dur: number
@@ -6,7 +6,10 @@ export interface Note {
 }
 
 export interface Track {
+  /** Name found in the file, '' when there is none (the interface then shows a translated fallback). */
   name: string
+  /** General MIDI instrument name, when the file gives one. */
+  instrument?: string
   notes: Note[]
 }
 
@@ -19,14 +22,14 @@ export interface Song {
   title: string
   tracks: Track[]
   meter: Meter
-  /** Durée de l'anacrouse, en noires (0 s'il n'y en a pas). */
+  /** Pickup (anacrusis) length in quarter notes, 0 if none. */
   pickup: number
   tempo: number
 }
 
-export type Bellows = 'P' | 'T'
+export type Bellows = 'push' | 'pull'
 
-/** Un bouton de main droite : la note en poussé et la note en tiré. */
+/** A right-hand button: its pitch on the push and on the pull. */
 export interface ButtonPitches {
   push: number
   pull: number
@@ -35,17 +38,17 @@ export interface ButtonPitches {
 export interface ButtonRow {
   id: string
   name: string
-  /** Signe ajouté au numéro dans la tablature (ex. "'" pour le rang intérieur). */
+  /** Mark appended to the button number in the tab (e.g. "'" for the inner row). */
   suffix: string
-  /** Décalage vertical du rang par rapport au premier, en boutons (sert à mesurer les déplacements). */
+  /** Vertical shift of the row relative to the first one, in buttons (used to measure hand movement). */
   offset: number
-  /** Coût par note pour décourager un rang moins pratique. */
+  /** Per-note cost, to discourage a less convenient row. */
   cost: number
-  /** Bouton 1 = côté menton. */
+  /** Button 1 = chin side. */
   buttons: ButtonPitches[]
 }
 
-/** Un groupe de main gauche : un bouton de basse et l'accord voisin, en poussé et en tiré (classes de hauteur 0-11). */
+/** A left-hand group: a bass button and its neighbouring chord, on push and pull (pitch classes 0-11). */
 export interface BassGroup {
   id: number
   push: { bass: number; chord: number[] }
@@ -68,7 +71,7 @@ export interface Fingering {
 }
 
 export interface PlacedNote extends Note {
-  /** Hauteur avant remplacement, si la note n'existait pas sur le clavier. */
+  /** Pitch before replacement, when the note did not exist on the keyboard. */
   original: number
   approx: boolean
   fingering: Fingering
@@ -78,7 +81,7 @@ export interface BassEvent {
   time: number
   group: number
   bellows: Bellows
-  /** true = bouton de basse (1er temps), false = accord. */
+  /** true = bass button (first beat), false = chord. */
   isBass: boolean
 }
 
@@ -90,11 +93,11 @@ export interface MeterInfo {
 
 export interface ArrangeOptions {
   trackIndex?: number
-  /** Lignes autorisées ; par défaut toutes celles du profil. */
+  /** Allowed rows; all the profile's rows by default. */
   rows?: string[]
   fromBar?: number
   toBar?: number
-  /** Transposition en demi-tons, ou 'auto'. */
+  /** Transposition in semitones, or 'auto'. */
   transpose?: number | 'auto'
   bass?: boolean
 }

@@ -1,7 +1,7 @@
 /**
- * Banc de tests : de vrais fichiers (domaine public, voir fixtures/SOURCES.md) passés par toute la chaîne
- * import → arrangement → mise en page. On vérifie des invariants, puis on fige les chiffres clés dans un
- * instantané pour repérer toute régression (piste choisie, transposition, notes remplacées, soufflet).
+ * Test bench: real files (public domain, see fixtures/SOURCES.md) run through the whole chain
+ * import → arrangement → layout. Invariants are checked, then the key figures are frozen in a
+ * snapshot to catch any regression (chosen track, transposition, replaced notes, bellows).
  */
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -23,13 +23,13 @@ async function load(name: string): Promise<Song> {
   return fromMusicXML(buf.toString('utf8'), title)
 }
 
-describe('banc de tests sur de vrais fichiers', () => {
-  it('contient une vingtaine de fichiers des trois formats', () => {
+describe('test bench on real files', () => {
+  it('holds about twenty files in the three formats', () => {
     expect(files.length).toBeGreaterThanOrEqual(20)
     for (const ext of ['.abc', '.mid', 'xml']) expect(files.some((f) => f.endsWith(ext))).toBe(true)
   })
 
-  it('reconnaît une levée même sans implicit="yes" (BWV 269 : 3/4, levée d’une noire)', async () => {
+  it('detects a pickup even without implicit="yes" (BWV 269: 3/4, one-beat pickup)', async () => {
     expect((await load('bach-bwv269.musicxml')).pickup).toBe(1)
   })
 
@@ -48,7 +48,7 @@ describe('banc de tests sur de vrais fichiers', () => {
     const arr = arrange(song, hohner2915GC)
     expect(arr.notes.length).toBeGreaterThan(0)
     for (const n of arr.notes) {
-      // Le bouton indiqué joue bien la note écrite.
+      // The button shown actually plays the written note.
       const f = fingeringsFor(n.pitch, hohner2915GC, hohner2915GC.rows.map((r) => r.id))
       expect(f.some((x) => x.row === n.fingering.row && x.button === n.fingering.button && x.bellows === n.fingering.bellows)).toBe(true)
     }
@@ -56,7 +56,7 @@ describe('banc de tests sur de vrais fichiers', () => {
     for (const b of arr.bass) {
       const g = hohner2915GC.bassGroups.find((x) => x.id === b.group)
       expect(g).toBeDefined()
-      // La basse est jouée dans le même sens de soufflet que la note qui sonne à ce moment-là.
+      // The bass is played in the same bellows direction as the note sounding at that moment.
       const sounding = arr.notes.find((n) => n.start <= b.time + 1e-6 && b.time < n.start + n.dur - 1e-6)
       if (sounding) expect(b.bellows).toBe(sounding.fingering.bellows)
     }
@@ -68,16 +68,18 @@ describe('banc de tests sur de vrais fichiers', () => {
     for (const op of lines.flatMap((l) => l.ops))
       for (const v of Object.values(op)) if (typeof v === 'number') expect(Number.isFinite(v)).toBe(true)
 
+    const melody = pickMelodyTrack(song.tracks)
     expect({
-      pistes: song.tracks.length,
-      melodie: song.tracks[pickMelodyTrack(song.tracks)]!.name,
-      mesure: `${song.meter.num}/${song.meter.den}`,
-      anacrouse: song.pickup,
-      mesures: arr.toBar - arr.fromBar + 1,
+      tracks: song.tracks.length,
+      melodyTrack: melody,
+      melodyName: song.tracks[melody]!.name,
+      meter: `${song.meter.num}/${song.meter.den}`,
+      pickup: song.pickup,
+      bars: arr.toBar - arr.fromBar + 1,
       notes: arr.notes.length,
-      transposition: arr.transpose,
-      remplacees: arr.approxCount,
-      changementsSoufflet: arr.bellowsChanges,
+      transpose: arr.transpose,
+      replaced: arr.approxCount,
+      bellowsChanges: arr.bellowsChanges,
     }).toMatchSnapshot()
   })
 })

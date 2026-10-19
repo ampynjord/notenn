@@ -2,13 +2,13 @@
   "format": "notenn-instrument",
   "version": 1,
   "id": "hohner-2915-gc",
-  "name": "Hohner 2915 Sol/Do",
+  "name": "Hohner 2915 G/C",
   "family": "diatonic-accordion",
-  "source": "Plan de clavier standard Accordéon Auvergne Services (docs/plan-clavier-hohner-2915.pdf). Octaves relatives : Do du bouton 6' poussé = C5.",
+  "source": "Standard keyboard chart by Accordéon Auvergne Services (docs/plan-clavier-hohner-2915.pdf). Relative octaves: button 6' push (C row) = C5.",
   "rows": [
     {
-      "id": "do",
-      "name": "Rang de Do (intérieur)",
+      "id": "c",
+      "name": "C row (inner)",
       "suffix": "'",
       "offset": 0.5,
       "cost": 0,
@@ -56,8 +56,8 @@
       ]
     },
     {
-      "id": "sol",
-      "name": "Rang de Sol (extérieur)",
+      "id": "g",
+      "name": "G row (outer)",
       "suffix": "",
       "offset": 0,
       "cost": 0.8,

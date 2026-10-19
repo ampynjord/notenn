@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "title": "Notenn",
+    "description": "Tablatures pour accordéon diatonique en Système Argoat.",
+    "workshopTitle": "Atelier · Notenn"
+  },
+  "nav": {
+    "home": "Accueil",
+    "workshop": "Atelier",
+    "admin": "Administration",
+    "language": "Langue",
+    "switchTo": "English"
+  },
+  "instruments": {
+    "hohner-2915-gc": "Hohner 2915 Sol/Do"
+  },
+  "home": {
+    "tagline": "Tablatures pour accordéon diatonique en Système Argoat.",
+    "keyboard": "Clavier de référence : {name} ({rows} rangs, {basses} basses).",
+    "openWorkshop": "Ouvrir l’atelier"
+  },
+  "workshop": {
+    "title": "Atelier",
+    "intro": "Importe un morceau : Notenn en tire la mélodie et l’écrit en Système Argoat.",
+    "song": "Morceau",
+    "file": "Fichier MIDI, MusicXML (.musicxml, .xml, .mxl) ou ABC",
+    "pasteAbc": "…ou colle un air en notation ABC :",
+    "abcLabel": "Notation ABC",
+    "loadAbc": "Charger l’ABC",
+    "settings": "Réglages",
+    "melodyTrack": "Piste de la mélodie",
+    "trackOption": "{name} ({count} notes)",
+    "trackFallback": "Piste {n}",
+    "trackInstrument": "Piste {n} · {instrument}",
+    "fromBar": "De la mesure",
+    "toBar": "à",
+    "end": "fin",
+    "rows": "Rangs",
+    "rowsAll": "Do + Sol",
+    "rowsInner": "Do seulement",
+    "transpose": "Transposition",
+    "auto": "Automatique",
+    "semitones": "{value, plural, one {{signed} demi-ton} other {{signed} demi-tons}}",
+    "tempo": "Tempo",
+    "staff": "Portée",
+    "basses": "Basses",
+    "listen": "Écouter",
+    "stop": "Arrêter",
+    "untitled": "Sans titre",
+    "subtitle": "{instrument} · {meter} · mesures {from} à {to}",
+    "originalKey": "Tonalité d’origine",
+    "transposed": "Transposé de {signed} demi-tons",
+    "bellowsChanges": "{count, plural, one {# changement de soufflet} other {# changements de soufflet}}",
+    "replaced": "{count, plural, one {# note remplacée, en orange} other {# notes remplacées, en orange}}",
+    "legendPush": "poussé",
+    "legendPull": "tiré",
+    "legendRows": "4’ = rang intérieur (Do) · 4 = rang extérieur (Sol)",
+    "legendHold": "Trait gris = note tenue",
+    "legendBass": "basse",
+    "legendChord": "accord",
+    "legendBeats": "Points = temps, trait = début de mesure",
+    "barsAria": "Mesures {from} à {to}"
+  },
+  "lines": {
+    "push": "P",
+    "pull": "T",
+    "bass": "Basses"
+  },
+  "errors": {
+    "noNotes": "Aucune note trouvée dans ce fichier.",
+    "unknown": "Impossible de traiter ce morceau.",
+    "import": {
+      "unreadable-musicxml": "Le fichier MusicXML est illisible.",
+      "no-score-in-mxl": "Aucune partition trouvée dans le fichier .mxl.",
+      "unreadable-abc": "Je n’arrive pas à lire cet ABC : il faut au moins les lignes X:, M:, K: et des notes.",
+      "unknown-format": "Format non reconnu : utilise un fichier .mid, .musicxml, .xml, .mxl ou .abc."
+    }
+  }
+}

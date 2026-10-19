@@ -29,7 +29,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
-    // En développement, le schéma suit le code (push) ; en production, les migrations s'appliquent au démarrage.
+    // In development the schema follows the code (push); in production migrations run at startup.
     prodMigrations: migrations,
   }),
   sharp,
