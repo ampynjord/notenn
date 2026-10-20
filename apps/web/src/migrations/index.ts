@@ -2,6 +2,7 @@ import * as migration_20261019_095728_initial from './20261019_095728_initial';
 import * as migration_20261019_130953_tunes_and_locales from './20261019_130953_tunes_and_locales';
 import * as migration_20261019_131000_seed_tunes from './20261019_131000_seed_tunes';
 import * as migration_20261019_182929_accounts_library from './20261019_182929_accounts_library';
+import * as migration_20261021_090000_tunes_texts from './20261021_090000_tunes_texts';
 
 export const migrations = [
   {
@@ -23,5 +24,10 @@ export const migrations = [
     up: migration_20261019_182929_accounts_library.up,
     down: migration_20261019_182929_accounts_library.down,
     name: '20261019_182929_accounts_library'
+  },
+  {
+    up: migration_20261021_090000_tunes_texts.up,
+    down: migration_20261021_090000_tunes_texts.down,
+    name: '20261021_090000_tunes_texts',
   },
 ];
