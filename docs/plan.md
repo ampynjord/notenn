@@ -114,10 +114,10 @@ Fait :
 
 Reste à faire :
 
-- [x] CI/CD : contrôles à chaque PR, image sur GHCR, déploiement auto sur le VPS à chaque fusion (sauvegarde, contrôle de santé, retour arrière) — reste à ajouter la clé et les secrets (deploy/README.md, section 4)
-- [ ] Mettre en ligne la version comptes + bibliothèque sur le VPS
-- [ ] Créer le compte Resend et vérifier le domaine (deploy/README.md, section 6)
-- [ ] Lancer Umami sur le VPS (deploy/README.md, section 7)
+- [x] CI/CD : contrôles à chaque PR, image sur GHCR, déploiement auto sur le VPS à chaque fusion (sauvegarde, contrôle de santé, retour arrière) 
+- [x] Mettre en ligne la version comptes + bibliothèque sur le VPS (déploiement automatique en place)
+- [x] Créer le compte Resend et vérifier le domaine
+- [x] Lancer Umami sur le VPS (stats.ampynjord.bzh)
 - [ ] Ouvrir le compte Liberapay « notenn » et l'adresse de contact ; confirmer l'hébergeur dans les mentions légales
 - [ ] Ajouter des airs bretons à la banque (domaine public / trad)
 - [ ] Vérifier les claviers autres que le 2915 sur des instruments réels
