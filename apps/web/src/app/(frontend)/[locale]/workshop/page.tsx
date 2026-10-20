@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
 import { Workshop } from '@/components/Workshop'
+import type { Locale } from '@/i18n/routing'
+import { pageMetadata } from '@/lib/seo'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -12,7 +14,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'workshop' })
-  return { title: t('title'), description: t('intro') }
+  return pageMetadata({ locale: locale as Locale, href: '/workshop', title: t('title'), description: t('intro') })
 }
 
 export default async function WorkshopPage({ params, searchParams }: Props) {
