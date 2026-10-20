@@ -58,9 +58,6 @@ export function SiteHeader() {
           <Link href="/library" aria-current={current('/library')}>
             {t('library')}
           </Link>
-          <Link href="/notation" aria-current={current('/notation')}>
-            {t('notation')}
-          </Link>
           {/* Until the account is known, a neutral placeholder keeps the menu from jumping. */}
           <Link
             href={member ? '/account' : '/account/login'}

@@ -54,10 +54,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       <section className="split">
         <div>
-          <h2>{t('notationTitle')}</h2>
-          <p>{t('notationText')}</p>
+          <h2>{t('libraryTitle')}</h2>
+          <p>{t('libraryText')}</p>
           <p>
-            <Link href="/notation">{t('notationLink')}</Link>
+            <Link href="/library">{t('libraryLink')}</Link>
           </p>
         </div>
         <div>

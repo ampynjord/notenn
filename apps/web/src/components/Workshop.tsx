@@ -105,6 +105,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [library, setLibrary] = useState<FullLibraryItem[] | null>(null)
   const [saving, setSaving] = useState(false)
+  const [fileName, setFileName] = useState<string | null>(null)
   const [libProblem, setLibProblem] = useState<string | null>(null)
   const libNotice = libProblem ?? (editor && itemId && member === null ? 'itemLoginRequired' : null)
   const [editing, setEditing] = useState<{ note: number; x: number; y: number } | null>(null)
@@ -464,18 +465,29 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 )}
               </label>
             )}
-            <label className="file">
-              <span>{member ? `${t('orImport')} : ${t('file')}` : t('file')}</span>
-              <input
-                type="file"
-                accept=".mid,.midi,.musicxml,.xml,.mxl,.abc"
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f) void attempt(() => fromFile(f), { file: f })
-                  e.target.value = ''
-                }}
-              />
-            </label>
+            {/* The browser's own file button is in the browser's language: ours follows the site. */}
+            <div className="file">
+              <span id="file-label">{member ? `${t('orImport')} : ${t('file')}` : t('file')}</span>
+              <div className="file-picker">
+                <label className="button-link secondary file-button">
+                  {t('chooseFile')}
+                  <input
+                    type="file"
+                    accept=".mid,.midi,.musicxml,.xml,.mxl,.abc"
+                    aria-labelledby="file-label"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0]
+                      if (f) {
+                        setFileName(f.name)
+                        void attempt(() => fromFile(f), { file: f })
+                      }
+                      e.target.value = ''
+                    }}
+                  />
+                </label>
+                <span className="file-name">{fileName ?? t('noFile')}</span>
+              </div>
+            </div>
             <details className="abc">
               <summary>{t('pasteAbc')}</summary>
               <textarea

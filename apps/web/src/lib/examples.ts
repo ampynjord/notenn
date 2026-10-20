@@ -22,15 +22,6 @@ export const heroSong = song(
   '72:1 72:1 72:1 74:1 76:2 74:2 72:1 76:1 74:1 74:1 72:4',
 )
 
-/** Opening of "Auld Lang Syne" (traditional), for the notation page. */
-export const notationSong = song(
-  'Auld Lang Syne',
-  4,
-  4,
-  1,
-  '67:1 72:1.5 72:0.5 72:1 76:1 74:1.5 72:0.5 74:1 76:0.5 74:0.5 72:1.5 72:0.5 76:1 79:1 81:3',
-)
-
 export function exampleLines(
   s: Song,
   labels: LineLabels,
