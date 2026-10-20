@@ -1,6 +1,8 @@
 {
   "meta": {
     "title": "Notenn",
+    "homeTitle": "Notenn : tablatures d'accordéon diatonique",
+    "tagline": "Tablatures d'accordéon diatonique",
     "description": "Tablatures d'accordéon diatonique : importe un morceau, Notenn écrit les boutons, le soufflet et les basses."
   },
   "nav": {
@@ -179,6 +181,8 @@
     "rights": "Seuls des airs du domaine public, traditionnels ou sous licence libre sont publiés ici.",
     "back": "Tous les airs",
     "origin": "{origin}.",
+    "pageTitle": "{title} : tablature d'accordéon diatonique",
+    "pageDescription": "{title} ({origin}) en tablature d'accordéon diatonique : boutons, soufflet et basses, à écouter et à télécharger en PDF.",
     "regions": {
       "brittany": "Bretagne",
       "france": "France",

@@ -1,6 +1,8 @@
 {
   "meta": {
     "title": "Notenn",
+    "homeTitle": "Notenn: diatonic accordion tabs",
+    "tagline": "Diatonic accordion tabs",
     "description": "Diatonic accordion tabs: import a tune and Notenn writes the buttons, bellows and basses."
   },
   "nav": {
@@ -179,6 +181,8 @@
     "rights": "Only public-domain, traditional or freely licensed tunes are published here.",
     "back": "All tunes",
     "origin": "{origin}.",
+    "pageTitle": "{title}: diatonic accordion tab",
+    "pageDescription": "{title} ({origin}) as a diatonic accordion tab: buttons, bellows and basses, to listen to and download as a PDF.",
     "regions": {
       "brittany": "Brittany",
       "france": "France",

@@ -3,7 +3,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
 import { Link } from '@/i18n/navigation'
+import type { Locale } from '@/i18n/routing'
 import { findTunes } from '@/lib/payload'
+import { pageMetadata } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +44,8 @@ const LEVELS = ['beginner', 'intermediate', 'advanced'] as const
 export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'tunes' })
-  return { title: t('title'), description: t('lead') }
+  // The canonical address is the list without filters, so filtered views do not compete with it.
+  return pageMetadata({ locale: locale as Locale, href: '/tunes', title: t('title'), description: t('lead') })
 }
 
 export default async function TunesPage({ params, searchParams }: Props) {
