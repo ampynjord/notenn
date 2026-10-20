@@ -29,8 +29,8 @@ test.describe('Admin Panel', () => {
     await page.goto('http://localhost:3000/admin/collections/users')
     // Payload may add list parameters (?limit=…) to the address.
     await expect(page).toHaveURL(/\/admin\/collections\/users(\?.*)?$/)
-    // The administrators collection (site members live in `members`).
-    const listViewArtifact = page.locator('h1', { hasText: /Administrat/ }).first()
+    // The back-office accounts collection (site members live in `members`).
+    const listViewArtifact = page.locator('h1', { hasText: /Back-office accounts|Comptes du back-office/ }).first()
     await expect(listViewArtifact).toBeVisible()
   })
 
