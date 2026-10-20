@@ -3,6 +3,9 @@ import { defineRouting } from 'next-intl/routing'
 export const routing = defineRouting({
   locales: ['fr', 'en'],
   defaultLocale: 'fr',
+  // The language alternates are declared in each page's metadata (lib/seo.ts); the HTTP `Link`
+  // header would repeat them with a different `x-default`.
+  alternateLinks: false,
   // Internal paths are English; each language gets its own public URL.
   pathnames: {
     '/': '/',
