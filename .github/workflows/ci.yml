@@ -66,6 +66,8 @@ jobs:
       DATABASE_URL: postgres://notenn:notenn@localhost:5432/notenn
       PAYLOAD_SECRET: ci-only-secret
       PUBLIC_URL: http://localhost:3000
+      # Tests run on the schema built by the migrations, never on one pushed from the code.
+      PAYLOAD_DB_PUSH: 'false'
     defaults:
       run:
         working-directory: apps/web

@@ -53,6 +53,8 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
     // In development the schema follows the code (push); in production migrations run at startup.
+    // CI turns push off so the tests run on the schema the migrations build.
+    push: process.env.PAYLOAD_DB_PUSH === 'false' ? false : undefined,
     prodMigrations: migrations,
   }),
   sharp,
