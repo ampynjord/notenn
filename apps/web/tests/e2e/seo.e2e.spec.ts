@@ -41,6 +41,21 @@ test.describe('Search engines', () => {
     expect(types).toEqual(expect.arrayContaining(['MusicComposition', 'BreadcrumbList']))
   })
 
+  test('a tune has a full text in each language and a description short enough for a search result', async ({
+    page,
+  }) => {
+    await page.goto(`${BASE}/en/tunes/the-kesh`)
+    const intro = await page.locator('.intro').innerText()
+    expect(intro).toMatch(/Irish jig in G major/)
+    expect(intro.length).toBeGreaterThan(120)
+    const description = (await page.locator('meta[name="description"]').getAttribute('content')) ?? ''
+    expect(description.length).toBeLessThanOrEqual(156)
+    expect(intro.startsWith(description.replace(/…$/, ''))).toBe(true)
+
+    await page.goto(`${BASE}/fr/airs/the-kesh`)
+    await expect(page.locator('.intro')).toContainText('Gigue irlandaise en Sol majeur')
+  })
+
   test('the home page announces what it is, in each language', async ({ page }) => {
     await page.goto(`${BASE}/fr`)
     await expect(page).toHaveTitle(/^Notenn : tablatures d'accordéon diatonique$/)
