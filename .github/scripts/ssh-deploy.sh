@@ -6,10 +6,19 @@
 set -uo pipefail
 
 install -m 700 -d ~/.ssh
-printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+# A key copied from a Windows terminal may carry \r and trailing spaces: OpenSSH refuses those.
+printf '%s\n' "$DEPLOY_KEY" | tr -d '\r' | sed -e 's/[[:space:]]*$//' -e '/^$/d' > ~/.ssh/deploy_key
 chmod 600 ~/.ssh/deploy_key
 if ! ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1; then
-  echo "::error title=Deploy key::NOTENN_DEPLOY_KEY is not a valid private key (paste the whole file, BEGIN and END lines included)."
+  # Describe the secret without ever printing it.
+  first=$(head -n 1 ~/.ssh/deploy_key | cut -c1-35)
+  lines=$(wc -l < ~/.ssh/deploy_key)
+  case "$first" in
+    ssh-ed25519*|ssh-rsa*) hint="this is the PUBLIC key (.pub): paste the private one, ~/notenn-deploy" ;;
+    -----BEGIN*) hint="starts like a private key but is incomplete or altered ($lines lines; an ed25519 key has 7)" ;;
+    *) hint="does not start with -----BEGIN OPENSSH PRIVATE KEY----- ($lines lines)" ;;
+  esac
+  echo "::error title=Deploy key::NOTENN_DEPLOY_KEY is not a usable private key: $hint."
   exit 1
 fi
 
