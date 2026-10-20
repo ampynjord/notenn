@@ -34,6 +34,7 @@ COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/.next/static ./apps/web
 COPY --from=builder --chown=nextjs:nodejs /repo/apps/web/public ./apps/web/public
 USER nextjs
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1
+# /healthz answers 200 once the database is reachable and migrated.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/healthz >/dev/null || exit 1
 CMD ["node", "apps/web/server.js"]

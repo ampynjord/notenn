@@ -1,7 +1,7 @@
 import { createTranslator } from 'next-intl'
 
-import en from '../../messages/en.json'
-import fr from '../../messages/fr.json'
+import en from '../../messages/en.json' with { type: 'json' }
+import fr from '../../messages/fr.json' with { type: 'json' }
 import { routing, type Locale } from '@/i18n/routing'
 import { publicUrl } from '@/lib/site'
 
