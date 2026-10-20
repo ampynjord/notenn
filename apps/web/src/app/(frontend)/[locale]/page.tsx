@@ -1,20 +1,40 @@
+import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
 import { ArgoatSheet } from '@/components/ArgoatSheet'
+import { JsonLd } from '@/components/JsonLd'
 import { Link } from '@/i18n/navigation'
+import type { Locale } from '@/i18n/routing'
 import { exampleLines, heroSong } from '@/lib/examples'
+import { homeJsonLd, pageMetadata } from '@/lib/seo'
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+type Props = { params: Promise<{ locale: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'meta' })
+  return pageMetadata({
+    locale: locale as Locale,
+    href: '/',
+    title: t('homeTitle'),
+    description: t('description'),
+    absoluteTitle: true,
+  })
+}
+
+export default async function HomePage({ params }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations('home')
+  const tm = await getTranslations('meta')
   const tl = await getTranslations('lines')
   const labels = { push: tl('push'), pull: tl('pull'), bass: tl('bass') }
   const hero = exampleLines(heroSong, labels, { staff: false, width: 380, barsPerLine: 2 })
 
   return (
     <div className="home">
+      <JsonLd data={homeJsonLd(locale as Locale, tm('description'))} />
       <section className="hero">
         <div className="hero-text">
           <h1>{t('title')}</h1>

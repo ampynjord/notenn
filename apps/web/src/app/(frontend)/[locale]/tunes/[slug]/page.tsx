@@ -4,9 +4,12 @@ import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { AddToLibrary } from '@/components/AddToLibrary'
+import { JsonLd } from '@/components/JsonLd'
 import { Workshop } from '@/components/Workshop'
 import { Link } from '@/i18n/navigation'
+import type { Locale } from '@/i18n/routing'
 import { findTune } from '@/lib/payload'
+import { pageMetadata, tuneJsonLd } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,20 +17,38 @@ type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
-  const tune = await findTune(locale as 'fr' | 'en', slug)
-  return tune ? { title: tune.title, description: tune.notes ?? undefined } : {}
+  const tune = await findTune(locale as Locale, slug)
+  if (!tune) return {}
+  const t = await getTranslations({ locale, namespace: 'tunes' })
+  return pageMetadata({
+    locale: locale as Locale,
+    href: { pathname: '/tunes/[slug]', params: { slug: tune.slug } },
+    title: t('pageTitle', { title: tune.title }),
+    description: tune.notes ?? t('pageDescription', { title: tune.title, origin: tune.origin }),
+  })
 }
 
 export default async function TunePage({ params }: Props) {
   const { locale, slug } = await params
   setRequestLocale(locale)
-  const tune = await findTune(locale as 'fr' | 'en', slug)
+  const tune = await findTune(locale as Locale, slug)
   if (!tune) notFound()
   const t = await getTranslations('tunes')
+  const tm = await getTranslations('meta')
   const tp = await getTranslations('preview')
 
   return (
     <>
+      <JsonLd
+        data={tuneJsonLd({
+          locale: locale as Locale,
+          slug: tune.slug,
+          title: tune.title,
+          description: tune.notes ?? t('pageDescription', { title: tune.title, origin: tune.origin }),
+          genre: t(`kinds.${tune.kind}`),
+          crumbs: { home: tm('title'), tunes: t('title') },
+        })}
+      />
       <p className="crumbs">
         <Link href="/tunes">{t('back')}</Link>
       </p>

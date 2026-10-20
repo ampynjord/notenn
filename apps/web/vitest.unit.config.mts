@@ -4,5 +4,11 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 // Unit tests that need no database (the integration tests in tests/int do).
 export default defineConfig({
   plugins: [tsconfigPaths()],
-  test: { environment: 'jsdom', include: ['tests/unit/**/*.test.ts'], testTimeout: 30000 },
+  test: {
+    environment: 'jsdom',
+    include: ['tests/unit/**/*.test.ts'],
+    testTimeout: 30000,
+    // next-intl imports `next/navigation` without the file extension, which Node cannot resolve on its own.
+    server: { deps: { inline: ['next-intl'] } },
+  },
 })
