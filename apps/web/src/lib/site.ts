@@ -2,7 +2,7 @@
 export const SITE = {
   url: 'https://notenn.ampynjord.bzh',
   /** Liberapay page receiving donations. */
-  donateUrl: 'https://liberapay.com/notenn/donate',
+  donateUrl: 'https://liberapay.com/ampynjord/donate',
   contactEmail: 'contact@ampynjord.bzh',
 } as const
 
