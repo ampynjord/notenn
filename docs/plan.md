@@ -118,7 +118,8 @@ Reste à faire :
 - [x] Mettre en ligne la version comptes + bibliothèque sur le VPS (déploiement automatique en place)
 - [x] Créer le compte Resend et vérifier le domaine
 - [x] Lancer Umami sur le VPS (stats.ampynjord.bzh)
-- [ ] Ouvrir le compte Liberapay « notenn » et l'adresse de contact ; confirmer l'hébergeur dans les mentions légales
+- [x] Liberapay (compte « ampynjord ») et hébergeur OVH confirmé
+- [ ] Confirmer l'adresse de contact des mentions légales (contact@ampynjord.bzh)
 - [ ] Ajouter des airs bretons à la banque (domaine public / trad)
 - [ ] Vérifier les claviers autres que le 2915 sur des instruments réels
 - [ ] Jouer soi-même sur le Hohner pendant quelques jours (test avant bêta ouverte)

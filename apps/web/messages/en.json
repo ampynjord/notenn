@@ -217,7 +217,7 @@
   },
   "support": {
     "title": "Support Notenn",
-    "lead": "Notenn is free, with no ads and no account. It runs on donations.",
+    "lead": "Notenn is free and ad-free. It runs on donations.",
     "costs": "Donations pay for the server, the domain name and the time spent adding keyboards, tunes and new instruments.",
     "donate": "Donate on Liberapay",
     "liberapay": "Liberapay is a non-profit platform for recurring or one-off donations, taking no commission.",
@@ -245,7 +245,7 @@
     "hostTitle": "Host",
     "host": "OVH SAS, 2 rue Kellermann, 59100 Roubaix, France.",
     "contentTitle": "Content",
-    "content": "The library tunes are in the public domain, traditional or freely licensed. If you believe some content infringes a right, write to the address above: it will be removed quickly.",
+    "content": "Tunes in the tune bank are in the public domain, traditional or freely licensed. If you believe some content infringes a right, write to the address above: it will be removed quickly.",
     "codeTitle": "Software",
     "code": "Notenn’s code and its notation belong to their author. Any reproduction without permission is forbidden."
   },
