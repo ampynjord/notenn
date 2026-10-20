@@ -66,7 +66,7 @@ Dans GitHub → `ampynjord/notenn` → *Settings* → *Secrets and variables* �
 
 | Secret | Valeur |
 |---|---|
-| `VPS_HOST` | l'adresse du VPS (la même que pour Starvis) |
+| `VPS_HOST` | `ampynjord.bzh` (nom qui pointe sur le VPS ; le SSH ne passe pas par Traefik) |
 | `NOTENN_DEPLOY_KEY` | le contenu de `~/notenn-deploy` (clé privée, en entier) |
 | `VPS_PORT` | facultatif, `2222` par défaut |
 | `VPS_USER` | facultatif, `debian` par défaut |
