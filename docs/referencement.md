@@ -22,7 +22,7 @@ Les pages privées (compte, bibliothèque) restent en `noindex` ; elles ne sont 
 
 1. **Google Search Console** : ajouter la propriété « Domaine » `ampynjord.bzh`, valider par l'enregistrement TXT demandé (zone DNS OVH), puis envoyer `https://notenn.ampynjord.bzh/sitemap.xml`. Même chose avec Bing Webmaster Tools.
 2. **Liens entrants** : forums et groupes d'accordéon diatonique, communautés de musique traditionnelle, vidéos. Un lien depuis un site connu pèse plus que n'importe quel réglage technique.
-3. **Contenu** : plus d'airs (chaque air est une porte d'entrée), et un texte propre à chaque air (histoire, niveau, rythme). Voir la phase 1 de `docs/plan.md`.
+3. **Contenu** : plus d'airs (chaque air est une porte d'entrée). Les 20 airs de départ ont un texte complet (histoire, tonalité, mesure, tempo), en français et en anglais, dans `src/seed/tunes.ts` ; la migration `tunes_texts` l'applique aux bases existantes. Pour un nouvel air, rédiger la présentation (150 à 300 caractères environ) avec le tempo indiqué dans l'ABC : un test vérifie qu'ils concordent. La balise `description` en reprend les premières phrases (`summarize`, 155 caractères au plus). Voir la phase 1 de `docs/plan.md`.
 
 ## Changer ou ajouter
 

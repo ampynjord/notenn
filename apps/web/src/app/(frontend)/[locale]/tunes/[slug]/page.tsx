@@ -9,7 +9,7 @@ import { Workshop } from '@/components/Workshop'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/i18n/routing'
 import { findTune } from '@/lib/payload'
-import { pageMetadata, tuneJsonLd } from '@/lib/seo'
+import { pageMetadata, summarize, tuneJsonLd } from '@/lib/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale: locale as Locale,
     href: { pathname: '/tunes/[slug]', params: { slug: tune.slug } },
     title: t('pageTitle', { title: tune.title }),
-    description: tune.notes ?? t('pageDescription', { title: tune.title, origin: tune.origin }),
+    // The full text is shown on the page; the search result only has room for the first sentences.
+    description: tune.notes
+      ? summarize(tune.notes)
+      : t('pageDescription', { title: tune.title, origin: tune.origin }),
   })
 }
 

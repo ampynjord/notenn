@@ -127,6 +127,23 @@ export function tuneJsonLd({ locale, slug, title, description, genre, crumbs }: 
   ]
 }
 
+/**
+ * A description short enough for a search result (about 155 characters): whole sentences when
+ * possible, otherwise cut at the last comma or semicolon, otherwise at a word, with an ellipsis.
+ * A full stop only ends a sentence when a capital letter or an opening quote follows, so "op. 49"
+ * is not cut in two.
+ */
+export function summarize(text: string, max = 155): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+  const head = clean.slice(0, max)
+  const sentence = [...head.matchAll(/[.!?](?=\s+[A-ZÀ-ÖØ-Þ«“"])/g)].at(-1)
+  if (sentence?.index !== undefined && sentence.index >= 60) return head.slice(0, sentence.index + 1)
+  const pause = [...head.matchAll(/[,;]/g)].at(-1)
+  if (pause?.index !== undefined && pause.index >= 80) return `${head.slice(0, pause.index)}…`
+  return `${head.slice(0, head.lastIndexOf(' ')).replace(/[\s,;:]+$/, '')}…`
+}
+
 /** JSON for a <script type="application/ld+json"> tag; `<` is escaped so a title cannot close the tag. */
 export function jsonLdString(data: unknown): string {
   return JSON.stringify(data).replace(/</g, '\\u003c')

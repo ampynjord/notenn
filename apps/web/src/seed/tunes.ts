@@ -28,7 +28,10 @@ export const SEED_TUNES: SeedTune[] = [
     kind: 'song',
     level: 'beginner',
     origin: 'Traditional',
-    notes: { fr: 'Le chant écossais du réveillon, idéal pour un premier morceau.', en: 'The Scottish New Year song, a good first tune.' },
+    notes: {
+      fr: 'Le chant écossais du réveillon : les paroles sont du poète Robert Burns (1788), sur une mélodie traditionnelle, et on le chante dans le monde entier à minuit le 31 décembre. En Do majeur et à quatre temps, tempo indicatif 80 à la noire : un bon premier morceau.',
+      en: 'The Scottish New Year song: the words are by the poet Robert Burns (1788), set to a traditional melody, and it is sung around the world at midnight on 31 December. In C major and in four, suggested tempo 80 to the quarter note: a good first tune.',
+    },
     abc: abc`X:1
 T:Auld Lang Syne
 M:4/4
@@ -45,7 +48,10 @@ g3e e2c2|d3c d2a2|g3e e2g2|a6c'2|g3e e2c2|d3c d2e2|c3A A2G2|c6|]`,
     kind: 'spiritual',
     level: 'beginner',
     origin: 'Traditional (New Britain, 1829)',
-    notes: { fr: 'Air lent à trois temps, tout en tirés et poussés longs.', en: 'A slow tune in three, with long pushes and pulls.' },
+    notes: {
+      fr: 'Un des chants les plus connus du monde anglophone : les paroles sont du pasteur anglais John Newton (1779), et la mélodie « New Britain » circule aux États-Unis dès 1829. Air lent à trois temps en Sol majeur, tout en tirés et poussés longs : joue-le vers 80 à la noire et laisse respirer le soufflet.',
+      en: 'One of the best-known hymns in the English-speaking world: the words are by the English clergyman John Newton (1779), and the melody “New Britain” was circulating in the United States by 1829. A slow tune in three in G major, built on long pushes and pulls: play it at about 80 to the quarter note and let the bellows breathe.',
+    },
     abc: abc`X:1
 T:Amazing Grace
 M:3/4
@@ -62,7 +68,10 @@ d4 BG|B4 AG|E4 D2|D4 D2|G4 BG|B4 A2|G6-|G4|]`,
     kind: 'air',
     level: 'intermediate',
     origin: 'Traditional (16th century)',
-    notes: { fr: 'Air anglais en La mineur, dans sa version modale ancienne (sans sol dièse), jouable sur deux rangs.', en: 'English tune in A minor, in its older modal form (no G sharp), playable on two rows.' },
+    notes: {
+      fr: 'Air anglais du XVIe siècle : une ballade intitulée « Lady Greensleeves » est enregistrée à Londres dès 1580, et la mélodie a servi plus tard à des chants de Noël comme « What Child Is This ». Version modale ancienne en La mineur (sans sol dièse), à 6/8, tempo indicatif 50 à la noire pointée, jouable sur deux rangs.',
+      en: 'An English tune of the 16th century: a ballad called “Lady Greene Sleeves” was entered at the Stationers’ Company in London in 1580, and the melody was later used for carols such as “What Child Is This”. The older modal version in A minor (no G sharp), in 6/8, suggested tempo 50 to the dotted quarter note, playable on two rows.',
+    },
     abc: abc`X:1
 T:Greensleeves
 M:6/8
@@ -79,7 +88,10 @@ A|c2d e>fe|d2B G>AB|c2A A>GA|B2G E2A|c2d e>fe|d2B G>AB|c>BA G>FG|A3 A2:|
     kind: 'song',
     level: 'intermediate',
     origin: 'Traditional',
-    notes: { fr: 'Ballade anglaise en mode dorien, à jouer lentement.', en: 'English ballad in the Dorian mode, to play slowly.' },
+    notes: {
+      fr: 'Ballade anglaise connue pour son refrain (« persil, sauge, romarin et thym ») ; Scarborough est une ville balnéaire du Yorkshire. En Ré dorien, à trois temps, à jouer lentement (90 à la noire environ) : le mode dorien est une gamme mineure à sixte majeure, d’où sa couleur particulière.',
+      en: 'An English ballad known for its refrain (“parsley, sage, rosemary and thyme”); Scarborough is a seaside town in Yorkshire. In D Dorian, in three, to be played slowly (about 90 to the quarter note): the Dorian mode is a minor scale with a major sixth, which gives it its particular colour.',
+    },
     abc: abc`X:1
 T:Scarborough Fair
 M:3/4
@@ -96,7 +108,10 @@ d4 d2|d4 c2|A4 A2|G2 F2 E2|D2 C4|D4 A2|G2 F2 E2|D6|]`,
     kind: 'shanty',
     level: 'beginner',
     origin: 'Traditional sea shanty',
-    notes: { fr: 'Chant de marins entraînant, en mode dorien.', en: 'A lively sea shanty in the Dorian mode.' },
+    notes: {
+      fr: 'Chant de marins du XIXe siècle qui rythmait les manœuvres à bord. Mélodie en Ré dorien à quatre temps, répétitive et facile à retenir : joue-la de façon entraînante, autour de 110 à la noire.',
+      en: 'A 19th-century sea shanty that kept time during work on board. A melody in D Dorian in four, repetitive and easy to remember: play it with drive, at around 110 to the quarter note.',
+    },
     abc: abc`X:1
 T:What Shall We Do with the Drunken Sailor
 M:4/4
@@ -113,7 +128,10 @@ A4 A4|A2D2 F2A2|G4 G4|G2C2 E2G2|A4 A4|A2B2 c2d2|c2A2 G2E2|D4 D4|]`,
     kind: 'jig',
     level: 'advanced',
     origin: 'Traditional',
-    notes: { fr: 'Gigue irlandaise très jouée en session.', en: 'An Irish jig played at every session.' },
+    notes: {
+      fr: 'Gigue irlandaise très jouée en session, nommée d’après le violoneux James Morrison. En Mi dorien et à 6/8 (deux temps de trois croches), tempo indicatif 100 à la noire pointée : le doigté est exigeant, commence au ralenti.',
+      en: 'An Irish jig played at sessions everywhere, named after the fiddler James Morrison. In E Dorian and in 6/8 (two beats of three eighth notes), suggested tempo 100 to the dotted quarter note: the fingering is demanding, so start slowly.',
+    },
     abc: abc`X:1
 T:Morrison's Jig
 M:6/8
@@ -130,7 +148,10 @@ K:Edor
     kind: 'reel',
     level: 'advanced',
     origin: 'Traditional',
-    notes: { fr: 'Reel irlandais rapide : commence au ralenti.', en: 'A fast Irish reel: start slowed down.' },
+    notes: {
+      fr: 'Reel irlandais célèbre, joué dans toutes les sessions. En Mi dorien et à quatre temps, tempo indicatif 110 à la noire : il est rapide, alors commence au ralenti et accélère quand les changements de sens du soufflet sont sûrs.',
+      en: 'A famous Irish reel, played at sessions everywhere. In E Dorian and in four, suggested tempo 110 to the quarter note: it is fast, so start slowly and speed up once the bellows changes are secure.',
+    },
     abc: abc`X:1
 T:Drowsy Maggie
 M:4/4
@@ -147,7 +168,10 @@ K:Edor
     kind: 'jig',
     level: 'intermediate',
     origin: 'Traditional',
-    notes: { fr: 'Gigue en Sol, une des premières qu’on apprend en musique irlandaise.', en: 'A jig in G, one of the first tunes learnt in Irish music.' },
+    notes: {
+      fr: 'Gigue irlandaise en Sol majeur, une des premières qu’on apprend en musique irlandaise. À 6/8 (deux temps de trois croches), tempo indicatif 100 à la noire pointée : idéale pour prendre le rythme de la gigue avant d’attaquer les airs plus rapides.',
+      en: 'An Irish jig in G major, one of the first tunes learnt in Irish music. In 6/8 (two beats of three eighth notes), suggested tempo 100 to the dotted quarter note: ideal for getting the lilt of a jig before moving on to faster tunes.',
+    },
     abc: abc`X:1
 T:The Kesh
 M:6/8
@@ -164,7 +188,10 @@ K:G
     kind: 'jig',
     level: 'intermediate',
     origin: 'Traditional',
-    notes: { fr: 'Gigue en Mi mineur aux phrases répétées, bonne pour travailler le soufflet.', en: 'A jig in E minor with repeated phrases, good bellows practice.' },
+    notes: {
+      fr: 'Gigue en Mi mineur très jouée en session. À 6/8, tempo indicatif 100 à la noire pointée : joue-la d’abord lentement pour fixer les changements de sens du soufflet, puis monte vers le tempo.',
+      en: 'A jig in E minor played at sessions everywhere. In 6/8, suggested tempo 100 to the dotted quarter note: play it slowly first to fix the bellows changes, then work up to speed.',
+    },
     abc: abc`X:1
 T:Swallowtail Jig
 M:6/8
@@ -181,7 +208,10 @@ K:Em
     kind: 'slip-jig',
     level: 'advanced',
     origin: 'Traditional',
-    notes: { fr: 'Slip jig à neuf croches par mesure.', en: 'A slip jig, nine eighth notes to the bar.' },
+    notes: {
+      fr: 'Slip jig irlandaise : une gigue à neuf croches par mesure (9/8), en trois groupes de trois, au balancement aérien. En Mi mineur, tempo indicatif 90 à la noire pointée ; réservée aux joueurs confirmés, commence très lentement.',
+      en: 'An Irish slip jig: a jig with nine eighth notes to the bar (9/8), in three groups of three, with an airy sway. In E minor, suggested tempo 90 to the dotted quarter note; for experienced players, so start very slowly.',
+    },
     abc: abc`X:1
 T:The Butterfly
 M:9/8
@@ -198,7 +228,10 @@ K:Em
     kind: 'childrens-song',
     level: 'beginner',
     origin: 'Traditional',
-    notes: { fr: 'Comptine française, en notes égales : parfait pour débuter.', en: 'French nursery song in even notes: perfect to begin.' },
+    notes: {
+      fr: 'Chanson enfantine française, anonyme et connue depuis le XVIIIe siècle (on l’a longtemps attribuée à tort à Lully). En Do majeur et à quatre temps, tempo indicatif 100 à la noire, avec des notes répétées et conjointes : le premier air que beaucoup d’enfants jouent.',
+      en: 'A French nursery song, anonymous and known since the 18th century (it was long attributed, wrongly, to Lully). In C major and in four, suggested tempo 100 to the quarter note, built on repeated and stepwise notes: the first tune many children play.',
+    },
     abc: abc`X:1
 T:Au clair de la lune
 M:4/4
@@ -215,7 +248,10 @@ DDDD|A,2A,2|DCB,A,|G,4|CCCD|E2D2|CEDD|C4|]`,
     kind: 'childrens-song',
     level: 'beginner',
     origin: 'Traditional',
-    notes: { fr: 'Le canon que tout le monde connaît.', en: 'The round everybody knows.' },
+    notes: {
+      fr: 'Chanson enfantine française connue depuis le XVIIIe siècle, que l’on chante souvent en canon à plusieurs voix. En Do majeur et à quatre temps, tempo indicatif 100 à la noire : chaque phrase est jouée deux fois, ce qui la rend facile à mémoriser.',
+      en: 'A French nursery song known since the 18th century, often sung as a round in several voices. In C major and in four, suggested tempo 100 to the quarter note: each phrase is played twice, which makes it easy to remember.',
+    },
     abc: abc`X:1
 T:Frère Jacques
 M:4/4
@@ -231,7 +267,10 @@ C2D2 E2C2|C2D2 E2C2|E2F2 G4|E2F2 G4|GAGF E2C2|GAGF E2C2|C2G,2 C4|C2G,2 C4|]`,
     kind: 'childrens-song',
     level: 'beginner',
     origin: 'Traditional (18th century)',
-    notes: { fr: 'L’air de « Twinkle Twinkle Little Star », popularisé par les variations de Mozart.', en: 'The tune of "Twinkle Twinkle Little Star", made famous by Mozart’s variations.' },
+    notes: {
+      fr: 'Mélodie française publiée en 1761 sous le titre « La Confidence naïve », que Mozart a reprise dans ses douze variations (vers 1781) ; c’est aussi l’air de « Twinkle, Twinkle, Little Star » et de la chanson de l’alphabet en anglais. En Do majeur, tempo indicatif 100 à la noire.',
+      en: 'A French melody published in 1761 as “La Confidence naïve”, which Mozart took up in his twelve variations (around 1781); it is also the tune of “Twinkle, Twinkle, Little Star” and of the English alphabet song. In C major, suggested tempo 100 to the quarter note.',
+    },
     abc: abc`X:1
 T:Ah ! vous dirai-je, maman
 M:4/4
@@ -247,7 +286,10 @@ CCGG|AAG2|FFEE|DDC2|GGFF|EED2|GGFF|EED2|CCGG|AAG2|FFEE|DDC2|]`,
     kind: 'classical',
     level: 'beginner',
     origin: 'Ludwig van Beethoven, 1824',
-    notes: { fr: 'Le thème de la 9e symphonie, presque tout en notes conjointes.', en: 'The theme of the Ninth Symphony, almost all stepwise.' },
+    notes: {
+      fr: 'Thème du finale de la 9e symphonie de Beethoven (1824), sur un poème de Schiller, devenu l’hymne de l’Europe. Mélodie en Do majeur, presque entièrement conjointe, à quatre temps (100 à la noire) : une bonne façon de travailler la régularité du soufflet.',
+      en: 'The theme of the finale of Beethoven’s 9th Symphony (1824), on a poem by Schiller, later adopted as the anthem of Europe. A melody in C major that moves almost entirely by step, in four (100 to the quarter note): a good way to practise an even bellows.',
+    },
     abc: abc`X:1
 T:Ode à la joie
 M:4/4
@@ -264,7 +306,10 @@ DDEC|DE/F/EC|DE/F/ED|CDG,2|EEFG|GFED|CCDE|D3/2C/C2|]`,
     kind: 'song',
     level: 'beginner',
     origin: 'James Lord Pierpont, 1857',
-    notes: { fr: 'Le refrain, pour les fêtes.', en: 'The chorus, for the holidays.' },
+    notes: {
+      fr: 'Composée par James Lord Pierpont et publiée à Boston en 1857 sous le titre « One Horse Open Sleigh », elle est devenue un chant de Noël connu dans le monde entier. En Do majeur et à quatre temps, tempo indicatif 120 à la noire, avec un refrain en notes répétées que tout le monde connaît.',
+      en: 'Composed by James Lord Pierpont and published in Boston in 1857 as “One Horse Open Sleigh”, it became a Christmas song known around the world. In C major and in four, suggested tempo 120 to the quarter note, with a chorus built on repeated notes that everyone knows.',
+    },
     abc: abc`X:1
 T:Jingle Bells
 M:4/4
@@ -281,7 +326,10 @@ EEE2|EEE2|EGCD|E4|FFFF|FEEE/E/|GGFD|C4|]`,
     kind: 'song',
     level: 'intermediate',
     origin: 'Stephen Foster, 1848',
-    notes: { fr: 'Chanson américaine joyeuse, couplet et refrain.', en: 'A cheerful American song, verse and chorus.' },
+    notes: {
+      fr: 'Chanson de Stephen Foster (1848), l’un des premiers grands succès de la chanson américaine, reprise par les chercheurs d’or de la ruée vers l’Ouest. En Do majeur, tempo indicatif 110 à la noire, sur un rythme sautillant qu’il faut garder léger.',
+      en: 'A song by Stephen Foster (1848), one of the first great American hits, taken up by the gold-seekers of the westward rush. In C major, suggested tempo 110 to the quarter note, with a bouncy rhythm that should stay light.',
+    },
     abc: abc`X:1
 T:Oh! Susanna
 M:4/4
@@ -298,7 +346,10 @@ F4 F4|A2A4 A2|G2G2 E2C2|D6 CD|E2G2 G3A|G2E2 C3D|E2E2 D2D2|C6|]`,
     kind: 'spiritual',
     level: 'beginner',
     origin: 'Traditional',
-    notes: { fr: 'Spiritual devenu standard de fanfare.', en: 'A spiritual turned brass-band standard.' },
+    notes: {
+      fr: 'Spiritual afro-américain devenu un standard du jazz de La Nouvelle-Orléans, popularisé par Louis Armstrong (enregistrement de 1938). En Do majeur et à quatre temps, tempo indicatif 120 à la noire : une mélodie simple et rythmée, facile à faire swinguer.',
+      en: 'An African-American spiritual that became a New Orleans jazz standard, popularised by Louis Armstrong (1938 recording). In C major and in four, suggested tempo 120 to the quarter note: a simple, rhythmic melody that is easy to swing.',
+    },
     abc: abc`X:1
 T:When the Saints Go Marching In
 M:4/4
@@ -315,7 +366,10 @@ zEED|C3C|E2G2|GF3|zEFG|E2C2|D2D2|C4|]`,
     kind: 'lullaby',
     level: 'intermediate',
     origin: 'Johannes Brahms, 1868',
-    notes: { fr: 'La berceuse « Guten Abend, gut’ Nacht », tout en douceur.', en: 'The lullaby "Guten Abend, gut’ Nacht", soft and slow.' },
+    notes: {
+      fr: 'Wiegenlied op. 49 n° 4, que Johannes Brahms publie en 1868 : la berceuse la plus connue du répertoire classique. Ici en Do majeur et à trois temps, tempo indicatif 80 à la noire : joue-la très doucement, en liant les notes.',
+      en: 'Wiegenlied, Op. 49 No. 4, published by Johannes Brahms in 1868: the best-known lullaby of the classical repertoire. Here in C major and in three, suggested tempo 80 to the quarter note: play it very softly, joining the notes.',
+    },
     abc: abc`X:1
 T:Berceuse de Brahms
 M:3/4
@@ -332,7 +386,10 @@ c4 AF|G4 EC|F2 G2 A2|G4 CC|c4 AF|G4 EC|FE D2 E2|C4|]`,
     kind: 'song',
     level: 'beginner',
     origin: 'Mildred and Patty Hill, 1893',
-    notes: { fr: '« Happy Birthday », pour les anniversaires.', en: '"Happy Birthday", for birthdays.' },
+    notes: {
+      fr: 'Sa mélodie vient de « Good Morning to All » (1893), écrite par les sœurs américaines Mildred et Patty Hill pour des classes de maternelle ; les paroles d’anniversaire sont venues plus tard. En Do majeur et à trois temps, tempo indicatif 100 à la noire.',
+      en: 'Its melody comes from “Good Morning to All” (1893), written by the American sisters Mildred and Patty Hill for kindergarten classes; the birthday words came later. In C major and in three, suggested tempo 100 to the quarter note.',
+    },
     abc: abc`X:1
 T:Joyeux anniversaire
 M:3/4
@@ -348,7 +405,10 @@ G>G|A2 G2 c2|B4 G>G|A2 G2 d2|c4 G>G|g2 e2 c2|B2 A2 f>f|e2 c2 d2|c4|]`,
     kind: 'spiritual',
     level: 'beginner',
     origin: 'Traditional',
-    notes: { fr: 'Chant spirituel tout simple, à chanter en jouant.', en: 'A very simple spiritual, to sing while you play.' },
+    notes: {
+      fr: 'Spiritual afro-américain recueilli en 1867 dans « Slave Songs of the United States », auprès d’anciens esclaves des îles de la côte sud-est des États-Unis, puis repris par le renouveau folk des années 1960. En Do majeur et à quatre temps, tempo indicatif 100 à la noire : un air lent et régulier, idéal pour travailler le soufflet.',
+      en: 'An African-American spiritual collected in 1867 in “Slave Songs of the United States” from formerly enslaved people on the islands off the south-eastern coast of the United States, and taken up again by the folk revival of the 1960s. In C major and in four, suggested tempo 100 to the quarter note: a slow, steady tune, ideal for working on the bellows.',
+    },
     abc: abc`X:1
 T:Michael, Row the Boat Ashore
 M:4/4
