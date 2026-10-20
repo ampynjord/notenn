@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Notenn",
-    "description": "Diatonic accordion tabs in Système Argoat: import a tune and Notenn writes the buttons, bellows and basses."
+    "description": "Diatonic accordion tabs: import a tune and Notenn writes the buttons, bellows and basses."
   },
   "nav": {
     "home": "Notenn, home",
@@ -10,7 +10,6 @@
     "skip": "Skip to content",
     "workshop": "Editor",
     "tunes": "Tune bank",
-    "notation": "Système Argoat",
     "support": "Support",
     "admin": "Admin",
     "language": "Language",
@@ -41,16 +40,16 @@
     "step2": "Each note becomes a button number, on the push or draw line, with the bass that goes under it.",
     "step3Title": "Play and print",
     "step3": "Listen with the cursor, slow it down, loop a passage, then download the PDF.",
-    "notationTitle": "A notation made for the diatonic",
-    "notationText": "Système Argoat puts push and draw on two separate lines, so you see at once when the bellows change. Rows are told apart by an apostrophe, and the staff is optional, for those who read music.",
-    "notationLink": "Discover Système Argoat",
-    "freeTitle": "Free, no account",
+    "freeTitle": "Free",
     "freeText": "The editor runs right in your browser, no account needed: your files stay on your computer unless you save them to your library. Notenn lives on donations from the people who use it.",
-    "supportLink": "Support Notenn"
+    "supportLink": "Support Notenn",
+    "libraryTitle": "Your library, everywhere",
+    "libraryText": "With a free account, keep tunes from the bank and your own files, with the fingerings you chose and your settings, on all your devices.",
+    "libraryLink": "Open my library"
   },
   "workshop": {
     "title": "Editor",
-    "intro": "Import a tune: Notenn extracts the melody and writes it in Système Argoat.",
+    "intro": "Import a tune: Notenn extracts the melody and writes it as a tab.",
     "song": "Tune",
     "file": "MIDI, MusicXML (.musicxml, .xml, .mxl) or ABC file",
     "pasteAbc": "…or paste a tune in ABC notation:",
@@ -114,7 +113,7 @@
     "pdfBarsPerLine": "Bars per line",
     "pdfDownload": "Download the PDF",
     "pdfBusy": "Preparing…",
-    "pdfFooter": "Système Argoat tab · notenn.ampynjord.bzh",
+    "pdfFooter": "Notenn tab · notenn.ampynjord.bzh",
     "legendBassChordText": "bass = filled circle, chord = empty circle",
     "fromLibrary": "Open from my library",
     "chooseItem": "Choose a tune…",
@@ -127,7 +126,9 @@
     "guestNote": "Without an account nothing is kept: not the tune, your fingerings or your settings.",
     "guestLink": "Create an account",
     "itemLoginRequired": "Log in to open this tune from your library.",
-    "itemMissing": "This tune is no longer in your library."
+    "itemMissing": "This tune is no longer in your library.",
+    "chooseFile": "Choose a file",
+    "noFile": "No file chosen"
   },
   "lines": {
     "push": "P",
@@ -158,34 +159,13 @@
   "footer": {
     "about": "Notenn, tabs for the diatonic accordion. Made in Brittany.",
     "links": "Footer",
-    "notation": "The Système Argoat",
     "support": "Support Notenn",
     "privacy": "Privacy",
     "legal": "Legal notice"
   },
-  "notation": {
-    "title": "Système Argoat",
-    "lead": "A diatonic accordion tab that shows at a glance which button to play and which way the bellows go.",
-    "caption": "Opening of “Auld Lang Syne” on a G/C box, with the staff above.",
-    "bellowsTitle": "Bellows",
-    "bellows": "Two lines: {push} for push, {pull} for draw. A number on the {push} line is played pushing, on the {pull} line drawing.",
-    "rowsTitle": "Rows",
-    "rows": "The number is the button’s, counted from the chin. An apostrophe (6’) means the inner row, no apostrophe the outer row; a double apostrophe (6’’) means the third row.",
-    "rhythmTitle": "Rhythm",
-    "rhythm": "Numbers are placed in time: the more space, the longer the note. A dot marks each beat, a small tick the start of each bar.",
-    "holdTitle": "Held notes",
-    "hold": "A grey line extends the number for as long as the note is held.",
-    "bassTitle": "Basses",
-    "bass": "On the bottom line, the number is a bass group: a filled circle for the bass button, an empty one for the chord. They are played in the same bellows direction as the melody.",
-    "staffTitle": "Staff",
-    "staff": "Standard notation can be shown above, aligned note for note, for those who read music.",
-    "whyTitle": "Why another notation?",
-    "why": "Existing tabs often mix push and draw on a single line, with symbols to learn. Système Argoat keeps what needs no explanation: two lines, two colours, button numbers placed in time.",
-    "try": "Try it in the editor"
-  },
   "tunes": {
     "title": "Tune bank",
-    "lead": "Public-domain and traditional tunes, ready to play in Système Argoat.",
+    "lead": "Public-domain and traditional tunes, ready to play.",
     "search": "Search",
     "searchPlaceholder": "Title or composer",
     "region": "Origin",
@@ -267,7 +247,7 @@
     "contentTitle": "Content",
     "content": "The library tunes are in the public domain, traditional or freely licensed. If you believe some content infringes a right, write to the address above: it will be removed quickly.",
     "codeTitle": "Software",
-    "code": "Notenn’s code and the Système Argoat belong to their author. Any reproduction without permission is forbidden."
+    "code": "Notenn’s code and its notation belong to their author. Any reproduction without permission is forbidden."
   },
   "preview": {
     "addToLibrary": "Add to my library",
