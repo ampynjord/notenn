@@ -2,8 +2,8 @@
 export const SITE = {
   url: 'https://notenn.ampynjord.bzh',
   /** Liberapay page receiving donations. */
-  donateUrl: 'https://liberapay.com/notenn/donate',
-  contactEmail: 'contact@ampynjord.bzh',
+  donateUrl: 'https://liberapay.com/ampynjord/donate',
+  contactEmail: 'notenn@ampynjord.bzh',
 } as const
 
 /** Public address of the site: links in e-mails and the only origin allowed to use the session cookie. */
