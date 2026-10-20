@@ -2,7 +2,7 @@
  * Starter library: public-domain and traditional melodies, transcribed for Notenn in ABC.
  * Only the melody is written; the tab, fingering and basses are computed by the engine.
  */
-export type Region = 'scotland' | 'ireland' | 'england' | 'france' | 'germany' | 'usa' | 'international'
+export type Region = 'brittany' | 'scotland' | 'ireland' | 'england' | 'france' | 'germany' | 'usa' | 'international'
 export type Kind = 'air' | 'song' | 'childrens-song' | 'jig' | 'slip-jig' | 'reel' | 'shanty' | 'waltz' | 'lullaby' | 'spiritual' | 'classical'
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 
