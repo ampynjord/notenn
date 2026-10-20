@@ -176,6 +176,9 @@ export interface Tune {
   licence: 'public-domain' | 'free-licence';
   notes?: string | null;
   abc: string;
+  /**
+   * A draft until this is ticked. Only publishers and administrators can tick it.
+   */
   published?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -268,6 +271,10 @@ export interface LibraryItem {
  */
 export interface User {
   id: number;
+  /**
+   * Editor: proposes tunes as drafts. Publisher: can also publish them. Administrator: everything, accounts included.
+   */
+  roles: ('admin' | 'publisher' | 'editor')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -468,6 +475,7 @@ export interface LibraryItemsSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
