@@ -1,0 +1,62 @@
+# Puts back an image already built for an earlier commit, without a new CI run.
+# The database is not rolled back: migrations only go forward (see deploy/README.md).
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Commit to put back (short or full SHA, or sha-<commit>)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://notenn.ampynjord.bzh
+    steps:
+      - name: Check the commit and its image
+        id: target
+        env:
+          RAW: ${{ inputs.sha }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sha="$(printf '%s' "$RAW" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+          sha="${sha#sha-}"
+          printf '%s' "$sha" | grep -qE '^[0-9a-f]{7,40}$' || { echo "Invalid SHA: $RAW"; exit 1; }
+          short="$(printf '%s' "$sha" | cut -c1-7)"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker manifest inspect "ghcr.io/ampynjord/notenn-web:sha-$short" >/dev/null \
+            || { echo "No image for sha-$short: nothing was changed."; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-$short" >> "$GITHUB_OUTPUT"
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.5
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          TAG: ${{ steps.target.outputs.tag }}
+          SHA: ${{ steps.target.outputs.sha }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT || '2222' }}
+          username: ${{ secrets.VPS_USER || 'debian' }}
+          key: ${{ secrets.NOTENN_DEPLOY_KEY }}
+          envs: GHCR_TOKEN,GHCR_USER,TAG,SHA
+          command_timeout: 15m
+          script: |
+            set -e
+            cd ~/notenn
+            git fetch -q origin
+            git reset -q --hard "$SHA"
+            GHCR_TOKEN="$GHCR_TOKEN" GHCR_USER="$GHCR_USER" sh deploy/deploy.sh "$TAG"

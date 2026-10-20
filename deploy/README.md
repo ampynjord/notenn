@@ -35,10 +35,52 @@ Ensuite, ouvrir https://notenn.ampynjord.bzh/admin et **créer tout de suite le 
 
 ## 4. Mettre à jour
 
+### Automatiquement (CI/CD)
+
+Chaque fusion sur `main` lance `.github/workflows/ci.yml` :
+
+1. **Contrôles** (aussi sur chaque branche et PR) : typecheck, lint, tests unitaires, migrations sur une base vide, tests d'intégration, build, tests navigateur.
+2. **Image** : construite par GitHub et poussée sur `ghcr.io/ampynjord/notenn-web`, taguée `sha-<commit>` et `latest`.
+3. **Déploiement** : GitHub se connecte au VPS en SSH et lance `deploy/deploy.sh`, qui :
+   - fait une sauvegarde de la base (`backups/pre-deploy_…dump`) ;
+   - lance la nouvelle image ;
+   - attend que `/healthz` réponde (base joignable, migrations passées) ;
+   - si ce n'est pas le cas au bout de 3 minutes, relance la version précédente, et le déploiement passe en rouge dans GitHub.
+
+Revenir à une version précédente : GitHub → Actions → **Rollback** → *Run workflow*, avec le commit voulu. La base n'est pas ramenée en arrière ; si une migration doit être défaite, restaurer la sauvegarde `pre-deploy` (section 5).
+
+#### Mise en place (une seule fois)
+
+Sur le VPS, une clé réservée à Notenn pour GitHub. Elle ne sert qu'à ça et peut être retirée sans toucher aux autres projets.
+
 ```sh
-cd notenn && git pull
-cd deploy && docker compose up -d --build
+ssh-keygen -t ed25519 -N "" -C "github-actions notenn" -f ~/notenn-deploy
+cat ~/notenn-deploy.pub >> ~/.ssh/authorized_keys
+cat ~/notenn-deploy   # à copier dans GitHub, puis :
+rm ~/notenn-deploy ~/notenn-deploy.pub
 ```
+
+Le dépôt sur le VPS doit pouvoir faire `git fetch` (c'est déjà le cas s'il a été cloné en SSH, section 3).
+
+Dans GitHub → `ampynjord/notenn` → *Settings* → *Secrets and variables* → *Actions* → *New repository secret* :
+
+| Secret | Valeur |
+|---|---|
+| `VPS_HOST` | l'adresse du VPS (la même que pour Starvis) |
+| `NOTENN_DEPLOY_KEY` | le contenu de `~/notenn-deploy` (clé privée, en entier) |
+| `VPS_PORT` | facultatif, `2222` par défaut |
+| `VPS_USER` | facultatif, `debian` par défaut |
+
+L'image est privée : le déploiement s'identifie sur ghcr.io avec le jeton temporaire du workflow, rien à stocker sur le VPS.
+
+### À la main
+
+```sh
+cd ~/notenn && git pull
+cd deploy && docker compose pull web && docker compose up -d
+```
+
+`docker compose up -d --build` reconstruit l'image sur le VPS si besoin (sans passer par GitHub).
 
 Les nouvelles migrations de base s'appliquent toutes seules au démarrage.
 
