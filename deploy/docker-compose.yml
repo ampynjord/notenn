@@ -3,9 +3,11 @@
 # Variables: see .env.example (copy to .env).
 
 name: notenn
+# Fixed container names (notenn-web, not notenn-web-1): one instance per service.
 
 services:
   web:
+    container_name: notenn-web
     build:
       context: ..
       dockerfile: apps/web/Dockerfile
@@ -49,6 +51,7 @@ services:
       - traefik.http.middlewares.notenn-entetes.headers.referrerPolicy=strict-origin-when-cross-origin
 
   db:
+    container_name: notenn-db
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
@@ -67,6 +70,7 @@ services:
 
   # Daily backup of the database and media into ./backups, kept ${BACKUP_KEEP_DAYS} days.
   backup:
+    container_name: notenn-backup
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
@@ -88,6 +92,7 @@ services:
 
   # Visit statistics without cookies (optional): docker compose --profile stats up -d
   umami:
+    container_name: notenn-umami
     profiles: [stats]
     image: ghcr.io/umami-software/umami:postgresql-latest
     restart: unless-stopped
@@ -111,6 +116,7 @@ services:
       - traefik.http.services.notenn-stats.loadbalancer.server.port=3000
 
   umami-db:
+    container_name: notenn-umami-db
     profiles: [stats]
     image: postgres:17-alpine
     restart: unless-stopped
