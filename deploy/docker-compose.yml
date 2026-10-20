@@ -9,7 +9,9 @@ services:
     build:
       context: ..
       dockerfile: apps/web/Dockerfile
-    image: notenn-web:latest
+    # Built and pushed by GitHub Actions; deploy.sh picks the exact version (sha-<commit>).
+    # `docker compose up -d --build` still builds it here when needed.
+    image: ${WEB_IMAGE:-ghcr.io/ampynjord/notenn-web:latest}
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://notenn:${POSTGRES_PASSWORD:?must be set in .env}@db:5432/notenn

@@ -114,7 +114,7 @@ Fait :
 
 Reste à faire :
 
-- [ ] CI/CD : tests et build à chaque PR, image Docker, déploiement automatique sur le VPS
+- [x] CI/CD : contrôles à chaque PR, image sur GHCR, déploiement auto sur le VPS à chaque fusion (sauvegarde, contrôle de santé, retour arrière) — reste à ajouter la clé et les secrets (deploy/README.md, section 4)
 - [ ] Mettre en ligne la version comptes + bibliothèque sur le VPS
 - [ ] Créer le compte Resend et vérifier le domaine (deploy/README.md, section 6)
 - [ ] Lancer Umami sur le VPS (deploy/README.md, section 7)
