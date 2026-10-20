@@ -217,7 +217,7 @@
   },
   "support": {
     "title": "Soutenir Notenn",
-    "lead": "Notenn est gratuit, sans publicité et sans compte. Il tient grâce aux dons.",
+    "lead": "Notenn est gratuit et sans publicité. Il tient grâce aux dons.",
     "costs": "Les dons paient le serveur, le nom de domaine et le temps passé à ajouter des claviers, des airs et de nouveaux instruments.",
     "donate": "Faire un don sur Liberapay",
     "liberapay": "Liberapay est une plateforme associative de dons récurrents ou ponctuels, sans commission de sa part.",
@@ -245,7 +245,7 @@
     "hostTitle": "Hébergeur",
     "host": "OVH SAS, 2 rue Kellermann, 59100 Roubaix, France.",
     "contentTitle": "Contenus",
-    "content": "Les airs de la bibliothèque sont du domaine public, traditionnels ou sous licence libre. Si tu penses qu’un contenu enfreint un droit, écris à l’adresse ci-dessus : il sera retiré rapidement.",
+    "content": "Les airs de la banque d’airs sont du domaine public, traditionnels ou sous licence libre. Si tu penses qu’un contenu enfreint un droit, écris à l’adresse ci-dessus : il sera retiré rapidement.",
     "codeTitle": "Logiciel",
     "code": "Le code de Notenn et sa notation sont la propriété de leur auteur. Toute reproduction sans autorisation est interdite."
   },

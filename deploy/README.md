@@ -4,7 +4,7 @@ Notenn tourne en trois conteneurs derrière le Traefik déjà installé : l'appl
 
 ## 1. DNS
 
-Le wildcard `*.ampynjord.bzh` pointe déjà vers le VPS : rien à créer. Vérifier : `dig +short notenn.ampynjord.bzh` doit renvoyer l'IP du VPS.
+Chaque sous-domaine est déclaré à la main dans la zone DNS OVH (pas de wildcard) : une entrée A (et AAAA si le VPS a de l'IPv6) vers l'IP du VPS pour `notenn` et, pour les statistiques, `stats`. Vérifier : `dig +short notenn.ampynjord.bzh` doit renvoyer l'IP du VPS.
 
 ## 2. Vérifier les réglages de Traefik
 
@@ -141,8 +141,11 @@ Les comptes du site (« membres ») sont distincts des administrateurs : ils n'o
 
 Umami compte les visites sans cookie : pas besoin de bandeau de consentement. Il tourne à part, sur https://stats.ampynjord.bzh.
 
+Un `.env` créé avant l'ajout d'Umami n'a pas ses lignes : les ajouter d'abord, sinon la base d'Umami refuse de démarrer (*superuser password is not specified*) :
+
 ```sh
 cd ~/notenn/deploy
+grep -q '^UMAMI_DB_PASSWORD=' .env || printf '\nSTATS_DOMAIN=stats.ampynjord.bzh\nUMAMI_DB_PASSWORD=\nUMAMI_APP_SECRET=\nUMAMI_SCRIPT_URL=\nUMAMI_WEBSITE_ID=\n' >> .env
 sed -i "s/^UMAMI_DB_PASSWORD=.*/UMAMI_DB_PASSWORD=$(openssl rand -hex 32)/" .env
 sed -i "s/^UMAMI_APP_SECRET=.*/UMAMI_APP_SECRET=$(openssl rand -hex 32)/" .env
 docker compose --profile stats up -d
