@@ -119,7 +119,7 @@ Reste à faire :
 - [x] Créer le compte Resend et vérifier le domaine
 - [x] Lancer Umami sur le VPS (stats.ampynjord.bzh)
 - [x] Liberapay (compte « ampynjord ») et hébergeur OVH confirmé
-- [x] Adresse de contact : notenn@contact.ampynjord.bzh (réception Resend sur le sous-domaine contact)
+- [x] Adresse de contact : notenn@ampynjord.bzh (réception Resend, MX du domaine)
 - [ ] Ajouter des airs bretons à la banque (domaine public / trad)
 - [ ] Vérifier les claviers autres que le 2915 sur des instruments réels
 - [ ] Jouer soi-même sur le Hohner pendant quelques jours (test avant bêta ouverte)
