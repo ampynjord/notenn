@@ -8,6 +8,11 @@ set -uo pipefail
 install -m 700 -d ~/.ssh
 # A key copied from a Windows terminal may carry \r and trailing spaces: OpenSSH refuses those.
 printf '%s\n' "$DEPLOY_KEY" | tr -d '\r' | sed -e 's/[[:space:]]*$//' -e '/^$/d' > ~/.ssh/deploy_key
+# Pasted without its BEGIN/END lines: put them back.
+if ! grep -q -- '-----BEGIN' ~/.ssh/deploy_key && ! grep -q '^ssh-' ~/.ssh/deploy_key; then
+  { echo '-----BEGIN OPENSSH PRIVATE KEY-----'; cat ~/.ssh/deploy_key; echo '-----END OPENSSH PRIVATE KEY-----'; } > ~/.ssh/deploy_key.full
+  mv ~/.ssh/deploy_key.full ~/.ssh/deploy_key
+fi
 chmod 600 ~/.ssh/deploy_key
 if ! ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1; then
   # Describe the secret without ever printing it.
