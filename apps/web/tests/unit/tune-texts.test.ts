@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { summarize } from '@/lib/seo'
+import { BRETON_TUNES } from '@/seed/breton'
 import { SEED_TUNES } from '@/seed/tunes'
 
+const ALL_TUNES = [...SEED_TUNES, ...BRETON_TUNES]
+
 describe('starter tune descriptions', () => {
-  it.each(SEED_TUNES.map((t) => [t.slug, t] as const))(
+  it.each(ALL_TUNES.map((t) => [t.slug, t] as const))(
     '%s has a full text in both languages, with the tempo of its melody',
     (_slug, tune) => {
       for (const text of [tune.notes.fr, tune.notes.en]) {

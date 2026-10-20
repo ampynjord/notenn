@@ -1,7 +1,17 @@
-import { adminOnly, isAdmin } from '@/lib/access'
-import type { CollectionConfig } from 'payload'
+import { adminOnly, canPublish, hasRole, isStaff, publishersOnly } from '@/lib/access'
+import type { Access, CollectionConfig } from 'payload'
 
-/** Library tunes: public-domain or traditional melodies in ABC notation, curated in the admin. */
+/** Editors may only change drafts; publishers and administrators may change anything. */
+const updateTunes: Access = ({ req }) => {
+  if (hasRole(req, 'admin', 'publisher')) return true
+  if (hasRole(req, 'editor')) return { published: { equals: false } }
+  return false
+}
+
+/**
+ * Library tunes: public-domain or traditional melodies in ABC notation, curated in the admin.
+ * A tune is a draft until a publisher or an administrator ticks "Published".
+ */
 export const Tunes: CollectionConfig = {
   slug: 'tunes',
   labels: { singular: { en: 'Tune', fr: 'Air' }, plural: { en: 'Tunes', fr: 'Airs' } },
@@ -10,11 +20,21 @@ export const Tunes: CollectionConfig = {
     defaultColumns: ['title', 'region', 'kind', 'level', 'published'],
   },
   access: {
-    // Visitors and members only see published tunes; editing is for administrators.
-    read: ({ req }) => (isAdmin(req) ? true : { published: { equals: true } }),
-    create: adminOnly,
-    update: adminOnly,
+    // Visitors and members only see published tunes; the back office also sees the drafts.
+    read: ({ req }) => (isStaff(req) ? true : { published: { equals: true } }),
+    create: ({ req }) => hasRole(req, 'admin', 'publisher', 'editor'),
+    update: updateTunes,
     delete: adminOnly,
+  },
+  hooks: {
+    // Whatever an editor sends, a new tune starts as a draft. Trusted code with no signed-in account
+    // (the seed migrations) is left alone: it decides by itself whether a tune is published.
+    beforeChange: [
+      ({ data, operation, req }) => {
+        if (operation === 'create' && isStaff(req) && !canPublish(req)) return { ...data, published: false }
+        return data
+      },
+    ],
   },
   defaultSort: 'title',
   fields: [
@@ -127,9 +147,17 @@ export const Tunes: CollectionConfig = {
     {
       name: 'published',
       type: 'checkbox',
-      defaultValue: true,
+      // A new tune is a draft: only a publisher or an administrator can accept it.
+      defaultValue: false,
       label: { en: 'Published', fr: 'Publié' },
-      admin: { position: 'sidebar' },
+      access: { create: publishersOnly, update: publishersOnly },
+      admin: {
+        position: 'sidebar',
+        description: {
+          en: 'A draft until this is ticked. Only publishers and administrators can tick it.',
+          fr: 'Un brouillon tant que la case n’est pas cochée. Seuls les validateurs et les administrateurs peuvent la cocher.',
+        },
+      },
     },
   ],
 }
