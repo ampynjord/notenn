@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Notenn",
-    "description": "Tablatures d'accordéon diatonique en Système Argoat : importe un morceau, Notenn écrit les boutons, le soufflet et les basses."
+    "description": "Tablatures d'accordéon diatonique : importe un morceau, Notenn écrit les boutons, le soufflet et les basses."
   },
   "nav": {
     "home": "Notenn, accueil",
@@ -10,7 +10,6 @@
     "skip": "Aller au contenu",
     "workshop": "Éditeur",
     "tunes": "Banque d’airs",
-    "notation": "Système Argoat",
     "support": "Soutenir",
     "admin": "Administration",
     "language": "Langue",
@@ -41,16 +40,16 @@
     "step2": "Chaque note devient un numéro de bouton, sur la ligne du poussé ou du tiré, avec la basse qui va dessous.",
     "step3Title": "Joue et imprime",
     "step3": "Écoute le morceau avec le curseur, ralentis-le, fais-le tourner en boucle, puis télécharge le PDF.",
-    "notationTitle": "Une notation pensée pour le diatonique",
-    "notationText": "Le Système Argoat sépare le poussé et le tiré sur deux lignes : on voit tout de suite quand le soufflet change. Les rangs se distinguent par une apostrophe et la portée reste en option, pour ceux qui lisent la musique.",
-    "notationLink": "Découvrir le Système Argoat",
-    "freeTitle": "Gratuit, sans compte",
+    "freeTitle": "Gratuit",
     "freeText": "L’éditeur marche directement dans ton navigateur, sans compte : tes fichiers ne quittent pas ton ordinateur tant que tu ne les enregistres pas dans ta bibliothèque. Notenn vit des dons de celles et ceux qui l’utilisent.",
-    "supportLink": "Soutenir Notenn"
+    "supportLink": "Soutenir Notenn",
+    "libraryTitle": "Ta bibliothèque, partout",
+    "libraryText": "Avec un compte gratuit, garde les airs de la banque et tes propres fichiers, avec les doigtés que tu as choisis et tes réglages, sur tous tes appareils.",
+    "libraryLink": "Ouvrir ma bibliothèque"
   },
   "workshop": {
     "title": "Éditeur",
-    "intro": "Importe un morceau : Notenn en tire la mélodie et l’écrit en Système Argoat.",
+    "intro": "Importe un morceau : Notenn en tire la mélodie et l’écrit en tablature.",
     "song": "Morceau",
     "file": "Fichier MIDI, MusicXML (.musicxml, .xml, .mxl) ou ABC",
     "pasteAbc": "…ou colle un air en notation ABC :",
@@ -114,7 +113,7 @@
     "pdfBarsPerLine": "Mesures par ligne",
     "pdfDownload": "Télécharger le PDF",
     "pdfBusy": "Préparation…",
-    "pdfFooter": "Tablature Système Argoat · notenn.ampynjord.bzh",
+    "pdfFooter": "Tablature Notenn · notenn.ampynjord.bzh",
     "legendBassChordText": "basse = rond plein, accord = rond vide",
     "fromLibrary": "Ouvrir depuis ma bibliothèque",
     "chooseItem": "Choisir un air…",
@@ -127,7 +126,9 @@
     "guestNote": "Sans compte, rien n’est gardé : ni l’air, ni tes doigtés, ni tes réglages.",
     "guestLink": "Créer un compte",
     "itemLoginRequired": "Connecte-toi pour ouvrir cet air de ta bibliothèque.",
-    "itemMissing": "Cet air n’est plus dans ta bibliothèque."
+    "itemMissing": "Cet air n’est plus dans ta bibliothèque.",
+    "chooseFile": "Choisir un fichier",
+    "noFile": "Aucun fichier choisi"
   },
   "lines": {
     "push": "P",
@@ -158,34 +159,13 @@
   "footer": {
     "about": "Notenn, tablatures pour accordéon diatonique. Fait en Bretagne.",
     "links": "Pied de page",
-    "notation": "Le Système Argoat",
     "support": "Soutenir Notenn",
     "privacy": "Confidentialité",
     "legal": "Mentions légales"
   },
-  "notation": {
-    "title": "Le Système Argoat",
-    "lead": "Une tablature pour accordéon diatonique qui montre d’un coup d’œil quel bouton jouer et dans quel sens tirer le soufflet.",
-    "caption": "Début d’« Auld Lang Syne » sur un Sol/Do, avec la portée au-dessus.",
-    "bellowsTitle": "Le soufflet",
-    "bellows": "Deux lignes : {push} pour poussé, {pull} pour tiré. Un numéro sur la ligne {push} se joue en poussant, sur la ligne {pull} en tirant.",
-    "rowsTitle": "Les rangs",
-    "rows": "Le numéro est celui du bouton, en comptant depuis le menton. Une apostrophe (6’) désigne le rang intérieur, sans apostrophe c’est le rang extérieur ; une double apostrophe (6’’) désigne le 3e rang.",
-    "rhythmTitle": "Le rythme",
-    "rhythm": "Les numéros sont placés dans le temps : plus l’espace est grand, plus la note dure. Un point marque chaque temps, un petit trait le début de chaque mesure.",
-    "holdTitle": "Les notes tenues",
-    "hold": "Un trait gris prolonge le numéro tant que la note doit être tenue.",
-    "bassTitle": "Les basses",
-    "bass": "Sur la ligne du bas, le chiffre désigne un groupe de basses : rond plein pour le bouton de basse, rond vide pour l’accord. Elles se jouent dans le même sens de soufflet que la mélodie.",
-    "staffTitle": "La portée",
-    "staff": "La partition classique peut s’afficher au-dessus, alignée note pour note, pour ceux qui lisent la musique.",
-    "whyTitle": "Pourquoi une notation de plus ?",
-    "why": "Les tablatures existantes mélangent souvent poussé et tiré sur une seule ligne, avec des signes à apprendre. Le Système Argoat garde ce qu’on comprend sans explication : deux lignes, deux couleurs, des numéros de boutons placés dans le temps.",
-    "try": "L’essayer dans l’éditeur"
-  },
   "tunes": {
     "title": "Banque d’airs",
-    "lead": "Des airs du domaine public et de la tradition, prêts à jouer en Système Argoat.",
+    "lead": "Des airs du domaine public et de la tradition, prêts à jouer.",
     "search": "Rechercher",
     "searchPlaceholder": "Titre ou compositeur",
     "region": "Origine",
@@ -267,7 +247,7 @@
     "contentTitle": "Contenus",
     "content": "Les airs de la bibliothèque sont du domaine public, traditionnels ou sous licence libre. Si tu penses qu’un contenu enfreint un droit, écris à l’adresse ci-dessus : il sera retiré rapidement.",
     "codeTitle": "Logiciel",
-    "code": "Le code de Notenn et le Système Argoat sont la propriété de leur auteur. Toute reproduction sans autorisation est interdite."
+    "code": "Le code de Notenn et sa notation sont la propriété de leur auteur. Toute reproduction sans autorisation est interdite."
   },
   "preview": {
     "addToLibrary": "Ajouter à ma bibliothèque",
