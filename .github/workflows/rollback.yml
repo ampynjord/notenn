@@ -40,23 +40,17 @@ jobs:
             || { echo "No image for sha-$short: nothing was changed."; exit 1; }
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           echo "tag=sha-$short" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
       - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.2.5
         env:
+          DEPLOY_KEY: ${{ secrets.NOTENN_DEPLOY_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '2222' }}
+          VPS_USER: ${{ secrets.VPS_USER || 'debian' }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
           TAG: ${{ steps.target.outputs.tag }}
           SHA: ${{ steps.target.outputs.sha }}
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          port: ${{ secrets.VPS_PORT || '2222' }}
-          username: ${{ secrets.VPS_USER || 'debian' }}
-          key: ${{ secrets.NOTENN_DEPLOY_KEY }}
-          envs: GHCR_TOKEN,GHCR_USER,TAG,SHA
-          command_timeout: 15m
-          script: |
-            set -e
-            cd ~/notenn
-            git fetch -q origin
-            git reset -q --hard "$SHA"
-            GHCR_TOKEN="$GHCR_TOKEN" GHCR_USER="$GHCR_USER" sh deploy/deploy.sh "$TAG"
+        run: .github/scripts/ssh-deploy.sh
