@@ -10,7 +10,6 @@ export async function SiteFooter() {
       <div className="wrap">
         <p>{t('about')}</p>
         <nav aria-label={t('links')}>
-          <Link href="/notation">{t('notation')}</Link>
           <Link href="/support">{t('support')}</Link>
           <Link href="/privacy">{t('privacy')}</Link>
           <Link href="/legal">{t('legal')}</Link>

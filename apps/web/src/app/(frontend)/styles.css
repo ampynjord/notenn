@@ -167,11 +167,6 @@ legend { font-size: 15px; color: var(--muted); margin-bottom: 6px; padding: 0; }
 /* Text pages */
 .prose { max-width: 72ch; }
 .prose h2 { margin-top: 1.6em; }
-.notation .example { margin: 24px 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
-.notation .example figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
-.rules { margin: 0; display: grid; gap: 18px; }
-.rules dt { font-weight: 700; }
-.rules dd { margin: 2px 0 0; color: var(--muted); }
 
 /* Library */
 .filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 22px 0 10px; }
@@ -202,7 +197,10 @@ legend { font-size: 15px; color: var(--muted); margin-bottom: 6px; padding: 0; }
 .controls .group > summary { font-weight: 700; padding: 12px 0; cursor: pointer; }
 .controls .group[open] { padding-bottom: 14px; }
 .controls .group > * + * { margin-top: 10px; }
-.controls .file input { font-size: 14px; color: var(--ink); }
+.controls .file { display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--muted); }
+.file-picker { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.file-picker .file-button { min-height: 38px; padding: 6px 12px; font-size: 15px; flex: none; }
+.file-name { font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .controls .abc summary { cursor: pointer; color: var(--push); font-size: 15px; }
 .controls .abc textarea { margin: 8px 0; }
 .controls .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

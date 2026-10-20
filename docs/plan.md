@@ -1,6 +1,6 @@
 # Plan — Notenn
 
-Notenn est une application web, hébergée sous ampynjord.bzh en français et en anglais, qui transforme une partition, un MIDI ou un enregistrement en tablature, avec curseur de lecture et PDF. La V1 est consacrée à l'accordéon diatonique et au **Système Argoat** ; les autres instruments s'ajoutent ensuite. Code fermé ; revenus par dons et fonctions consommant des ressources serveur.
+Notenn est une application web, hébergée sous ampynjord.bzh en français et en anglais, qui transforme une partition, un MIDI ou un enregistrement en tablature, avec curseur de lecture et PDF. La V1 est consacrée à l'accordéon diatonique, écrit par défaut en Système Argoat (la notation de l'auteur, présentée par une simple légende, pas mise en avant) ; d'autres notations et instruments s'ajoutent ensuite. Code fermé ; revenus par dons et fonctions consommant des ressources serveur.
 
 Document de référence vivant : ce fichier est le résumé versionné du plan du projet.
 
@@ -97,19 +97,29 @@ Tests seul sur le Hohner, puis bêta ouverte marquée « bêta » ; bouche-à-or
 - [x] Porter le rendu Système Argoat dans le nouveau projet
 - [ ] e-Soleau du Système Argoat une fois finalisé
 
-## Phase 1 (bêta) — fait
+## Phase 1 (bêta)
 
-- [x] Claviers : Hohner 2915, Sol/Do standard, Ré/Sol, La/Ré, Do/Fa, Sib/Mib, Sol/Do/Fa 3 rangs (à vérifier sur instruments réels)
-- [x] Atelier : choix de piste, passage, transposition, clavier et rangs, portée, basses
+Fait :
+
+- [x] Claviers : Hohner 2915, Sol/Do standard, Ré/Sol, La/Ré, Do/Fa, Sib/Mib, Sol/Do/Fa 3 rangs
+- [x] Éditeur : choix de piste, passage, transposition, clavier et rangs, portée, basses
 - [x] Pratique : curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte
-- [x] Édition au clic (bouton, rang, soufflet) et préférences mémorisées
+- [x] Édition au clic (bouton, rang, soufflet)
 - [x] Export PDF : avec ou sans portée, mesures par ligne, couleur ou N&B
-- [x] Bibliothèque de 20 airs libres (à compléter avec des airs bretons)
-- [x] Site : accueil, Système Argoat, airs, soutenir (Liberapay), confidentialité, mentions légales, FR/EN
-- [x] PWA (installable, atelier hors ligne) et statistiques Umami
+- [x] Banque de 20 airs libres, en aperçu (écoute, clavier, PDF)
 - [x] Comptes (inscription, confirmation par e-mail, mot de passe oublié, suppression du compte)
-- [x] Banque d'airs en aperçu, « Ma bibliothèque », éditeur qui ouvre la bibliothèque et enregistre doigtés et réglages
-- [ ] Créer le compte Resend et vérifier le domaine (deploy/README.md, section 6)
-- [ ] Ouvrir le compte Liberapay « notenn » et l'adresse de contact
-- [ ] Lancer Umami sur le VPS (deploy/README.md)
+- [x] Ma bibliothèque : airs de la banque, fichiers importés, doigtés et réglages enregistrés
+- [x] Site FR/EN : accueil, banque d'airs, bibliothèque, éditeur, soutenir (Liberapay), confidentialité, mentions légales ; notation présentée par une légende seulement
+- [x] PWA (installable, éditeur hors ligne) et statistiques Umami (code prêt)
 
+Reste à faire :
+
+- [ ] CI/CD : tests et build à chaque PR, image Docker, déploiement automatique sur le VPS
+- [ ] Mettre en ligne la version comptes + bibliothèque sur le VPS
+- [ ] Créer le compte Resend et vérifier le domaine (deploy/README.md, section 6)
+- [ ] Lancer Umami sur le VPS (deploy/README.md, section 7)
+- [ ] Ouvrir le compte Liberapay « notenn » et l'adresse de contact ; confirmer l'hébergeur dans les mentions légales
+- [ ] Ajouter des airs bretons à la banque (domaine public / trad)
+- [ ] Vérifier les claviers autres que le 2915 sur des instruments réels
+- [ ] Jouer soi-même sur le Hohner pendant quelques jours (test avant bêta ouverte)
+- [ ] Ouvrir la bêta (marquée « bêta »)
