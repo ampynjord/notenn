@@ -162,28 +162,22 @@ jobs:
             echo "::warning::NOTENN_DEPLOY_KEY or VPS_HOST missing: deployment skipped (deploy/README.md, section 4)."
             echo "ready=false" >> "$GITHUB_OUTPUT"
           fi
+      - uses: actions/checkout@v7
+        if: steps.configured.outputs.ready == 'true'
+        with:
+          sparse-checkout: .github/scripts
       - name: Deploy over SSH
         if: steps.configured.outputs.ready == 'true'
-        uses: appleboy/ssh-action@v1.2.5
         env:
+          DEPLOY_KEY: ${{ secrets.NOTENN_DEPLOY_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '2222' }}
+          VPS_USER: ${{ secrets.VPS_USER || 'debian' }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
           TAG: ${{ needs.image.outputs.tag }}
           SHA: ${{ github.sha }}
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          port: ${{ secrets.VPS_PORT || '2222' }}
-          username: ${{ secrets.VPS_USER || 'debian' }}
-          key: ${{ secrets.NOTENN_DEPLOY_KEY }}
-          envs: GHCR_TOKEN,GHCR_USER,TAG,SHA
-          command_timeout: 15m
-          script: |
-            set -e
-            cd ~/notenn
-            # Compose file and scripts at the deployed commit.
-            git fetch -q origin main
-            git reset -q --hard "$SHA"
-            GHCR_TOKEN="$GHCR_TOKEN" GHCR_USER="$GHCR_USER" sh deploy/deploy.sh "$TAG"
+        run: .github/scripts/ssh-deploy.sh
       - name: Check the public site
         if: steps.configured.outputs.ready == 'true'
         run: |
