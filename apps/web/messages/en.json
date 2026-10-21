@@ -6,6 +6,7 @@
     "description": "Diatonic accordion tabs: import a tune and Notenn writes the buttons, bellows and basses."
   },
   "nav": {
+    "beta": "beta",
     "home": "Notenn, home",
     "main": "Main navigation",
     "menu": "Menu",
@@ -159,6 +160,8 @@
     "eb": "Eb"
   },
   "footer": {
+    "feedback": "Feedback or a bug?",
+    "feedbackSubject": "Notenn beta: feedback",
     "about": "Notenn, tabs for the diatonic accordion. Made in Brittany.",
     "links": "Footer",
     "support": "Support Notenn",
