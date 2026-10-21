@@ -15,7 +15,7 @@ Uniquement des œuvres du domaine public. Les encodages viennent du corpus distr
 | `oneill-i-leave-you-to-guess.abc` | I Leave You To Guess, O'Neill n° 264 | John Chambers, 1997 | 5/4 puis 6/8 (changement de mesure), mesure fausse dans la source |
 | `ryan-acrobats-hornpipe.abc` | Acrobat's Hornpipe, *Ryan's Mammoth Collection* (1883) | John Chambers, 2001 (corpus `ryansMammoth`) | Si bémol, triolets, altérations |
 | `nottingham-cuckoos-nest.abc` | Cuckoo's Nest (trad. écossais) | Nottingham Music Database (corpus `nottingham-dataset`) | accords chiffrés `"D"`, parties A/B |
-| `auld-lang-syne.abc` | Auld Lang Syne (trad. écossais) | écrit pour Notenn (exemple de l'atelier) | air validé à l'accordéon par Gwenvaël |
+| `auld-lang-syne.abc` | Auld Lang Syne (trad. écossais) | écrit pour Notenn (exemple de l'atelier) | air validé à l'accordéon par l'auteur |
 | `bach-bwv66-6.mxl` / `.mid` | Choral BWV 66.6, J. S. Bach | corpus `bach` ; MIDI généré avec music21 | 4 voix, MusicXML compressé, choix du soprano |
 | `bach-bwv269.musicxml` | Choral BWV 269, J. S. Bach | idem, décompressé | 3/4, MusicXML non compressé, choix du soprano |
 | `handel-lascia-chio-pianga.xml` | Lascia ch'io pianga, Haendel, *Rinaldo* (1711) | corpus `handel` | chant + piano, partie sans nom, 4/4 puis 3/4 |
