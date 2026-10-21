@@ -33,6 +33,7 @@ export function SiteHeader() {
             <span className="t">{locale === 'fr' ? 'T' : 'D'}</span>
           </span>
           Notenn
+          <span className="beta">{t('beta')}</span>
         </Link>
         <button
           type="button"
