@@ -6,6 +6,7 @@
     "description": "Tablatures d'accordéon diatonique : importe un morceau, Notenn écrit les boutons, le soufflet et les basses."
   },
   "nav": {
+    "beta": "bêta",
     "home": "Notenn, accueil",
     "main": "Navigation principale",
     "menu": "Menu",
@@ -159,6 +160,8 @@
     "eb": "Mib"
   },
   "footer": {
+    "feedback": "Un retour, un bug ?",
+    "feedbackSubject": "Notenn bêta : retour",
     "about": "Notenn, tablatures pour accordéon diatonique. Fait en Bretagne.",
     "links": "Pied de page",
     "support": "Soutenir Notenn",

@@ -113,6 +113,7 @@ legend { font-size: 15px; color: var(--muted); margin-bottom: 6px; padding: 0; }
 .brand .mark .p { background: var(--push); }
 .brand .mark .t { background: var(--pull); }
 @media (prefers-color-scheme: dark) { .brand .mark span { color: var(--sunk); } }
+.brand .beta { font: 700 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 6px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
 .site-header nav { display: flex; align-items: center; gap: 4px; }
 .site-header nav a { color: var(--ink); text-decoration: none; padding: 8px 12px; border-radius: 8px; }
 .site-header nav a:hover { background: var(--sunk); }
