@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
+import { SITE_HEADER } from '@/lib/member-session'
 import type { LibraryItem, Member } from '@/payload-types'
 
 export type { LibraryItem, Member }
@@ -55,6 +56,8 @@ export async function api<T = unknown>(
     ...rest,
     headers: {
       'Accept-Language': 'en',
+      // Marks a call of the site: it gets the member session cookie, never the back-office one.
+      [SITE_HEADER]: '1',
       ...(json !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...rest.headers,
     },
