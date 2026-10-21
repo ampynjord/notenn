@@ -202,26 +202,6 @@ K:Em
 |:Bcd e2f|e2f edB|Bcd e2f|edB d3|Bcd e2f|e2f edB|dcd AGF|GEE E3:|`,
   },
   {
-    slug: 'the-butterfly',
-    title: 'The Butterfly',
-    region: 'ireland',
-    kind: 'slip-jig',
-    level: 'advanced',
-    origin: 'Traditional',
-    notes: {
-      fr: 'Slip jig irlandaise : une gigue à neuf croches par mesure (9/8), en trois groupes de trois, au balancement aérien. En Mi mineur, tempo indicatif 90 à la noire pointée ; réservée aux joueurs confirmés, commence très lentement.',
-      en: 'An Irish slip jig: a jig with nine eighth notes to the bar (9/8), in three groups of three, with an airy sway. In E minor, suggested tempo 90 to the dotted quarter note; for experienced players, so start very slowly.',
-    },
-    abc: abc`X:1
-T:The Butterfly
-M:9/8
-L:1/8
-Q:3/8=90
-K:Em
-|:B2E G2E F3|B2E G2E FED|B2E G2E F3|B2d d2B AFD:|
-|:B2d e2f g3|B2d g2e dBA|B2d e2f g2a|b2a g2e dBA:|`,
-  },
-  {
     slug: 'au-clair-de-la-lune',
     title: 'Au clair de la lune',
     region: 'france',

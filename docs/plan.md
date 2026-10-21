@@ -106,7 +106,7 @@ Fait :
 - [x] Pratique : curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte
 - [x] Édition au clic (bouton, rang, soufflet)
 - [x] Export PDF : avec ou sans portée, mesures par ligne, couleur ou N&B
-- [x] Banque de 20 airs libres, en aperçu (écoute, clavier, PDF)
+- [x] Banque de 19 airs libres, en aperçu (écoute, clavier, PDF)
 - [x] Comptes (inscription, confirmation par e-mail, mot de passe oublié, suppression du compte)
 - [x] Ma bibliothèque : airs de la banque, fichiers importés, doigtés et réglages enregistrés
 - [x] Site FR/EN : accueil, banque d'airs, bibliothèque, éditeur, soutenir (Liberapay), confidentialité, mentions légales ; notation présentée par une légende seulement

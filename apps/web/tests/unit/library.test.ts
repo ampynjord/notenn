@@ -10,7 +10,7 @@ const ALL_TUNES = [...SEED_TUNES, ...BRETON_TUNES]
 
 describe('starter library', () => {
   it('holds about twenty tunes with unique slugs', () => {
-    expect(SEED_TUNES.length).toBeGreaterThanOrEqual(20)
+    expect(SEED_TUNES.length).toBeGreaterThanOrEqual(19)
     expect(new Set(ALL_TUNES.map((t) => t.slug)).size).toBe(ALL_TUNES.length)
   })
 

@@ -5,6 +5,7 @@ import * as migration_20261019_182929_accounts_library from './20261019_182929_a
 import * as migration_20261021_090000_tunes_texts from './20261021_090000_tunes_texts';
 import * as migration_20261021_100000_roles_and_drafts from './20261021_100000_roles_and_drafts';
 import * as migration_20261021_110000_breton_drafts from './20261021_110000_breton_drafts';
+import * as migration_20261021_120000_remove_butterfly from './20261021_120000_remove_butterfly';
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20261021_110000_breton_drafts.up,
     down: migration_20261021_110000_breton_drafts.down,
     name: '20261021_110000_breton_drafts',
+  },
+  {
+    up: migration_20261021_120000_remove_butterfly.up,
+    down: migration_20261021_120000_remove_butterfly.down,
+    name: '20261021_120000_remove_butterfly',
   },
 ];
