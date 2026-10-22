@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { arrange, hohner2915GC, type Song } from '@notenn/engine'
-import { layout, splitDuration } from '../src/index'
+import { arrange, arrangeStrings, arrangeWhistle, getInstrument, hohner2915GC, type Song } from '@notenn/engine'
+import { layout, layoutStrings, layoutWhistle, splitDuration } from '../src/index'
 
 // Amazing Grace, opening (traditional tune, public domain), 3/4 with a pickup.
 const song: Song = {
@@ -187,5 +187,50 @@ describe('CADB and Corgeron tablatures', () => {
       const row = hohner2915GC.rows.findIndex((r) => r.id === n.fingering.row)
       expect(((o as { y: number }).y)).toBe(27 + row * 21)
     }
+  })
+})
+
+describe('guitar and whistle tablatures', () => {
+  it('guitar: one fret number per note, each on the line of its string, with string names and barlines', () => {
+    const guitar = getInstrument('guitar-standard')!
+    if (guitar.family !== 'string') throw new Error('guitar expected')
+    const arr = arrangeStrings(song, guitar)
+    const ops = layoutStrings(arr, guitar, song.meter, { staff: false }).flatMap((l) => l.ops)
+    const frets = ops.filter((o) => o.kind === 'text' && o.note !== undefined)
+    expect(frets).toHaveLength(arr.notes.length)
+    for (const o of frets) {
+      if (o.kind !== 'text') continue
+      expect(o.text).toBe(String(arr.notes[o.note!]!.position.fret))
+    }
+    // Higher strings are drawn higher (smaller y).
+    const yOf = (string: number) => frets.find((o) => o.kind === 'text' && arr.notes[o.note!]!.position.string === string)
+    const ys = [0, 1, 2, 3, 4, 5].map((st) => yOf(st)).filter(Boolean).map((o) => (o as { y: number }).y)
+    expect([...ys].sort((a, b) => b - a)).toEqual(ys)
+    const names = ops.filter((o) => o.kind === 'text' && o.note === undefined && ['E', 'A', 'D', 'G', 'B', 'e'].includes(o.text))
+    expect(names.length).toBeGreaterThanOrEqual(6)
+  })
+
+  it('whistle: six circles per note, filled where the hole is covered, a plus for the second octave', () => {
+    const whistle = getInstrument('whistle-d')!
+    if (whistle.family !== 'whistle') throw new Error('whistle expected')
+    const arr = arrangeWhistle(song, whistle)
+    const ops = layoutWhistle(arr, whistle, song.meter, { staff: false }).flatMap((l) => l.ops)
+    arr.notes.forEach((note, i) => {
+      const circles = ops.filter((o) => o.kind === 'ellipse' && o.note === i)
+      expect(circles).toHaveLength(6)
+      expect(circles.map((c) => (c.kind === 'ellipse' && c.filled ? '1' : '0')).join('')).toBe(note.holes)
+      const plus = ops.some((o) => o.kind === 'text' && o.note === i && o.text === '+')
+      expect(plus).toBe(note.octave === 2)
+    })
+  })
+
+  it('both draw the staff when asked and give each line a height that holds the tab', () => {
+    const guitar = getInstrument('guitar-standard')!
+    if (guitar.family !== 'string') throw new Error('guitar expected')
+    const arr = arrangeStrings(song, guitar)
+    const withStaff = layoutStrings(arr, guitar, song.meter, { staff: true })
+    const without = layoutStrings(arr, guitar, song.meter, { staff: false })
+    expect(withStaff[0]!.height).toBeGreaterThan(without[0]!.height)
+    expect(without[0]!.height).toBeGreaterThanOrEqual(24 + 6 * 11)
   })
 })

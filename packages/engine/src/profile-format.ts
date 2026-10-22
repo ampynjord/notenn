@@ -11,16 +11,18 @@ export interface ProfileJson {
   version: 1
   id: string
   name: string
-  family: 'diatonic-accordion'
+  family: 'diatonic-accordion' | 'chromatic-accordion'
   source?: string
+  /** True while the layout has not been checked against a real instrument. */
+  preview?: boolean
   rows: {
     id: string
     name: string
     suffix?: string
     offset?: number
     cost?: number
-    /** One button = [push, pull], button 1 on the chin side. */
-    buttons: [string, string][]
+    /** One button = [push, pull], button 1 on the chin side. A chromatic button is a single note: it sounds the same both ways. */
+    buttons: ([string, string] | string)[]
   }[]
   bass?: {
     id: number
@@ -119,8 +121,14 @@ export function parseProfile(input: unknown): InstrumentProfile {
     throw new ProfileError('version', 'unknown-version', { version: String(d.version) }, `unknown version ${String(d.version)} (only version 1 exists)`)
   for (const k of ['id', 'name'] as const)
     if (typeof d[k] !== 'string' || !d[k]) throw new ProfileError(k, 'text-required', {}, 'text required')
-  if (d.family !== 'diatonic-accordion')
-    throw new ProfileError('family', 'unsupported-family', { family: String(d.family) }, `family "${String(d.family)}" is not supported yet (only "diatonic-accordion")`)
+  if (d.family !== 'diatonic-accordion' && d.family !== 'chromatic-accordion')
+    throw new ProfileError(
+      'family',
+      'unsupported-family',
+      { family: String(d.family) },
+      `family "${String(d.family)}" is not supported (only "diatonic-accordion" and "chromatic-accordion")`,
+    )
+  const chromatic = d.family === 'chromatic-accordion'
   if (!Array.isArray(d.rows) || !d.rows.length) throw new ProfileError('rows', 'no-rows', {}, 'at least one row is expected')
 
   const rowIds = new Set<string>()
@@ -139,12 +147,14 @@ export function parseProfile(input: unknown): InstrumentProfile {
     const buttons = r.buttons.map((b: unknown, bi: number) => {
       const bat = `${at}.buttons[${bi}]`
       const button = bi + 1
-      if (!Array.isArray(b) || b.length !== 2) throw new ProfileError(bat, 'pair-expected', { button }, `button ${button}: a [push, pull] pair is expected`)
-      const [push, pull] = b.map((n) => (typeof n === 'string' ? midiOf(n) : null))
+      // A chromatic button gives one note for both directions.
+      const pair = chromatic && typeof b === 'string' ? [b, b] : b
+      if (!Array.isArray(pair) || pair.length !== 2) throw new ProfileError(bat, 'pair-expected', { button }, `button ${button}: a [push, pull] pair is expected`)
+      const [push, pull] = pair.map((n) => (typeof n === 'string' ? midiOf(n) : null))
       if (push == null)
-        throw new ProfileError(bat, 'bad-push-note', { button, value: JSON.stringify(b[0]) }, `button ${button}: unreadable push note ${JSON.stringify(b[0])} (valid examples: "C4", "F#5")`)
+        throw new ProfileError(bat, 'bad-push-note', { button, value: JSON.stringify(pair[0]) }, `button ${button}: unreadable push note ${JSON.stringify(pair[0])} (valid examples: "C4", "F#5")`)
       if (pull == null)
-        throw new ProfileError(bat, 'bad-pull-note', { button, value: JSON.stringify(b[1]) }, `button ${button}: unreadable pull note ${JSON.stringify(b[1])} (valid examples: "C4", "F#5")`)
+        throw new ProfileError(bat, 'bad-pull-note', { button, value: JSON.stringify(pair[1]) }, `button ${button}: unreadable pull note ${JSON.stringify(pair[1])} (valid examples: "C4", "F#5")`)
       return { push, pull }
     })
     return {
@@ -181,5 +191,12 @@ export function parseProfile(input: unknown): InstrumentProfile {
     return { id: g.id, push: side('push'), pull: side('pull') }
   })
 
-  return { id: d.id as string, name: d.name as string, family: 'diatonic-accordion', rows, bassGroups }
+  return {
+    id: d.id as string,
+    name: d.name as string,
+    family: d.family as InstrumentProfile['family'],
+    rows,
+    bassGroups,
+    ...(d.preview === true ? { preview: true } : {}),
+  }
 }

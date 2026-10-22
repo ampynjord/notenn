@@ -1,4 +1,4 @@
-import { type Ink, layout, type LineLabels, type Notation } from '@notenn/argoat'
+import { type Ink, layout, type LineLabels, type Notation, type SystemLine } from '@notenn/argoat'
 import type { Arrangement, InstrumentProfile, Meter } from '@notenn/engine'
 
 export interface PdfOptions {
@@ -12,6 +12,8 @@ export interface PdfOptions {
   staff: boolean
   color: boolean
   notation: Notation
+  /** Lines of another instrument family (strings, whistle), laid out at the given width; accordions by default. */
+  lines?: (width: number, staff: boolean, barsPerLine: number) => SystemLine[]
   /** 0 = automatic. */
   barsPerLine: number
 }
@@ -51,7 +53,7 @@ export async function buildPdf(
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const palette = opts.color ? COLORS : GREYS
   const rgb = (ink: Ink) => palette[ink]
-  const lines = layout(arr, profile, meter, {
+  const lines = opts.lines ? opts.lines(WIDTH, opts.staff, opts.barsPerLine) : layout(arr, profile, meter, {
     width: WIDTH,
     staff: opts.staff,
     labels: opts.labels,

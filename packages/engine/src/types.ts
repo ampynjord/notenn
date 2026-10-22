@@ -55,13 +55,89 @@ export interface BassGroup {
   pull: { bass: number; chord: number[] }
 }
 
+export type InstrumentFamily = 'diatonic-accordion' | 'chromatic-accordion' | 'string' | 'whistle'
+
+/**
+ * A button keyboard: the diatonic accordion (push and pull give different notes) or the chromatic
+ * accordion (the same note both ways: push = pull on every button, no bass groups for now).
+ */
 export interface InstrumentProfile {
   id: string
   name: string
-  family: 'diatonic-accordion'
+  family: 'diatonic-accordion' | 'chromatic-accordion'
   rows: ButtonRow[]
   bassGroups: BassGroup[]
+  /** True while the layout has not been checked against a real instrument. */
+  preview?: boolean
 }
+
+/** A fretted string instrument (guitar, ukulele…). */
+export interface StringProfile {
+  id: string
+  name: string
+  family: 'string'
+  /** Open strings as MIDI pitches, lowest (thickest) string first. */
+  tuning: number[]
+  /** Name of each string, in the same order as `tuning`. */
+  stringNames: string[]
+  frets: number
+  preview?: boolean
+}
+
+/** One pitch of a whistle: the holes covered (1) or open (0), hole 1 nearest the mouth, and the octave. */
+export interface WhistleFingering {
+  pitch: number
+  holes: string
+  /** 1 = low octave, 2 = second octave (blown harder). */
+  octave: 1 | 2
+}
+
+/** A six-hole whistle. */
+export interface WhistleProfile {
+  id: string
+  name: string
+  family: 'whistle'
+  fingerings: WhistleFingering[]
+  preview?: boolean
+}
+
+export type Instrument = InstrumentProfile | StringProfile | WhistleProfile
+
+/** What the music staff and the playback need from any instrument's arrangement. */
+export interface PlayedNote extends Note {
+  /** Pitch before replacement, when the instrument cannot play it. */
+  original: number
+  approx: boolean
+}
+
+export interface StringPosition {
+  /** 0 = lowest string. */
+  string: number
+  fret: number
+}
+
+export interface StringNote extends PlayedNote {
+  position: StringPosition
+}
+
+export interface WhistleNote extends PlayedNote {
+  holes: string
+  octave: 1 | 2
+}
+
+/** The part of an arrangement shared by every instrument. */
+export interface ArrangementBase<N extends PlayedNote> {
+  notes: N[]
+  meter: MeterInfo
+  pickup: number
+  fromBar: number
+  toBar: number
+  transpose: number
+  approxCount: number
+}
+
+export type StringArrangement = ArrangementBase<StringNote>
+export type WhistleArrangement = ArrangementBase<WhistleNote>
 
 export interface Fingering {
   row: string
