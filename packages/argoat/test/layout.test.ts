@@ -143,3 +143,49 @@ describe('line labels', () => {
     expect(en).not.toContain('T')
   })
 })
+
+describe('CADB and Corgeron tablatures', () => {
+  const arr = arrange(song, hohner2915GC)
+  const textsOf = (notation: 'argoat' | 'cadb' | 'corgeron') =>
+    layout(arr, hohner2915GC, song.meter, { staff: false, notation }).flatMap((l) => l.ops)
+
+  it('CADB: numbers on the P and T lines, with the row marks of Argoat, no beat marks or hold lines', () => {
+    const ops = textsOf('cadb')
+    const numbers = ops.filter((o) => o.kind === 'text' && o.note !== undefined)
+    expect(numbers).toHaveLength(arr.notes.length)
+    expect(numbers.some((o) => o.kind === 'text' && o.text.endsWith("'"))).toBe(true)
+    // Tab lines and barlines are drawn; the small filled beat dots of Système Argoat are not.
+    expect(ops.some((o) => o.kind === 'line' && o.ink === 'muted' && o.width < 0.6)).toBe(true)
+    expect(ops.filter((o) => o.kind === 'ellipse')).toHaveLength(0)
+  })
+
+  it('CADB: the bass line shows names (bass in capitals, chord in lower case), not circles', () => {
+    const ops = textsOf('cadb')
+    expect(ops.filter((o) => o.kind === 'circle')).toHaveLength(0)
+    const names = ops.filter((o) => o.kind === 'text' && o.bass !== undefined).map((o) => (o.kind === 'text' ? o.text : ''))
+    expect(names).toHaveLength(arr.bass.length)
+    expect(names.some((n) => /^[A-G]/.test(n))).toBe(true)
+    expect(names.some((n) => /^[a-g]/.test(n))).toBe(true)
+  })
+
+  it('Corgeron: one line per row, pull notes underlined, row given by the line not by a mark', () => {
+    const ops = textsOf('corgeron')
+    const numbers = ops.filter((o) => o.kind === 'text' && o.note !== undefined)
+    expect(numbers).toHaveLength(arr.notes.length)
+    for (const o of numbers) {
+      if (o.kind !== 'text') continue
+      const n = arr.notes[o.note!]!
+      expect(Boolean(o.underline)).toBe(n.fingering.bellows === 'pull')
+    }
+    // The row is the line, so the numbers carry no apostrophe.
+    expect(numbers.some((o) => o.kind === 'text' && o.text.includes("'"))).toBe(false)
+    // Two rows on the Hohner: the numbers sit on exactly two different lines.
+    const ys = new Set(numbers.map((o) => (o.kind === 'text' ? o.y : 0)))
+    expect(ys.size).toBe(2)
+    for (const o of numbers) {
+      const n = arr.notes[(o as { note: number }).note]!
+      const row = hohner2915GC.rows.findIndex((r) => r.id === n.fingering.row)
+      expect(((o as { y: number }).y)).toBe(27 + row * 21)
+    }
+  })
+})

@@ -1,4 +1,4 @@
-import { type Ink, layout, type LineLabels } from '@notenn/argoat'
+import { type Ink, layout, type LineLabels, type Notation } from '@notenn/argoat'
 import type { Arrangement, InstrumentProfile, Meter } from '@notenn/engine'
 
 export interface PdfOptions {
@@ -11,6 +11,7 @@ export interface PdfOptions {
   labels: LineLabels
   staff: boolean
   color: boolean
+  notation: Notation
   /** 0 = automatic. */
   barsPerLine: number
 }
@@ -54,6 +55,7 @@ export async function buildPdf(
     width: WIDTH,
     staff: opts.staff,
     labels: opts.labels,
+    notation: opts.notation,
     ...(opts.barsPerLine > 0 ? { barsPerLine: opts.barsPerLine } : {}),
   })
 
@@ -136,6 +138,10 @@ export async function buildPdf(
             .setFontSize(op.size)
           doc.setTextColor(...rgb(op.ink))
           doc.text(op.text, X(op.x), Y(op.y), op.anchor === 'middle' ? { align: 'center' } : {})
+          if (op.underline) {
+            doc.setDrawColor(...rgb(op.ink)).setLineWidth(0.8)
+            doc.line(X(op.x), Y(op.y) + 1.6, X(op.x) + doc.getTextWidth(op.text), Y(op.y) + 1.6)
+          }
           break
         }
       }

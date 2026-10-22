@@ -14,7 +14,7 @@ Document de référence vivant : le plan détaillé est tenu dans le doc « Plan
 | Note tenue | Trait après le numéro jusqu'à la fin de la note |
 | Main gauche | Ligne de basses : rond plein = basse, rond vide = accord, chiffre = groupe de boutons (adapté au clavier) |
 | Portée | Partition classique au-dessus, optionnelle, alignée sur la tablature |
-| Autres notations | Corgeron et CADB, tous deux en phase 2 |
+| Autres notations | CADB (lignes P, T et basses, numéros avec apostrophe pour le rang intérieur) et Corgeron (une ligne par rang, numéros tirés soulignés), au choix dans le menu Affichage de l'éditeur et dans le PDF ; la mise en page est partagée avec le Système Argoat (`packages/argoat`) |
 
 ## Périmètre
 
