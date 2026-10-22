@@ -1,7 +1,8 @@
 import { chooseBass } from './bass'
 import { chooseGroupFingering, type NoteGroup } from './fingering'
 import { bestTranspose, nearestPlayable, playablePitches } from './keyboard'
-import { extractLowerVoices, extractMelody, meterInfo, pickMelodyTrack } from './melody'
+import { extractLowerVoices, meterInfo, pickMelodyTrack } from './melody'
+import { melodyRange } from './range'
 import type { Arrangement, ArrangeOptions, InstrumentProfile, PlacedNote, Song } from './types'
 
 /** Stable key of a melody note, used to remember a fingering chosen by hand. */
@@ -13,31 +14,18 @@ export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from '
 export { chooseFingering, chooseGroupFingering, groupOptions, type NoteGroup } from './fingering'
 export { chooseBass } from './bass'
 export { hohner2915GC } from './profiles/hohner-2915-gc'
-export { getProfile, profiles } from './profiles'
+export { chromaticProfiles, getInstrument, getProfile, instruments, profiles } from './profiles'
+export { arrangeStrings, arrangeWhistle, stringPitches, stringPositions, type InstrumentOptions } from './instruments'
+export { fitTranspose, melodyRange } from './range'
 export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileErrorCode, type ProfileJson } from './profile-format'
 
 /** From an imported song to a tab: melody, transposition, fingering, basses. */
 export function arrange(song: Song, profile: InstrumentProfile, options: ArrangeOptions = {}): Arrangement {
   const rows = options.rows ?? profile.rows.map((r) => r.id)
-  const meter = meterInfo(song.meter)
   const trackIndex = options.trackIndex ?? pickMelodyTrack(song.tracks)
-  const track = song.tracks[trackIndex]
-  if (!track) throw new Error(`Track ${trackIndex} not found`)
-
-  let melody = extractMelody(track)
-  const lastEnd = melody.reduce((m, n) => Math.max(m, n.start + n.dur), 0)
-  const barCount = Math.max(1, Math.ceil((lastEnd - song.pickup - 1e-6) / meter.barLength))
-  const fromBar = Math.min(Math.max(1, options.fromBar ?? 1), barCount)
-  const toBar = Math.min(Math.max(fromBar, options.toBar ?? barCount), barCount)
-  const t0 = fromBar === 1 ? 0 : song.pickup + (fromBar - 1) * meter.barLength
-  const t1 = song.pickup + toBar * meter.barLength
-  // Notes overlapping the range are kept and trimmed at both ends.
-  melody = melody
-    .filter((n) => n.start < t1 - 1e-6 && n.start + n.dur > t0 + 1e-6)
-    .map((n) => {
-      const start = Math.max(n.start, t0)
-      return { ...n, start, dur: Math.min(n.start + n.dur, t1) - start }
-    })
+  const track = song.tracks[trackIndex]!
+  // Notes overlapping the bar range are kept and trimmed at both ends.
+  const { melody, meter, fromBar, toBar } = melodyRange(song, { ...options, trackIndex })
 
   const playable = playablePitches(profile, rows)
   const transpose =

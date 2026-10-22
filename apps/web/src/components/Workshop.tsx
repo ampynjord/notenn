@@ -1,16 +1,23 @@
 'use client'
 
-import { layout, NOTATIONS } from '@notenn/argoat'
+import { layout, layoutStrings, layoutWhistle, NOTATIONS } from '@notenn/argoat'
 import {
   arrange,
+  arrangeStrings,
+  arrangeWhistle,
   fingeringsFor,
-  getProfile,
+  getInstrument,
   hohner2915GC,
+  instruments,
   noteKey,
   pickMelodyTrack,
-  profiles,
+  type Arrangement,
   type FingerChoice,
+  type Instrument,
+  type InstrumentFamily,
   type InstrumentProfile,
+  type PlacedNote,
+  type PlayedNote,
   type Song,
   type Track,
 } from '@notenn/engine'
@@ -59,6 +66,42 @@ const problemOf = (e: unknown): Problem => ({
 })
 
 const signed = (n: number) => (n > 0 ? `+${n}` : String(n))
+
+/** An arrangement of any instrument as the playback and the cursor need it: pitches and times, no fingering. */
+function toPlayable(a: {
+  notes: PlayedNote[]
+  meter: Arrangement['meter']
+  pickup: number
+  fromBar: number
+  toBar: number
+  transpose: number
+  approxCount: number
+}): Arrangement {
+  const notes: PlacedNote[] = a.notes.map((n) => ({
+    start: n.start,
+    dur: n.dur,
+    pitch: n.pitch,
+    original: n.original,
+    approx: n.approx,
+    fingering: { row: '', button: 0, bellows: 'push', y: 0 },
+    voice: 0,
+  }))
+  return {
+    notes,
+    voices: [notes],
+    droppedCount: 0,
+    bass: [],
+    meter: a.meter,
+    pickup: a.pickup,
+    fromBar: a.fromBar,
+    toBar: a.toBar,
+    transpose: a.transpose,
+    approxCount: a.approxCount,
+    bellowsChanges: 0,
+  }
+}
+
+const FAMILIES: InstrumentFamily[] = ['diatonic-accordion', 'chromatic-accordion', 'string', 'whistle']
 
 interface Props {
   /**
@@ -130,10 +173,15 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
     return () => ro.disconnect()
   }, [])
 
-  const profile: InstrumentProfile = getProfile(prefs.profileId) ?? hohner2915GC
+  const instrument: Instrument = getInstrument(prefs.profileId) ?? hohner2915GC
+  const accordion = instrument.family === 'diatonic-accordion' || instrument.family === 'chromatic-accordion'
+  const diatonic = instrument.family === 'diatonic-accordion'
+  // The accordion code below works on a keyboard profile; strings and whistle are drawn from their own arrangement.
+  const profile: InstrumentProfile =
+    instrument.family === 'diatonic-accordion' || instrument.family === 'chromatic-accordion' ? instrument : hohner2915GC
   const rows = prefs.rows?.filter((r) => profile.rows.some((x) => x.id === r))
   const activeRows = rows && rows.length ? rows : profile.rows.map((r) => r.id)
-  const profileName = (p: InstrumentProfile) => (ti.has(p.id) ? ti(p.id) : p.name)
+  const profileName = (p: Instrument) => (ti.has(p.id) ? ti(p.id) : p.name)
 
   const load = (s: Song) => {
     if (!s.tracks.length) return setProblem({ key: 'noNotes' })
@@ -238,11 +286,25 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
   const result = useMemo(() => {
     if (!song) return null
     try {
+      if (instrument.family === 'string' || instrument.family === 'whistle') {
+        const opts = { trackIndex: track, transpose }
+        const layoutOpts = {
+          width,
+          staff: prefs.staff,
+          maxBarsPerLine: width < 520 ? 2 : width < 760 ? 3 : undefined,
+        }
+        if (instrument.family === 'string') {
+          const native = arrangeStrings(song, instrument, opts)
+          return { arr: toPlayable(native), lines: layoutStrings(native, instrument, song.meter, layoutOpts), failed: false, build: (w: number, staff: boolean, bars: number) => layoutStrings(native, instrument, song.meter, { width: w, staff, ...(bars > 0 ? { barsPerLine: bars } : {}) }) }
+        }
+        const native = arrangeWhistle(song, instrument, opts)
+        return { arr: toPlayable(native), lines: layoutWhistle(native, instrument, song.meter, layoutOpts), failed: false, build: (w: number, staff: boolean, bars: number) => layoutWhistle(native, instrument, song.meter, { width: w, staff, ...(bars > 0 ? { barsPerLine: bars } : {}) }) }
+      }
       const arr = arrange(song, profile, {
         trackIndex: track,
         rows: activeRows,
         transpose,
-        bass: prefs.bass,
+        bass: prefs.bass && diatonic,
         fingerings: edits,
       })
       const lines = layout(arr, profile, song.meter, {
@@ -252,15 +314,16 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         notation: prefs.notation,
         maxBarsPerLine: width < 520 ? 2 : width < 760 ? 3 : arr.meter.beatsPerBar > 4 ? 2 : 4,
       })
-      return { arr, lines, failed: false }
+      return { arr, lines, failed: false, build: undefined }
     } catch {
-      return { arr: null, lines: [], failed: true }
+      return { arr: null, lines: [], failed: true, build: undefined }
     }
     // activeRows is derived from prefs.rows and profile.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     song,
     track,
+    instrument,
     profile,
     prefs.rows,
     transpose,
@@ -306,6 +369,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
       if (!arr || !passage) return
       stop()
       const pb = play(arr, profile, {
+        timbre: instrument.family === 'string' ? 'string' : instrument.family === 'whistle' ? 'whistle' : 'accordion',
         bpm: (tempo * prefs.speed) / 100,
         from: Math.max(passage.start, arr.notes[0]?.start ?? 0),
         to: passage.end,
@@ -401,6 +465,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         footer: t('pdfFooter'),
         labels: lineLabels,
         notation: prefs.notation,
+        ...(result?.build ? { lines: result.build } : {}),
         staff: prefs.pdfStaff,
         color: prefs.pdfColor,
         barsPerLine: prefs.pdfBarsPerLine,
@@ -419,13 +484,19 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
   const subtitle = () =>
     song && arr
       ? t('subtitle', {
-          instrument: profileName(profile),
+          instrument: profileName(instrument),
           meter: `${song.meter.num}/${song.meter.den}`,
           bars: arr.toBar,
         })
       : ''
   const legend = () =>
-    prefs.notation === 'corgeron'
+    instrument.family === 'string'
+      ? [t('legendStrings')]
+      : instrument.family === 'whistle'
+        ? [t('legendWhistle')]
+        : instrument.family === 'chromatic-accordion'
+          ? [t('legendChromatic')]
+          : prefs.notation === 'corgeron'
       ? [t('legendCorgeron'), ...(prefs.bass ? [t('legendBassNames')] : [])]
       : [
           `${tl('push')} ${t('legendPush')}`,
@@ -447,7 +518,12 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
 
   const shownProblem = problem ?? (result?.failed ? { key: 'unknown' } : null)
   const editingNote = editing && arr ? arr.notes[editing.note] : undefined
-  const choices = editingNote ? fingeringsFor(editingNote.pitch, profile, activeRows) : []
+  // On a chromatic keyboard push and pull are the same button: one choice per button.
+  const choices = editingNote
+    ? fingeringsFor(editingNote.pitch, profile, activeRows).filter(
+        (f, i, all) => diatonic || all.findIndex((g) => g.row === f.row && g.button === f.button) === i,
+      )
+    : []
   const editCount = arr?.notes.filter((n) => n.edited).length ?? 0
   const playing = cursor !== null
 
@@ -555,22 +631,31 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
 
         <details className="group" name="menu">
           <summary>
-            {t('keyboard')} <small>{profileName(profile)}</small>
+            {t('keyboard')} <small>{profileName(instrument)}</small>
           </summary>
           <div className="panel">
           <label>
             <span>{t('instrument')}</span>
             <select
-              value={profile.id}
+              value={instrument.id}
               onChange={(e) => setPrefs({ profileId: e.target.value, rows: null })}
             >
-              {profiles.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {profileName(p)}
-                </option>
+              {FAMILIES.map((family) => (
+                <optgroup key={family} label={t(`family_${family}`)}>
+                  {instruments
+                    .filter((p) => p.family === family)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {profileName(p)}
+                        {p.preview ? ` (${t('preview')})` : ''}
+                      </option>
+                    ))}
+                </optgroup>
               ))}
             </select>
           </label>
+          {instrument.preview && <small className="hint">{t('previewInstrument')}</small>}
+          {accordion && (
           <fieldset>
             <legend>{t('rows')}</legend>
             {profile.rows.map((r) => (
@@ -590,6 +675,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
               </label>
             ))}
           </fieldset>
+          )}
           <label>
             <span>{t('transpose')}</span>
             <select
@@ -612,6 +698,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         <details className="group" name="menu">
           <summary>{t('display')}</summary>
           <div className="panel">
+            {diatonic && (
             <label>
               <span>{t('notation')}</span>
               <select
@@ -627,6 +714,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 ))}
               </select>
             </label>
+            )}
           <label className="inline">
             <input
               type="checkbox"
@@ -635,6 +723,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
             />{' '}
             {t('staff')}
           </label>
+          {diatonic && (
           <label className="inline">
             <input
               type="checkbox"
@@ -643,6 +732,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
             />{' '}
             {t('basses')}
           </label>
+          )}
           </div>
         </details>
 
@@ -787,7 +877,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                     ? t('originalKey')
                     : t('transposed', { signed: signed(arr.transpose) })}
                 </li>
-                <li>{t('bellowsChanges', { count: arr.bellowsChanges })}</li>
+                {diatonic && <li>{t('bellowsChanges', { count: arr.bellowsChanges })}</li>}
                 {arr.approxCount > 0 && (
                   <li className="warn">{t('replaced', { count: arr.approxCount })}</li>
                 )}
@@ -801,7 +891,11 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 )}
               </ul>
               <p className="legend">
-                {prefs.notation === 'corgeron' ? (
+                {!accordion ? (
+                  <span>{legend()[0]}</span>
+                ) : instrument.family === 'chromatic-accordion' ? (
+                  <span>{t('legendChromatic')}</span>
+                ) : prefs.notation === 'corgeron' ? (
                   <span>{t('legendCorgeron')}</span>
                 ) : (
                   <>
@@ -820,8 +914,9 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                       ))}
                   </>
                 )}
-                {prefs.notation === 'argoat' && <span>{t('legendHold')}</span>}
-                {prefs.bass &&
+                {diatonic && prefs.notation === 'argoat' && <span>{t('legendHold')}</span>}
+                {diatonic &&
+                  prefs.bass &&
                   (prefs.notation === 'argoat' ? (
                     <span>
                       <b className="b">●</b> {t('legendBass')} <b className="b">○</b>{' '}
@@ -830,9 +925,9 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                   ) : (
                     <span>{t('legendBassNames')}</span>
                   ))}
-                {prefs.notation === 'argoat' && <span>{t('legendBeats')}</span>}
+                {diatonic && prefs.notation === 'argoat' && <span>{t('legendBeats')}</span>}
               </p>
-              {editor && <p className="tip">{t('editTip')}</p>}
+              {editor && accordion && <p className="tip">{t('editTip')}</p>}
             </header>
             <ArgoatSheet
               lines={result!.lines}
@@ -842,7 +937,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
               selected={editing?.note}
               describeNote={describe}
               onNoteClick={
-                editor
+                editor && accordion
                   ? (note, target) => {
                       const box = target.getBoundingClientRect()
                       const host = scoreRef.current!.getBoundingClientRect()

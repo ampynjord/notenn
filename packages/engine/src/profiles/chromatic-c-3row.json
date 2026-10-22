@@ -1,0 +1,89 @@
+{
+  "format": "notenn-instrument",
+  "version": 1,
+  "id": "chromatic-c-3row",
+  "name": "Chromatic button accordion, C system, 3 rows",
+  "family": "chromatic-accordion",
+  "preview": true,
+  "source": "Built from the C-system rule (along a row the notes rise by a minor third, the next row is a semitone higher) and not yet checked against a real instrument: the row order, the numbering of the buttons and the range vary between makers. No left hand yet.",
+  "rows": [
+    {
+      "id": "r1",
+      "name": "Row 1 (outer)",
+      "suffix": "",
+      "offset": 0.0,
+      "cost": 0,
+      "buttons": [
+        "E3",
+        "G3",
+        "Bb3",
+        "C#4",
+        "E4",
+        "G4",
+        "Bb4",
+        "C#5",
+        "E5",
+        "G5",
+        "Bb5",
+        "C#6",
+        "E6",
+        "G6",
+        "Bb6",
+        "C#7",
+        "E7"
+      ]
+    },
+    {
+      "id": "r2",
+      "name": "Row 2",
+      "suffix": "",
+      "offset": 0.3333,
+      "cost": 0,
+      "buttons": [
+        "F3",
+        "Ab3",
+        "B3",
+        "D4",
+        "F4",
+        "Ab4",
+        "B4",
+        "D5",
+        "F5",
+        "Ab5",
+        "B5",
+        "D6",
+        "F6",
+        "Ab6",
+        "B6",
+        "D7",
+        "F7"
+      ]
+    },
+    {
+      "id": "r3",
+      "name": "Row 3 (inner)",
+      "suffix": "",
+      "offset": 0.6667,
+      "cost": 0,
+      "buttons": [
+        "F#3",
+        "A3",
+        "C4",
+        "Eb4",
+        "F#4",
+        "A4",
+        "C5",
+        "Eb5",
+        "F#5",
+        "A5",
+        "C6",
+        "Eb6",
+        "F#6",
+        "A6",
+        "C7",
+        "Eb7",
+        "F#7"
+      ]
+    }
+  ]
+}

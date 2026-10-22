@@ -10,6 +10,8 @@ export interface PlayOptions {
   metronome?: boolean
   /** One bar of clicks before the music starts. */
   countIn?: boolean
+  /** Sound: the accordion's two detuned voices by default, a plucked string or a whistle. */
+  timbre?: 'accordion' | 'string' | 'whistle'
 }
 
 export interface Playback {
@@ -47,12 +49,24 @@ export function play(arr: Arrangement, profile: InstrumentProfile, opts: PlayOpt
     const g = ctx.createGain()
     g.connect(lp)
     g.gain.setValueAtTime(0, start)
-    g.gain.linearRampToValueAtTime(vol, start + 0.03)
-    g.gain.setValueAtTime(vol, Math.max(start + 0.03, start + dur - 0.06))
-    g.gain.linearRampToValueAtTime(0, start + dur)
-    for (const detune of [-6, 6]) {
+    if (opts.timbre === 'string') {
+      // Plucked: instant attack, then a decay that does not wait for the end of the note.
+      g.gain.linearRampToValueAtTime(vol * 1.4, start + 0.005)
+      g.gain.exponentialRampToValueAtTime(0.001, start + Math.max(0.15, Math.min(dur + 0.4, 1.6)))
+    } else if (opts.timbre === 'whistle') {
+      g.gain.linearRampToValueAtTime(vol, start + 0.05)
+      g.gain.setValueAtTime(vol, Math.max(start + 0.05, start + dur - 0.07))
+      g.gain.linearRampToValueAtTime(0, start + dur)
+    } else {
+      g.gain.linearRampToValueAtTime(vol, start + 0.03)
+      g.gain.setValueAtTime(vol, Math.max(start + 0.03, start + dur - 0.06))
+      g.gain.linearRampToValueAtTime(0, start + dur)
+    }
+    const shapes: [OscillatorType, number][] =
+      opts.timbre === 'string' ? [['triangle', 0]] : opts.timbre === 'whistle' ? [['sine', 0]] : [['sawtooth', -6], ['sawtooth', 6]]
+    for (const [type, detune] of shapes) {
       const o = ctx.createOscillator()
-      o.type = 'sawtooth'
+      o.type = type
       o.frequency.value = 440 * 2 ** ((midi - 69) / 12)
       o.detune.value = detune
       o.connect(g)
