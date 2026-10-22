@@ -1,5 +1,6 @@
 'use client'
 
+import { NOTATIONS, type Notation } from '@notenn/argoat'
 import { useState } from 'react'
 
 import { useAccount } from './account'
@@ -11,6 +12,8 @@ export interface Preferences {
   rows: string[] | null
   staff: boolean
   bass: boolean
+  /** Tablature system of the diatonic accordion. */
+  notation: Notation
   /** Playback speed in percent of the tune's tempo. */
   speed: number
   metronome: boolean
@@ -27,6 +30,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   rows: null,
   staff: true,
   bass: true,
+  notation: 'argoat',
   speed: 100,
   metronome: false,
   countIn: true,
@@ -45,6 +49,8 @@ export function sanitizePreferences(raw: unknown): Partial<Preferences> {
     if (def === undefined) continue
     if (k === 'rows') {
       if (v === null || (Array.isArray(v) && v.every((x) => typeof x === 'string'))) out[k] = v
+    } else if (k === 'notation') {
+      if (typeof v === 'string' && (NOTATIONS as readonly string[]).includes(v)) out[k] = v
     } else if (typeof v === typeof def) out[k] = v
   }
   return out as Partial<Preferences>
