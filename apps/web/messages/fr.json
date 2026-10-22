@@ -1,9 +1,9 @@
 {
   "meta": {
     "title": "Notenn",
-    "homeTitle": "Notenn : tablatures d'accordéon diatonique",
-    "tagline": "Tablatures d'accordéon diatonique",
-    "description": "Tablatures d'accordéon diatonique : importe un morceau, Notenn écrit les boutons, le soufflet et les basses."
+    "homeTitle": "Notenn : tablatures pour accordéon, guitare et flûte",
+    "tagline": "Tablatures pour accordéon, guitare et flûte",
+    "description": "Importe un morceau et Notenn l'écrit en tablature pour ton instrument : accordéon diatonique ou chromatique, guitare, ukulélé, tin whistle."
   },
   "nav": {
     "beta": "bêta",
@@ -38,8 +38,8 @@
     "whistle-bb": "Tin whistle en Si♭"
   },
   "home": {
-    "title": "Les boutons et le soufflet, note après note.",
-    "lead": "Notenn transforme une partition ou un fichier MIDI en tablature d'accordéon diatonique : le bouton à jouer, le sens du soufflet et les basses, sans solfège.",
+    "title": "Ton instrument, note après note.",
+    "lead": "Notenn transforme une partition ou un fichier MIDI en tablature : le bouton, la case ou les trous à jouer, pour l’accordéon, la guitare ou la flûte, sans solfège.",
     "openWorkshop": "Ouvrir l’éditeur",
     "browseTunes": "Parcourir la banque d’airs",
     "heroCaption": "« Au clair de la lune » sur un Sol/Do : en bleu ce qu’on pousse, en rouge ce qu’on tire.",
@@ -47,7 +47,7 @@
     "step1Title": "Importe un morceau",
     "step1": "Un fichier MIDI, MusicXML ou ABC, ou un air de ta bibliothèque. Notenn repère la mélodie tout seul.",
     "step2Title": "Lis la tablature",
-    "step2": "Chaque note devient un numéro de bouton, sur la ligne du poussé ou du tiré, avec la basse qui va dessous.",
+    "step2": "Chaque note devient le doigté de ton instrument : bouton et sens du soufflet, case sur la corde, ou trous à boucher.",
     "step3Title": "Joue et imprime",
     "step3": "Écoute le morceau avec le curseur, ralentis-le, fais-le tourner en boucle, puis télécharge le PDF.",
     "freeTitle": "Gratuit",
@@ -55,11 +55,18 @@
     "supportLink": "Soutenir Notenn",
     "libraryTitle": "Ta bibliothèque, partout",
     "libraryText": "Avec un compte gratuit, garde les airs de la banque et tes propres fichiers, avec les doigtés que tu as choisis et tes réglages, sur tous tes appareils.",
-    "libraryLink": "Ouvrir ma bibliothèque"
+    "libraryLink": "Ouvrir ma bibliothèque",
+    "heroDiatonic": "Accordéon diatonique",
+    "heroChromatic": "Chromatique",
+    "heroGuitar": "Guitare",
+    "heroWhistle": "Flûte",
+    "heroCaptionChromatic": "« Au clair de la lune » sur un chromatique à boutons : une ligne par rang.",
+    "heroCaptionString": "« Au clair de la lune » à la guitare : une ligne par corde, le chiffre est la case.",
+    "heroCaptionWhistle": "« Au clair de la lune » au tin whistle en Ré : les trous à boucher, de haut en bas."
   },
   "workshop": {
     "title": "Éditeur",
-    "intro": "Importe un morceau : Notenn en tire la mélodie et l’écrit en tablature.",
+    "intro": "Importe un morceau : Notenn en tire la mélodie et l’écrit en tablature pour ton instrument.",
     "song": "Morceau",
     "file": "Fichier MIDI, MusicXML (.musicxml, .xml, .mxl) ou ABC",
     "pasteAbc": "…ou colle un air en notation ABC :",
@@ -153,7 +160,15 @@
     "itemLoginRequired": "Connecte-toi pour ouvrir cet air de ta bibliothèque.",
     "itemMissing": "Cet air n’est plus dans ta bibliothèque.",
     "chooseFile": "Choisir un fichier",
-    "noFile": "Aucun fichier choisi"
+    "noFile": "Aucun fichier choisi",
+    "instrumentFamily": "Instrument",
+    "tab_diatonic-accordion": "Accordéon diatonique",
+    "tab_chromatic-accordion": "Accordéon chromatique",
+    "tab_string": "Guitare et ukulélé",
+    "tab_whistle": "Flûte",
+    "model": "Modèle",
+    "tuning": "Accordage",
+    "whistle": "Flûte"
   },
   "lines": {
     "push": "P",
@@ -184,7 +199,7 @@
   "footer": {
     "feedback": "Un retour, un bug ?",
     "feedbackSubject": "Notenn bêta : retour",
-    "about": "Notenn, tablatures pour accordéon diatonique. Fait en Bretagne.",
+    "about": "Notenn, tablatures pour accordéon, guitare et flûte. Fait en Bretagne.",
     "links": "Pied de page",
     "support": "Soutenir Notenn",
     "privacy": "Confidentialité",
@@ -206,8 +221,8 @@
     "rights": "Seuls des airs du domaine public, traditionnels ou sous licence libre sont publiés ici.",
     "back": "Tous les airs",
     "origin": "{origin}.",
-    "pageTitle": "{title} : tablature d'accordéon diatonique",
-    "pageDescription": "{title} ({origin}) en tablature d'accordéon diatonique : boutons, soufflet et basses, à écouter et à télécharger en PDF.",
+    "pageTitle": "{title} : tablature accordéon, guitare, flûte",
+    "pageDescription": "{title} ({origin}) en tablature pour accordéon, guitare ou flûte : doigtés à écouter et à télécharger en PDF.",
     "regions": {
       "brittany": "Bretagne",
       "france": "France",

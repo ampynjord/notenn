@@ -1,5 +1,6 @@
 import { layout, type LineLabels, type SystemLine } from '@notenn/argoat'
-import { arrange, hohner2915GC, type Song } from '@notenn/engine'
+import { layoutStrings, layoutWhistle } from '@notenn/argoat'
+import { arrange, arrangeStrings, arrangeWhistle, getInstrument, hohner2915GC, type Song } from '@notenn/engine'
 
 /** Builds a song from "pitch:duration" tokens (durations in quarter notes). */
 function song(title: string, num: number, den: number, pickup: number, spec: string): Song {
@@ -34,4 +35,16 @@ export function exampleLines(
     labels,
     ...(opts.barsPerLine ? { barsPerLine: opts.barsPerLine } : {}),
   })
+}
+
+/** The same tune written for another instrument, by instrument id (the home page shows them side by side). */
+export function exampleLinesFor(id: string, labels: LineLabels, opts: { width: number; barsPerLine: number }): SystemLine[] {
+  const instrument = getInstrument(id)
+  const common = { width: opts.width, staff: false, barsPerLine: opts.barsPerLine }
+  if (!instrument || instrument.family === 'diatonic-accordion') return exampleLines(heroSong, labels, { staff: false, ...opts })
+  if (instrument.family === 'chromatic-accordion')
+    return layout(arrange(heroSong, instrument, { transpose: 0, bass: false }), instrument, heroSong.meter, { ...common, labels })
+  if (instrument.family === 'string') return layoutStrings(arrangeStrings(heroSong, instrument), instrument, heroSong.meter, common)
+  if (instrument.family === 'whistle') return layoutWhistle(arrangeWhistle(heroSong, instrument), instrument, heroSong.meter, common)
+  return exampleLines(heroSong, labels, { staff: false, ...opts })
 }

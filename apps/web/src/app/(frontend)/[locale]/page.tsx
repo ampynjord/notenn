@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import React from 'react'
 
-import { ArgoatSheet } from '@/components/ArgoatSheet'
+import { HeroTabs } from '@/components/HeroTabs'
 import { JsonLd } from '@/components/JsonLd'
 import { Link } from '@/i18n/navigation'
 import type { Locale } from '@/i18n/routing'
-import { exampleLines, heroSong } from '@/lib/examples'
+import { exampleLinesFor } from '@/lib/examples'
 import { homeJsonLd, pageMetadata } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
@@ -30,7 +30,18 @@ export default async function HomePage({ params }: Props) {
   const tm = await getTranslations('meta')
   const tl = await getTranslations('lines')
   const labels = { push: tl('push'), pull: tl('pull'), bass: tl('bass') }
-  const hero = exampleLines(heroSong, labels, { staff: false, width: 380, barsPerLine: 2 })
+  const variant = (id: string, label: string, caption: string) => ({
+    id,
+    label,
+    caption,
+    lines: exampleLinesFor(id, labels, { width: 380, barsPerLine: 2 }),
+  })
+  const variants = [
+    variant('hohner-2915-gc', t('heroDiatonic'), t('heroCaption')),
+    variant('chromatic-c-3row', t('heroChromatic'), t('heroCaptionChromatic')),
+    variant('guitar-standard', t('heroGuitar'), t('heroCaptionString')),
+    variant('whistle-d', t('heroWhistle'), t('heroCaptionWhistle')),
+  ]
 
   return (
     <div className="home">
@@ -48,10 +59,7 @@ export default async function HomePage({ params }: Props) {
             </Link>
           </p>
         </div>
-        <figure className="hero-tab">
-          <ArgoatSheet lines={hero} width={380} cursor={null} />
-          <figcaption>{t('heroCaption')}</figcaption>
-        </figure>
+        <HeroTabs variants={variants} width={380} />
       </section>
 
       <section className="steps" aria-labelledby="how">

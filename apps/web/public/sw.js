@@ -1,7 +1,7 @@
 // Notenn service worker: the workshop keeps working offline once visited.
 // Static build files are cached on first use; pages are fetched from the network first and served
 // from the cache when offline.
-const CACHE = 'notenn-v1'
+const CACHE = 'notenn-v2'
 const PRECACHE = ['/fr/atelier', '/en/workshop', '/icons/icon-192.png']
 
 self.addEventListener('install', (event) => {
