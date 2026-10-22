@@ -5,7 +5,7 @@ import React from 'react'
 import { OG_SIZE } from '@/lib/seo'
 
 /** Colours of the notation (push, pull, bass), as in the site's stylesheet. */
-const NOTATION = ['#1f3f8f', '#a3262e', '#1d6a4d']
+const NOTATION = ['#8da2ff', '#ff8f87', '#6fd9ab']
 
 /** Share preview of the site (Facebook, Discord, WhatsApp, X…), in the language of the page. */
 export async function renderOgImage(locale: string) {
@@ -20,7 +20,7 @@ export async function renderOgImage(locale: string) {
           flexDirection: 'column',
           justifyContent: 'center',
           padding: '0 90px',
-          background: '#18212b',
+          background: 'linear-gradient(135deg, #14183f, #0b0f1f)',
           color: '#ffffff',
         }}
       >

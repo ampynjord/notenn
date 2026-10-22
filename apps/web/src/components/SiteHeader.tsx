@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { Logo } from '@/components/Logo'
 import { Link, usePathname } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
 import { useAccount } from '@/lib/account'
@@ -28,11 +29,8 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="bar">
         <Link href="/" className="brand" aria-label={t('home')}>
-          <span className="mark" aria-hidden="true">
-            <span className="p">P</span>
-            <span className="t">{locale === 'fr' ? 'T' : 'D'}</span>
-          </span>
-          Notenn
+          <Logo size={34} />
+          <span className="wordmark">Notenn</span>
           <span className="beta">{t('beta')}</span>
         </Link>
         <button
