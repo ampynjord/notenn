@@ -1,9 +1,9 @@
 {
   "meta": {
     "title": "Notenn",
-    "homeTitle": "Notenn: diatonic accordion tabs",
-    "tagline": "Diatonic accordion tabs",
-    "description": "Diatonic accordion tabs: import a tune and Notenn writes the buttons, bellows and basses."
+    "homeTitle": "Notenn: tabs for accordion, guitar and whistle",
+    "tagline": "Tabs for accordion, guitar and whistle",
+    "description": "Import a tune and Notenn writes it as a tab for your instrument: diatonic or chromatic accordion, guitar, ukulele, tin whistle."
   },
   "nav": {
     "beta": "beta",
@@ -38,8 +38,8 @@
     "whistle-bb": "Tin whistle in B♭"
   },
   "home": {
-    "title": "Buttons and bellows, note after note.",
-    "lead": "Notenn turns a score or a MIDI file into a diatonic accordion tab: which button to play, which way the bellows go, and the basses, no sheet music reading needed.",
+    "title": "Your instrument, note after note.",
+    "lead": "Notenn turns a score or a MIDI file into a tab: the button, fret or holes to play, for accordion, guitar or whistle, no sheet music reading needed.",
     "openWorkshop": "Open the editor",
     "browseTunes": "Browse the tune bank",
     "heroCaption": "“Au clair de la lune” on a G/C box: blue is push, red is draw.",
@@ -47,7 +47,7 @@
     "step1Title": "Import a tune",
     "step1": "A MIDI, MusicXML or ABC file, or a tune from your library. Notenn finds the melody by itself.",
     "step2Title": "Read the tab",
-    "step2": "Each note becomes a button number, on the push or draw line, with the bass that goes under it.",
+    "step2": "Each note becomes the fingering of your instrument: button and bellows direction, fret on the string, or holes to cover.",
     "step3Title": "Play and print",
     "step3": "Listen with the cursor, slow it down, loop a passage, then download the PDF.",
     "freeTitle": "Free",
@@ -55,11 +55,18 @@
     "supportLink": "Support Notenn",
     "libraryTitle": "Your library, everywhere",
     "libraryText": "With a free account, keep tunes from the bank and your own files, with the fingerings you chose and your settings, on all your devices.",
-    "libraryLink": "Open my library"
+    "libraryLink": "Open my library",
+    "heroDiatonic": "Diatonic accordion",
+    "heroChromatic": "Chromatic",
+    "heroGuitar": "Guitar",
+    "heroWhistle": "Whistle",
+    "heroCaptionChromatic": "“Au clair de la lune” on a chromatic button accordion: one line per row.",
+    "heroCaptionString": "“Au clair de la lune” on guitar: one line per string, the number is the fret.",
+    "heroCaptionWhistle": "“Au clair de la lune” on a D tin whistle: the holes to cover, top to bottom."
   },
   "workshop": {
     "title": "Editor",
-    "intro": "Import a tune: Notenn extracts the melody and writes it as a tab.",
+    "intro": "Import a tune: Notenn extracts the melody and writes it as a tab for your instrument.",
     "song": "Tune",
     "file": "MIDI, MusicXML (.musicxml, .xml, .mxl) or ABC file",
     "pasteAbc": "…or paste a tune in ABC notation:",
@@ -153,7 +160,15 @@
     "itemLoginRequired": "Log in to open this tune from your library.",
     "itemMissing": "This tune is no longer in your library.",
     "chooseFile": "Choose a file",
-    "noFile": "No file chosen"
+    "noFile": "No file chosen",
+    "instrumentFamily": "Instrument",
+    "tab_diatonic-accordion": "Diatonic accordion",
+    "tab_chromatic-accordion": "Chromatic accordion",
+    "tab_string": "Guitar and ukulele",
+    "tab_whistle": "Whistle",
+    "model": "Model",
+    "tuning": "Tuning",
+    "whistle": "Whistle"
   },
   "lines": {
     "push": "P",
@@ -184,7 +199,7 @@
   "footer": {
     "feedback": "Feedback or a bug?",
     "feedbackSubject": "Notenn beta: feedback",
-    "about": "Notenn, tabs for the diatonic accordion. Made in Brittany.",
+    "about": "Notenn, tabs for accordion, guitar and whistle. Made in Brittany.",
     "links": "Footer",
     "support": "Support Notenn",
     "privacy": "Privacy",
@@ -206,8 +221,8 @@
     "rights": "Only public-domain, traditional or freely licensed tunes are published here.",
     "back": "All tunes",
     "origin": "{origin}.",
-    "pageTitle": "{title}: diatonic accordion tab",
-    "pageDescription": "{title} ({origin}) as a diatonic accordion tab: buttons, bellows and basses, to listen to and download as a PDF.",
+    "pageTitle": "{title}: accordion, guitar and whistle tab",
+    "pageDescription": "{title} ({origin}) as a tab for accordion, guitar or whistle: fingerings to listen to and download as a PDF.",
     "regions": {
       "brittany": "Brittany",
       "france": "France",

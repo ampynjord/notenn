@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Notenn',
     short_name: 'Notenn',
-    description: 'Tablatures pour accordéon diatonique en Système Argoat · Diatonic accordion tabs in Système Argoat',
+    description: 'Tablatures pour accordéon, guitare et flûte · Tabs for accordion, guitar and whistle',
     start_url: '/',
     display: 'standalone',
     background_color: '#f5f6fb',

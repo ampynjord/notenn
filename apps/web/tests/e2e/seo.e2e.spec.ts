@@ -30,7 +30,7 @@ test.describe('Search engines', () => {
     page,
   }) => {
     await page.goto(`${BASE}/fr/airs/au-clair-de-la-lune`)
-    await expect(page).toHaveTitle(/Au clair de la lune.*tablature.*accordéon diatonique.*Notenn/)
+    await expect(page).toHaveTitle(/Au clair de la lune.*tablature.*accordéon, guitare, flûte.*Notenn/)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${PUBLIC}/fr/airs/au-clair-de-la-lune`)
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
       'href',
@@ -58,9 +58,9 @@ test.describe('Search engines', () => {
 
   test('the home page announces what it is, in each language', async ({ page }) => {
     await page.goto(`${BASE}/fr`)
-    await expect(page).toHaveTitle(/^Notenn : tablatures d'accordéon diatonique$/)
+    await expect(page).toHaveTitle(/^Notenn : tablatures pour accordéon, guitare et flûte$/)
     await page.goto(`${BASE}/en`)
-    await expect(page).toHaveTitle(/^Notenn: diatonic accordion tabs$/)
+    await expect(page).toHaveTitle(/^Notenn: tabs for accordion, guitar and whistle$/)
     await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute('content', 'en_GB')
   })
 
