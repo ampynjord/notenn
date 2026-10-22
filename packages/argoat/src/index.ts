@@ -3,7 +3,7 @@
  * operations (text, line, ellipse, circle, polyline) in abstract units. The app draws them
  * as SVG, the PDF export with jsPDF.
  */
-import type { Arrangement, InstrumentProfile, Meter } from '@notenn/engine'
+import type { Arrangement, InstrumentProfile, Meter, StringArrangement, StringProfile, WhistleArrangement, WhistleProfile } from '@notenn/engine'
 
 /** Logical colours; each medium maps them (CSS variables, RGB for the PDF). */
 export type Ink = 'push' | 'pull' | 'bass' | 'warn' | 'muted' | 'line' | 'ink'
@@ -186,16 +186,126 @@ function tieArc(x1: number, x2: number, y: number, dir: 1 | -1): [number, number
 }
 
 /** Most readable display octave on the staff (median note close to middle B). */
-function displayOctave(arr: Arrangement) {
+function displayOctave(arr: Pick<StaffSource, 'notes'>) {
   const steps = arr.notes.map((n) => pitchStep(n.pitch).step).sort((a, b) => a - b)
   return steps.length ? Math.round((34 - steps[Math.floor(steps.length / 2)]!) / 7) : 0
+}
+
+/** What the music staff needs from an arrangement, whatever the instrument. */
+export interface StaffSource {
+  notes: { start: number; dur: number; pitch: number; approx: boolean }[]
+  pickup: number
+  meter: { barLength: number }
+  fromBar: number
+}
+
+interface StaffContext {
+  width: number
+  meter: Meter
+  b: number
+  e: number
+  start: number
+  end: number
+  X: (t: number) => number
+  inLine: (t: number) => boolean
+  octave: number
+}
+
+/** The staff above the tab: clef, time signature, barlines, notes with stems, ties, accidentals and triplets. */
+function drawStaff(ops: DrawOp[], arr: StaffSource, c: StaffContext) {
+  const { width, meter, b, e, start, end, X, inLine, octave } = c
+    const d = 5, top = 22, bot = top + 4 * d
+    const yS = (st: number) => bot - ((st - 30) * d) / 2
+    for (let i = 0; i < 5; i++) ops.push({ kind: 'line', x1: 4, y1: top + i * d, x2: width - 6, y2: top + i * d, ink: 'ink', width: 0.55 })
+    ops.push({ kind: 'polyline', points: CLEF.map(([a, c]) => [10 + a * d * 1.2, bot - d + c * d * 1.2]), ink: 'ink', width: 1.5 })
+    if (b === arr.fromBar) {
+      ops.push({ kind: 'text', x: 24, y: top + 9.2, text: String(meter.num), ink: 'ink', size: 10.5, bold: true })
+      ops.push({ kind: 'text', x: 24, y: bot - 0.8, text: String(meter.den), ink: 'ink', size: 10.5, bold: true })
+    }
+    for (let bar = b; bar <= e; bar++) {
+      const xb = X(arr.pickup + (bar - 1) * arr.meter.barLength) - 4
+      if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bot, ink: 'ink', width: 0.8 })
+    }
+    ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bot, ink: 'ink', width: 0.8 })
+    // Accidentals: a sharp lasts until the barline, so a natural is needed if the same line comes back unaltered.
+    const sharpened = new Map<number, Set<number>>()
+    const triplets: { from: number; to: number; x: number; ey: number }[] = []
+    arr.notes.forEach((n, ni) => {
+      const nEnd = n.start + n.dur
+      const own = inLine(n.start)
+      // A note started on a previous line continues here as tied figures.
+      if (!own && !(n.start < start - 1e-6 && nEnd > start + 1e-6)) return
+      const ps = pitchStep(n.pitch)
+      let natural = false
+      if (own) {
+        const barIdx = Math.floor((n.start - arr.pickup) / arr.meter.barLength + 1e-6)
+        const inBar = sharpened.get(barIdx) ?? new Set<number>()
+        sharpened.set(barIdx, inBar)
+        natural = !ps.sharp && inBar.has(ps.step)
+        if (ps.sharp) inBar.add(ps.step)
+        else inBar.delete(ps.step)
+      }
+      const st = ps.step + octave * 7
+      const y = yS(st)
+      const ink: Ink = n.approx ? 'warn' : 'ink'
+      const up = st < 34
+      const pieces = splitDuration(Math.max(n.start, start), Math.min(nEnd, end), arr.pickup, arr.meter.barLength)
+      let prevX: number | null = own ? null : X0 - 6
+      pieces.forEach((pc, k) => {
+        const x = X(pc.t) + 4
+        for (let l = 28; l >= st; l -= 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
+        for (let l = 40; l <= st; l += 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
+        const v = pc.shape
+        ops.push({ kind: 'ellipse', x, y, rx: 3.2, ry: 2.3, ink, filled: v < 2, ...(own && k === 0 ? { note: ni } : {}) })
+        if (own && k === 0 && ps.sharp) ops.push({ kind: 'text', x: x - 11, y: y + 3.2, text: '#', ink, size: 9, bold: true })
+        if (own && k === 0 && natural) ops.push({ kind: 'text', x: x - 11, y: y + 3.6, text: '♮', ink, size: 10, bold: true })
+        if (v === 3 || v === 1.5 || v === 0.75) ops.push({ kind: 'ellipse', x: x + 6.2, y: st % 2 === 0 ? y - 2 : y, rx: 0.9, ry: 0.9, ink, filled: true })
+        if (v < 4) {
+          const sx = up ? x + 2.9 : x - 2.9
+          const ey = up ? y - 17 : y + 17
+          ops.push({ kind: 'line', x1: sx, y1: y, x2: sx, y2: ey, ink, width: 0.8 })
+          const flags = v <= 0.25 + 1e-6 ? 2 : v < 1 ? 1 : 0
+          for (let f = 0; f < flags; f++) {
+            const fy = ey + (up ? f * 3.5 : -f * 3.5)
+            ops.push({ kind: 'line', x1: sx, y1: fy, x2: sx + 4.5, y2: fy + (up ? 6 : -6), ink, width: 1.1 })
+          }
+          if (pc.triplet) {
+            // Group span: a quarter note for eighth-note triplets, a half note for quarter-note triplets,
+            // counted from the start of the bar.
+            const span = pc.shape === 1 ? 2 : 1
+            const barStart = arr.pickup + Math.floor((pc.t - arr.pickup) / arr.meter.barLength + 1e-6) * arr.meter.barLength
+            const from = barStart + Math.floor((pc.t - barStart) / span + 1e-6) * span
+            triplets.push({ from, to: from + span, x, ey })
+          }
+        }
+        // Tie to the previous figure of the same note (on the side opposite the stem).
+        if (prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, x - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
+        prevX = x
+      })
+      // The note continues on the next line: tie up to the right edge.
+      if (nEnd > end + 1e-6 && prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, width - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
+    })
+    // One "3" per triplet group; overlapping groups (mixed figures) count as one.
+    triplets.sort((a, c) => a.from - c.from)
+    const groups: (typeof triplets)[] = []
+    for (const tr of triplets) {
+      const last = groups.at(-1)
+      if (last && tr.from < Math.max(...last.map((g) => g.to)) - 1e-6) last.push(tr)
+      else groups.push([tr])
+    }
+    for (const g of groups) {
+      const xs = g.map((tr) => tr.x)
+      ops.push({ kind: 'text', x: (Math.min(...xs) + Math.max(...xs)) / 2 + 2, y: Math.min(...g.map((tr) => tr.ey), top) - 3, text: '3', ink: 'ink', size: 8, bold: true, anchor: 'middle' })
+    }
 }
 
 export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Meter, options: LayoutOptions = {}): SystemLine[] {
   const width = options.width ?? 560
   const staff = options.staff ?? true
   const labels = { ...DEFAULT_LABELS, ...options.labels }
-  const notation = options.notation ?? 'argoat'
+  // The chromatic accordion has one line per row and the same note on push and pull: no P/T lines, nothing underlined.
+  const chromatic = profile.family === 'chromatic-accordion'
+  const notation: Notation = chromatic ? 'corgeron' : (options.notation ?? 'argoat')
   const rowIds = profile.rows.map((r) => r.id)
   const bpl =
     options.barsPerLine === undefined || options.barsPerLine === 'auto'
@@ -225,91 +335,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     // Where the numbers sit on each tab line, so the line can be drawn around them (CADB, Corgeron).
     const taken = new Map<number, [number, number][]>()
 
-    if (staff) {
-      const d = 5, top = 22, bot = top + 4 * d
-      const yS = (st: number) => bot - ((st - 30) * d) / 2
-      for (let i = 0; i < 5; i++) ops.push({ kind: 'line', x1: 4, y1: top + i * d, x2: width - 6, y2: top + i * d, ink: 'ink', width: 0.55 })
-      ops.push({ kind: 'polyline', points: CLEF.map(([a, c]) => [10 + a * d * 1.2, bot - d + c * d * 1.2]), ink: 'ink', width: 1.5 })
-      if (b === arr.fromBar) {
-        ops.push({ kind: 'text', x: 24, y: top + 9.2, text: String(meter.num), ink: 'ink', size: 10.5, bold: true })
-        ops.push({ kind: 'text', x: 24, y: bot - 0.8, text: String(meter.den), ink: 'ink', size: 10.5, bold: true })
-      }
-      for (let bar = b; bar <= e; bar++) {
-        const xb = X(arr.pickup + (bar - 1) * arr.meter.barLength) - 4
-        if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bot, ink: 'ink', width: 0.8 })
-      }
-      ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bot, ink: 'ink', width: 0.8 })
-      // Accidentals: a sharp lasts until the barline, so a natural is needed if the same line comes back unaltered.
-      const sharpened = new Map<number, Set<number>>()
-      const triplets: { from: number; to: number; x: number; ey: number }[] = []
-      arr.notes.forEach((n, ni) => {
-        const nEnd = n.start + n.dur
-        const own = inLine(n.start)
-        // A note started on a previous line continues here as tied figures.
-        if (!own && !(n.start < start - 1e-6 && nEnd > start + 1e-6)) return
-        const ps = pitchStep(n.pitch)
-        let natural = false
-        if (own) {
-          const barIdx = Math.floor((n.start - arr.pickup) / arr.meter.barLength + 1e-6)
-          const inBar = sharpened.get(barIdx) ?? new Set<number>()
-          sharpened.set(barIdx, inBar)
-          natural = !ps.sharp && inBar.has(ps.step)
-          if (ps.sharp) inBar.add(ps.step)
-          else inBar.delete(ps.step)
-        }
-        const st = ps.step + octave * 7
-        const y = yS(st)
-        const ink: Ink = n.approx ? 'warn' : 'ink'
-        const up = st < 34
-        const pieces = splitDuration(Math.max(n.start, start), Math.min(nEnd, end), arr.pickup, arr.meter.barLength)
-        let prevX: number | null = own ? null : X0 - 6
-        pieces.forEach((pc, k) => {
-          const x = X(pc.t) + 4
-          for (let l = 28; l >= st; l -= 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
-          for (let l = 40; l <= st; l += 2) ops.push({ kind: 'line', x1: x - 5.5, y1: yS(l), x2: x + 5.5, y2: yS(l), ink: 'muted', width: 0.8 })
-          const v = pc.shape
-          ops.push({ kind: 'ellipse', x, y, rx: 3.2, ry: 2.3, ink, filled: v < 2, ...(own && k === 0 ? { note: ni } : {}) })
-          if (own && k === 0 && ps.sharp) ops.push({ kind: 'text', x: x - 11, y: y + 3.2, text: '#', ink, size: 9, bold: true })
-          if (own && k === 0 && natural) ops.push({ kind: 'text', x: x - 11, y: y + 3.6, text: '♮', ink, size: 10, bold: true })
-          if (v === 3 || v === 1.5 || v === 0.75) ops.push({ kind: 'ellipse', x: x + 6.2, y: st % 2 === 0 ? y - 2 : y, rx: 0.9, ry: 0.9, ink, filled: true })
-          if (v < 4) {
-            const sx = up ? x + 2.9 : x - 2.9
-            const ey = up ? y - 17 : y + 17
-            ops.push({ kind: 'line', x1: sx, y1: y, x2: sx, y2: ey, ink, width: 0.8 })
-            const flags = v <= 0.25 + 1e-6 ? 2 : v < 1 ? 1 : 0
-            for (let f = 0; f < flags; f++) {
-              const fy = ey + (up ? f * 3.5 : -f * 3.5)
-              ops.push({ kind: 'line', x1: sx, y1: fy, x2: sx + 4.5, y2: fy + (up ? 6 : -6), ink, width: 1.1 })
-            }
-            if (pc.triplet) {
-              // Group span: a quarter note for eighth-note triplets, a half note for quarter-note triplets,
-              // counted from the start of the bar.
-              const span = pc.shape === 1 ? 2 : 1
-              const barStart = arr.pickup + Math.floor((pc.t - arr.pickup) / arr.meter.barLength + 1e-6) * arr.meter.barLength
-              const from = barStart + Math.floor((pc.t - barStart) / span + 1e-6) * span
-              triplets.push({ from, to: from + span, x, ey })
-            }
-          }
-          // Tie to the previous figure of the same note (on the side opposite the stem).
-          if (prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, x - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
-          prevX = x
-        })
-        // The note continues on the next line: tie up to the right edge.
-        if (nEnd > end + 1e-6 && prevX !== null) ops.push({ kind: 'polyline', points: tieArc(prevX + 4, width - 4, up ? y + 4 : y - 4, up ? 1 : -1), ink, width: 0.9 })
-      })
-      // One "3" per triplet group; overlapping groups (mixed figures) count as one.
-      triplets.sort((a, c) => a.from - c.from)
-      const groups: (typeof triplets)[] = []
-      for (const tr of triplets) {
-        const last = groups.at(-1)
-        if (last && tr.from < Math.max(...last.map((g) => g.to)) - 1e-6) last.push(tr)
-        else groups.push([tr])
-      }
-      for (const g of groups) {
-        const xs = g.map((tr) => tr.x)
-        ops.push({ kind: 'text', x: (Math.min(...xs) + Math.max(...xs)) / 2 + 2, y: Math.min(...g.map((tr) => tr.ey), top) - 3, text: '3', ink: 'ink', size: 8, bold: true, anchor: 'middle' })
-      }
-    }
+    if (staff) drawStaff(ops, arr, { width, meter, b, e, start, end, X, inLine, octave })
 
     if (notation === 'corgeron') {
       rowIds.forEach((id, i) =>
@@ -346,7 +372,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       if (!inLine(n.start)) return
       const label = tabLabel(profile, n.fingering.row, n.fingering.button, notation)
       const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
-      const pullMark = notation === 'corgeron' && n.fingering.bellows === 'pull'
+      const pullMark = notation === 'corgeron' && !chromatic && n.fingering.bellows === 'pull'
       ops.push({ kind: 'text', x: X(n.start), y, text: label, ink, size: 11.5, bold: true, mono: true, note: i, ...(pullMark ? { underline: true } : {}) })
       if (notation !== 'argoat') taken.set(y, [...(taken.get(y) ?? []), [X(n.start) - 2, X(n.start) + label.length * 7 + 1]])
       // A fingering chosen by hand is marked, so it is easy to spot and undo: underlined, or overlined
@@ -399,4 +425,140 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     lines.push({ firstBar: b, lastBar: e, start, end, scale, x0: X0, height: H, ops })
   }
   return lines
+}
+
+/* ---------- Strings and whistle ---------- */
+
+interface TabContext {
+  ops: DrawOp[]
+  X: (t: number) => number
+  inLine: (t: number) => boolean
+  b: number
+  e: number
+  start: number
+  end: number
+  /** Vertical offset of the tab area (the staff sits above it). */
+  off: number
+  width: number
+}
+
+interface LineSource extends StaffSource {
+  toBar: number
+  meter: StaffSource['meter'] & { beat: number; beatsPerBar: number }
+}
+
+/** Breaks an arrangement into lines of bars and lets `drawTab` write the tab area of each. */
+function chunkedLayout(
+  arr: LineSource,
+  meter: Meter,
+  options: LayoutOptions,
+  tabHeight: number,
+  minGap: (index: number) => number,
+  drawTab: (c: TabContext) => void,
+): SystemLine[] {
+  const width = options.width ?? 560
+  const staff = options.staff ?? true
+  const max = options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4)
+  let bpl = 1
+  if (options.barsPerLine !== undefined && options.barsPerLine !== 'auto') bpl = options.barsPerLine
+  else {
+    const usable = width - X0 - RIGHT
+    for (let n = max; n > 1; n--) {
+      const sc = usable / (n * arr.meter.barLength + arr.pickup)
+      if (arr.notes.every((note, i) => i === 0 || (note.start - arr.notes[i - 1]!.start) * sc >= minGap(i - 1) && (!staff || (note.start - arr.notes[i - 1]!.start) * sc >= 10))) {
+        bpl = n
+        break
+      }
+    }
+  }
+  const octave = displayOctave(arr)
+  const off = staff ? 60 : 0
+  const lines: SystemLine[] = []
+  for (let b = arr.fromBar; b <= arr.toBar; b += bpl) {
+    const e = Math.min(arr.toBar, b + bpl - 1)
+    const withPickup = b === 1 && arr.pickup > 0
+    const start = withPickup ? 0 : arr.pickup + (b - 1) * arr.meter.barLength
+    const end = arr.pickup + e * arr.meter.barLength
+    const span = bpl * arr.meter.barLength + (withPickup ? arr.pickup : 0)
+    const scale = (width - X0 - RIGHT) / span
+    const X = (t: number) => X0 + (t - start) * scale
+    const inLine = (t: number) => t >= start - 1e-6 && t < end - 1e-6
+    const ops: DrawOp[] = []
+    if (staff) drawStaff(ops, arr, { width, meter, b, e, start, end, X, inLine, octave })
+    for (let bar = b; bar <= e; bar++) {
+      ops.push({ kind: 'text', x: X(arr.pickup + (bar - 1) * arr.meter.barLength), y: staff ? 12 : 9, text: String(bar), ink: 'muted', size: 7 })
+    }
+    drawTab({ ops, X, inLine, b, e, start, end, off, width })
+    lines.push({ firstBar: b, lastBar: e, start, end, scale, x0: X0, height: off + tabHeight, ops })
+  }
+  return lines
+}
+
+/** Barlines across a tab area, from `top` to `bottom`, and the closing line. */
+function tabBarlines(c: TabContext, arr: LineSource, top: number, bottom: number) {
+  for (let bar = c.b; bar <= c.e; bar++) {
+    const xb = c.X(arr.pickup + (bar - 1) * arr.meter.barLength) - 4
+    if (xb > X0 - 3) c.ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bottom, ink: 'muted', width: 0.8 })
+  }
+  c.ops.push({ kind: 'line', x1: c.width - 6, y1: top, x2: c.width - 6, y2: bottom, ink: 'muted', width: 0.8 })
+}
+
+/**
+ * Tablature of a fretted instrument: one line per string, the highest string on top, the fret number on
+ * the line of the string. Same spacing and staff as the accordion tabs.
+ */
+export function layoutStrings(arr: StringArrangement, profile: StringProfile, meter: Meter, options: LayoutOptions = {}): SystemLine[] {
+  const n = profile.tuning.length
+  const gap = 11
+  const tabHeight = Math.max(80, 24 + n * gap + 6)
+  // The highest string is drawn first: string i (0 = lowest) sits on row n - 1 - i.
+  const rowY = (string: number) => 28 + (n - 1 - string) * gap
+  const label = (note: StringArrangement['notes'][number]) => String(note.position.fret)
+  return chunkedLayout(arr, meter, options, tabHeight, (i) => label(arr.notes[i]!).length * 6.9 + 2, (c) => {
+    const taken = new Map<number, [number, number][]>()
+    profile.stringNames.forEach((name, string) =>
+      c.ops.push({ kind: 'text', x: 6, y: c.off + rowY(string), text: name, ink: 'muted', size: 9, bold: true }),
+    )
+    arr.notes.forEach((note, i) => {
+      if (!c.inLine(note.start)) return
+      const y = c.off + rowY(note.position.string)
+      const text = label(note)
+      c.ops.push({ kind: 'text', x: c.X(note.start), y, text, ink: note.approx ? 'warn' : 'ink', size: 11, bold: true, mono: true, note: i })
+      taken.set(y, [...(taken.get(y) ?? []), [c.X(note.start) - 2, c.X(note.start) + text.length * 7 + 1]])
+    })
+    for (let string = 0; string < n; string++) {
+      const y = c.off + rowY(string)
+      const cy = y - 4
+      let x = 4
+      for (const [a, z] of (taken.get(y) ?? []).sort((m, k) => m[0] - k[0])) {
+        if (a > x) c.ops.push({ kind: 'line', x1: x, y1: cy, x2: a, y2: cy, ink: 'muted', width: 0.5 })
+        x = Math.max(x, z)
+      }
+      if (x < c.width - 6) c.ops.push({ kind: 'line', x1: x, y1: cy, x2: c.width - 6, y2: cy, ink: 'muted', width: 0.5 })
+    }
+    tabBarlines(c, arr, c.off + rowY(n - 1) - 9, c.off + rowY(0) + 1)
+  })
+}
+
+/**
+ * Tablature of a whistle: for each note a column of six circles, hole 1 (nearest the mouth) on top,
+ * filled when the hole is covered; a "+" above the column for the second octave (blown harder).
+ */
+export function layoutWhistle(arr: WhistleArrangement, _profile: WhistleProfile, meter: Meter, options: LayoutOptions = {}): SystemLine[] {
+  const step = 8
+  const top = 30
+  return chunkedLayout(arr, meter, options, 80, () => 9, (c) => {
+    arr.notes.forEach((note, i) => {
+      if (!c.inLine(note.start)) return
+      const x = c.X(note.start) + 4
+      const ink: Ink = note.approx ? 'warn' : 'ink'
+      if (note.octave === 2) c.ops.push({ kind: 'text', x, y: c.off + top - 8, text: '+', ink, size: 10, bold: true, anchor: 'middle', note: i })
+      ;[...note.holes].forEach((hole, h) =>
+        c.ops.push({ kind: 'ellipse', x, y: c.off + top + h * step, rx: 2.9, ry: 2.9, ink, filled: hole === '1', note: i }),
+      )
+    })
+    c.ops.push({ kind: 'text', x: 6, y: c.off + top + 3, text: '1', ink: 'muted', size: 8 })
+    c.ops.push({ kind: 'text', x: 6, y: c.off + top + 5 * step + 3, text: '6', ink: 'muted', size: 8 })
+    tabBarlines(c, arr, c.off + top - 12, c.off + top + 5 * step + 6)
+  })
 }

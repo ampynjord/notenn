@@ -67,7 +67,7 @@ Protection du code : build minifié et obscurci, calculs sensibles côté serveu
 | Domaine | 0 · Moteur universel | 1 · V1 | 2 · Mois suivants | 3 · Ensuite |
 | --- | --- | --- | --- | --- |
 | Technique | Moteur multi-instruments/multi-voix ; Next.js + Payload + PostgreSQL sur VPS ; banc de tests | PWA ; statistiques Umami sans cookie (pas de bandeau) | Synchro hors ligne des favoris | Service Python partitions |
-| Instruments | Format des profils, Hohner 2915 | Diatonique : Sol/Do 2 rangs courants, autres tonalités (La/Ré, Do/Fa…), 3 rangs | D'abord accordéon chromatique / piano, guitare, ukulélé ; puis harmonica, concertina ; éditeur de clavier | Saxophone, flûtes (tin whistle, flûte à bec), bombarde / biniou, piano |
+| Instruments | Format des profils, Hohner 2915 | Diatonique : Sol/Do 2 rangs courants, autres tonalités (La/Ré, Do/Fa…), 3 rangs | Accordéon chromatique (système C, aperçu), guitare (standard, DADGAD), ukulélé et tin whistle (Ré, Do, Si♭) en place, à affiner ; ensuite piano, harmonica, concertina ; éditeur de clavier | Saxophone, flûtes (tin whistle, flûte à bec), bombarde / biniou, piano |
 | Imports | MIDI, MusicXML, ABC | Choix de piste, plage, transposition ; MP3 juste après la bêta | Saisie à la main | Photo/PDF de partition (en premier de la phase) |
 | Tablature | Doigté, basses ; moteur multi-voix | Système Argoat (avec 3e rang) ; portée | Corgeron, CADB ; annotations ; accords main droite | Duos, paroles |
 | Pratique | | Curseur, boucle sur un passage, ralenti sans changer la hauteur, métronome avec décompte | Clavier animé, mode scène | (Micro, mis de côté) |
