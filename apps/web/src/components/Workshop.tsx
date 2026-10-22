@@ -545,6 +545,23 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
 
   return (
     <div className="workshop">
+      <div className="family-tabs" role="tablist" aria-label={t('instrumentFamily')}>
+        {FAMILIES.map((family) => (
+          <button
+            key={family}
+            type="button"
+            role="tab"
+            aria-selected={instrument.family === family}
+            className={instrument.family === family ? 'on' : undefined}
+            onClick={() => {
+              const first = instruments.find((i) => i.family === family)
+              if (first && instrument.family !== family) setPrefs({ profileId: first.id, rows: null })
+            }}
+          >
+            {t(`tab_${family}`)}
+          </button>
+        ))}
+      </div>
       <aside className="controls" aria-label={t('settings')} ref={toolbarRef}>
         {editor && (
           <details className="group" name="menu">
@@ -631,27 +648,23 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
 
         <details className="group" name="menu">
           <summary>
-            {t('keyboard')} <small>{profileName(instrument)}</small>
+            {t(instrument.family === 'string' ? 'tuning' : instrument.family === 'whistle' ? 'whistle' : 'keyboard')} <small>{profileName(instrument)}</small>
           </summary>
           <div className="panel">
           <label>
-            <span>{t('instrument')}</span>
+            <span>{t('model')}</span>
             <select
               value={instrument.id}
               onChange={(e) => setPrefs({ profileId: e.target.value, rows: null })}
             >
-              {FAMILIES.map((family) => (
-                <optgroup key={family} label={t(`family_${family}`)}>
-                  {instruments
-                    .filter((p) => p.family === family)
-                    .map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {profileName(p)}
-                        {p.preview ? ` (${t('preview')})` : ''}
-                      </option>
-                    ))}
-                </optgroup>
-              ))}
+              {instruments
+                .filter((p) => p.family === instrument.family)
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {profileName(p)}
+                    {p.preview ? ` (${t('preview')})` : ''}
+                  </option>
+                ))}
             </select>
           </label>
           {instrument.preview && <small className="hint">{t('previewInstrument')}</small>}
