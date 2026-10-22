@@ -1,5 +1,5 @@
 /**
- * Système Argoat layout, independent of the output medium: it produces a list of drawing
+ * Tablature layout for the diatonic accordion (Système Argoat, CADB, Corgeron), independent of the output medium: it produces a list of drawing
  * operations (text, line, ellipse, circle, polyline) in abstract units. The app draws them
  * as SVG, the PDF export with jsPDF.
  */
@@ -8,8 +8,17 @@ import type { Arrangement, InstrumentProfile, Meter } from '@notenn/engine'
 /** Logical colours; each medium maps them (CSS variables, RGB for the PDF). */
 export type Ink = 'push' | 'pull' | 'bass' | 'warn' | 'muted' | 'line' | 'ink'
 
+/**
+ * The diatonic accordion tablatures:
+ * - argoat: P and T lines, time-proportional spacing, beat marks, hold lines, bass circles;
+ * - cadb: P, T and bass lines, numbers only (prime = inner row, double prime = third row);
+ * - corgeron: one line per row (the row is the line), pull notes underlined, bass line.
+ */
+export const NOTATIONS = ['argoat', 'cadb', 'corgeron'] as const
+export type Notation = (typeof NOTATIONS)[number]
+
 export type DrawOp =
-  | { kind: 'text'; x: number; y: number; text: string; ink: Ink; size: number; bold?: boolean; mono?: boolean; anchor?: 'start' | 'middle'; note?: number }
+  | { kind: 'text'; x: number; y: number; text: string; ink: Ink; size: number; bold?: boolean; mono?: boolean; anchor?: 'start' | 'middle'; note?: number; bass?: number; underline?: boolean }
   | { kind: 'line'; x1: number; y1: number; x2: number; y2: number; ink: Ink; width: number }
   | { kind: 'ellipse'; x: number; y: number; rx: number; ry: number; ink: Ink; filled: boolean; note?: number }
   | { kind: 'circle'; x: number; y: number; r: number; filled: boolean; label: string; bass: number }
@@ -37,6 +46,10 @@ export interface LayoutOptions {
   maxBarsPerLine?: number
   /** Translated line labels; Système Argoat letters in French by default. */
   labels?: Partial<LineLabels>
+  /** Tablature system; Système Argoat by default. */
+  notation?: Notation
+  /** Corgeron: label of each row's line, by row id (the id in capitals by default). */
+  rowLabels?: Record<string, string>
 }
 
 export interface LineLabels {
@@ -50,8 +63,25 @@ const DEFAULT_LABELS: LineLabels = { push: 'P', pull: 'T', bass: 'Basses' }
 const X0 = 44
 const RIGHT = 8
 
-export function lineHeight(staff: boolean) {
-  return staff ? 140 : 80
+/** Height of one line of music: the staff (optional), then the tab lines and the bass line. */
+export function lineHeight(staff: boolean, rowCount = 2, notation: Notation = 'argoat') {
+  const extra = notation === 'corgeron' ? Math.max(0, rowCount - 2) * 21 : 0
+  return (staff ? 140 : 80) + extra
+}
+
+const PC_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
+
+/** Name of a bass or of a chord for the bass line of CADB and Corgeron: bass "C", chord "c", "am", "g7"… */
+export function bassName(pc: number[] | number, isBass: boolean): string {
+  if (isBass) return PC_NAMES[(((pc as number) % 12) + 12) % 12]!
+  const pcs = [...new Set((pc as number[]).map((x) => ((x % 12) + 12) % 12))]
+  const shapes: [string, number[]][] = [['', [0, 4, 7]], ['m', [0, 3, 7]], ['7', [0, 4, 7, 10]], ['m7', [0, 3, 7, 10]]]
+  for (const root of pcs) {
+    const rel = pcs.map((x) => (x - root + 12) % 12).sort((a, b) => a - b)
+    const hit = shapes.find(([, iv]) => iv.length === rel.length && iv.every((v, i) => v === rel[i]))
+    if (hit) return PC_NAMES[root]!.toLowerCase() + hit[0]
+  }
+  return PC_NAMES[pcs[0] ?? 0]!.toLowerCase()
 }
 
 /** Button label: number + row mark (apostrophe for the inner row). */
@@ -60,7 +90,12 @@ export function buttonLabel(profile: InstrumentProfile, row: string, button: num
   return `${button}${r?.suffix ?? ''}`
 }
 
-function autoBarsPerLine(arr: Arrangement, profile: InstrumentProfile, width: number, staff: boolean, max: number) {
+/** Text of a button in the tab: Corgeron shows the row by the line, so its numbers carry no row mark. */
+function tabLabel(profile: InstrumentProfile, row: string, button: number, notation: Notation) {
+  return notation === 'corgeron' ? String(button) : buttonLabel(profile, row, button)
+}
+
+function autoBarsPerLine(arr: Arrangement, profile: InstrumentProfile, width: number, staff: boolean, max: number, notation: Notation) {
   const usable = width - X0 - RIGHT
   for (let b = max; b > 1; b--) {
     const sc = usable / (b * arr.meter.barLength + arr.pickup)
@@ -68,9 +103,12 @@ function autoBarsPerLine(arr: Arrangement, profile: InstrumentProfile, width: nu
     for (let i = 1; i < arr.notes.length; i++) {
       const prev = arr.notes[i - 1]!
       const gap = (arr.notes[i]!.start - prev.start) * sc
-      const sameLine = arr.notes[i]!.fingering.bellows === prev.fingering.bellows
+      const sameLine =
+        notation === 'corgeron'
+          ? arr.notes[i]!.fingering.row === prev.fingering.row
+          : arr.notes[i]!.fingering.bellows === prev.fingering.bellows
       // Room needed after a button number on the same line: its width in the 11.5 px monospace.
-      const label = buttonLabel(profile, prev.fingering.row, prev.fingering.button)
+      const label = tabLabel(profile, prev.fingering.row, prev.fingering.button, notation)
       if ((sameLine && gap < label.length * 6.9 + 2) || (staff && gap < 10)) {
         ok = false
         break
@@ -157,12 +195,14 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
   const width = options.width ?? 560
   const staff = options.staff ?? true
   const labels = { ...DEFAULT_LABELS, ...options.labels }
+  const notation = options.notation ?? 'argoat'
+  const rowIds = profile.rows.map((r) => r.id)
   const bpl =
     options.barsPerLine === undefined || options.barsPerLine === 'auto'
-      ? autoBarsPerLine(arr, profile, width, staff, options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4))
+      ? autoBarsPerLine(arr, profile, width, staff, options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4), notation)
       : options.barsPerLine
   const octave = displayOctave(arr)
-  const H = lineHeight(staff)
+  const H = lineHeight(staff, rowIds.length, notation)
   const lines: SystemLine[] = []
 
   for (let b = arr.fromBar; b <= arr.toBar; b += bpl) {
@@ -176,7 +216,14 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     const inLine = (t: number) => t >= start - 1e-6 && t < end - 1e-6
     const ops: DrawOp[] = []
     const off = staff ? 60 : 0
-    const yP = 27 + off, yT = 48 + off, yB = 67 + off
+    // Tab lines: P and T, or one line per row (Corgeron); the bass line comes last.
+    const tabY = notation === 'corgeron' ? rowIds.map((_, i) => 27 + off + i * 21) : [27 + off, 48 + off]
+    const yP = tabY[0]!, yT = tabY[1] ?? tabY[0]!
+    const yB = notation === 'corgeron' ? 27 + off + rowIds.length * 21 - 2 : 67 + off
+    const noteY = (n: Arrangement['notes'][number]) =>
+      notation === 'corgeron' ? (tabY[Math.max(0, rowIds.indexOf(n.fingering.row))] ?? yP) : n.fingering.bellows === 'push' ? yP : yT
+    // Where the numbers sit on each tab line, so the line can be drawn around them (CADB, Corgeron).
+    const taken = new Map<number, [number, number][]>()
 
     if (staff) {
       const d = 5, top = 22, bot = top + 4 * d
@@ -264,8 +311,14 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       }
     }
 
-    ops.push({ kind: 'text', x: 6, y: yP, text: labels.push, ink: 'push', size: 12, bold: true })
-    ops.push({ kind: 'text', x: 6, y: yT, text: labels.pull, ink: 'pull', size: 12, bold: true })
+    if (notation === 'corgeron') {
+      rowIds.forEach((id, i) =>
+        ops.push({ kind: 'text', x: 6, y: tabY[i]!, text: options.rowLabels?.[id] ?? id.toUpperCase(), ink: 'ink', size: 12, bold: true }),
+      )
+    } else {
+      ops.push({ kind: 'text', x: 6, y: yP, text: labels.push, ink: 'push', size: 12, bold: true })
+      ops.push({ kind: 'text', x: 6, y: yT, text: labels.pull, ink: 'pull', size: 12, bold: true })
+    }
     if (arr.bass.length) ops.push({ kind: 'text', x: 6, y: yB + 3, text: labels.bass, ink: 'bass', size: 7.5 })
     for (let bar = b; bar <= e; bar++) {
       ops.push({ kind: 'text', x: X(arr.pickup + (bar - 1) * arr.meter.barLength), y: staff ? 12 : 9, text: String(bar), ink: 'muted', size: 7 })
@@ -274,7 +327,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     // Beat marks: a dot on each beat, a short tick at the start of each bar.
     const yR = (yT + yB) / 2 - 3
     const firstBeat = withPickup ? arr.pickup - Math.floor(arr.pickup / arr.meter.beat + 1e-6) * arr.meter.beat : start
-    for (let t = firstBeat; t < end - 1e-6; t += arr.meter.beat) {
+    for (let t = firstBeat; notation === 'argoat' && t < end - 1e-6; t += arr.meter.beat) {
       const rel = (t - arr.pickup) / arr.meter.barLength
       const barStart = t >= arr.pickup - 1e-6 && Math.abs(rel - Math.round(rel)) < 1e-6
       if (barStart) ops.push({ kind: 'line', x1: X(t) + 4, y1: yR - 3, x2: X(t) + 4, y2: yR + 3, ink: 'muted', width: 1 })
@@ -282,20 +335,27 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     }
 
     arr.notes.forEach((n, i) => {
-      const y = n.fingering.bellows === 'push' ? yP : yT
-      // Note started on the previous line and still held: only the hold line continues.
+      const y = noteY(n)
+      // Note started on the previous line and still held: only the hold line continues (Système Argoat).
       if (n.start < start - 1e-6 && n.start + n.dur > start + 1e-6) {
+        if (notation !== 'argoat') return
         const z = X(Math.min(n.start + n.dur, end)) - 5
         if (z > X0 + 2) ops.push({ kind: 'line', x1: X0 - 4, y1: y - 4, x2: z, y2: y - 4, ink: 'line', width: 2 })
         return
       }
       if (!inLine(n.start)) return
-      const label = buttonLabel(profile, n.fingering.row, n.fingering.button)
+      const label = tabLabel(profile, n.fingering.row, n.fingering.button, notation)
       const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
-      ops.push({ kind: 'text', x: X(n.start), y, text: label, ink, size: 11.5, bold: true, mono: true, note: i })
-      // A fingering chosen by hand is underlined, so it is easy to spot and undo.
-      if (n.edited) ops.push({ kind: 'line', x1: X(n.start), y1: y + 3, x2: X(n.start) + label.length * 7, y2: y + 3, ink, width: 1.2 })
-      if (n.dur > arr.meter.beat + 1e-6) {
+      const pullMark = notation === 'corgeron' && n.fingering.bellows === 'pull'
+      ops.push({ kind: 'text', x: X(n.start), y, text: label, ink, size: 11.5, bold: true, mono: true, note: i, ...(pullMark ? { underline: true } : {}) })
+      if (notation !== 'argoat') taken.set(y, [...(taken.get(y) ?? []), [X(n.start) - 2, X(n.start) + label.length * 7 + 1]])
+      // A fingering chosen by hand is marked, so it is easy to spot and undo: underlined, or overlined
+      // where the underline already means "pull" (Corgeron).
+      if (n.edited) {
+        const my = notation === 'corgeron' ? y - 11 : y + 3
+        ops.push({ kind: 'line', x1: X(n.start), y1: my, x2: X(n.start) + label.length * 7, y2: my, ink, width: 1.2 })
+      }
+      if (notation === 'argoat' && n.dur > arr.meter.beat + 1e-6) {
         const a = X(n.start) + label.length * 7.6 + 3
         const z = X(Math.min(n.start + n.dur, end)) - 5
         if (z > a + 2) ops.push({ kind: 'line', x1: a, y1: y - 4, x2: z, y2: y - 4, ink: 'line', width: 2 })
@@ -304,8 +364,37 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
 
     arr.bass.forEach((ev, bi) => {
       if (!inLine(ev.time)) return
-      ops.push({ kind: 'circle', x: X(ev.time) + 6, y: yB, r: 6.2, filled: ev.isBass, label: String(ev.group), bass: bi })
+      const side = profile.bassGroups.find((g) => g.id === ev.group)?.[ev.bellows]
+      if (notation === 'argoat' || !side) {
+        ops.push({ kind: 'circle', x: X(ev.time) + 6, y: yB, r: 6.2, filled: ev.isBass, label: String(ev.group), bass: bi })
+        return
+      }
+      // CADB and Corgeron write the bass by its name: "C" for a bass, "c" or "am" for a chord.
+      const text = bassName(ev.isBass ? side.bass : side.chord, ev.isBass)
+      ops.push({ kind: 'text', x: X(ev.time), y: yB, text, ink: 'bass', size: 11, bold: ev.isBass, mono: true, bass: bi })
+      taken.set(yB, [...(taken.get(yB) ?? []), [X(ev.time) - 2, X(ev.time) + text.length * 6.6 + 1]])
     })
+
+    // CADB and Corgeron are drawn on tab lines, interrupted around the numbers, with barlines.
+    if (notation !== 'argoat') {
+      const lineYs = [...new Set([...tabY, ...(arr.bass.length ? [yB] : [])])]
+      for (const ly of lineYs) {
+        const cy = ly - 4
+        let x = 4
+        for (const [a, c] of (taken.get(ly) ?? []).sort((m, k) => m[0] - k[0])) {
+          if (a > x) ops.push({ kind: 'line', x1: x, y1: cy, x2: a, y2: cy, ink: 'muted', width: 0.5 })
+          x = Math.max(x, c)
+        }
+        if (x < width - 6) ops.push({ kind: 'line', x1: x, y1: cy, x2: width - 6, y2: cy, ink: 'muted', width: 0.5 })
+      }
+      const top = lineYs[0]! - 9
+      const bottom = lineYs[lineYs.length - 1]! + 1
+      for (let bar = b; bar <= e; bar++) {
+        const xb = X(arr.pickup + (bar - 1) * arr.meter.barLength) - 4
+        if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bottom, ink: 'muted', width: 0.8 })
+      }
+      ops.push({ kind: 'line', x1: width - 6, y1: top, x2: width - 6, y2: bottom, ink: 'muted', width: 0.8 })
+    }
 
     lines.push({ firstBar: b, lastBar: e, start, end, scale, x0: X0, height: H, ops })
   }

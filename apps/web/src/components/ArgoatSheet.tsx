@@ -18,7 +18,12 @@ function Op({ op, hotNote, hotBass }: { op: DrawOp; hotNote: number; hotBass: nu
           fontFamily={op.mono ? 'var(--mono)' : 'var(--body)'}
           textAnchor={op.anchor ?? 'start'}
           style={{ fill: fill(op.ink) }}
-          className={op.note !== undefined && op.note === hotNote ? 'hot' : undefined}
+          textDecoration={op.underline ? 'underline' : undefined}
+          className={
+            (op.note !== undefined && op.note === hotNote) || (op.bass !== undefined && op.bass === hotBass)
+              ? 'hot'
+              : undefined
+          }
         >
           {op.text}
         </text>
