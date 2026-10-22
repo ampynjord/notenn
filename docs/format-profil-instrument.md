@@ -12,7 +12,7 @@ Exemple de référence : `packages/engine/src/profiles/hohner-2915-gc.json`.
 | `version` | oui | `1`. |
 | `id` | oui | Identifiant stable, en minuscules avec tirets (`hohner-2915-gc`). |
 | `name` | oui | Nom affiché (`Hohner 2915 Sol/Do`). |
-| `family` | oui | `"diatonic-accordion"` (seule famille prise en charge pour l'instant). |
+| `family` | oui | `"diatonic-accordion"` ou `"chromatic-accordion"` (les autres familles sont décrites dans le code, voir plus bas). |
 | `source` | non | D'où viennent les notes (plan de clavier, mesure faite par…). |
 | `rows` | oui | Les rangs de la main droite, du plus intérieur au plus extérieur. |
 | `bass` | non | Les groupes de basses de la main gauche. |
@@ -54,6 +54,26 @@ Les noms des rangs et du modèle sont écrits en anglais dans le JSON ; l'interf
 
 Seul le 2915 vient d'un plan de clavier réel. Les autres sont construits à partir de lui : les fabricants varient parfois les premiers boutons, les basses ou surtout le 3e rang, d'où le champ `source` qui le signale.
 
+## Autres familles d'instruments
+
+| Famille | Où | Ce qui est décrit |
+|---|---|---|
+| `diatonic-accordion` | JSON (ce document) | Rangs de boutons poussé/tiré et basses |
+| `chromatic-accordion` | JSON (ce document) | Les mêmes rangs, mais un bouton donne **la même note** au poussé et au tiré : on peut écrire `"C4"` au lieu de `["C4", "C4"]`. Pas de main gauche pour l'instant. Champ facultatif `preview: true` tant que le clavier n'a pas été vérifié sur un instrument réel |
+| `string` | `packages/engine/src/profiles/strings.ts` | `tuning` (cordes à vide en MIDI, de la plus grave à la plus aiguë), `stringNames`, `frets` |
+| `whistle` | `packages/engine/src/profiles/whistles.ts` | `fingerings` : pour chaque hauteur, six chiffres (1 = trou bouché, 0 = ouvert, trou 1 côté bouche) et l'octave (1 ou 2) |
+
+Instruments fournis en plus :
+
+| Id | Instrument |
+|---|---|
+| `chromatic-c-3row` | Chromatique à boutons, système C, 3 rangs **(aperçu)** : construit à partir de la règle du système C (tierces mineures le long d'un rang, un demi-ton entre deux rangs), pas encore vérifié sur un instrument réel : l'ordre des rangs, la numérotation et l'étendue varient selon les fabricants |
+| `guitar-standard`, `guitar-dadgad` | Guitare, 22 cases : accordage standard et DADGAD |
+| `ukulele-gcea` | Ukulélé soprano, 15 cases |
+| `whistle-d`, `whistle-c`, `whistle-bb` | Tin whistle en Ré, Do, Si♭ : gamme de Ré majeur plus le Do naturel (doigté croisé) ; le Ré aigu se joue trou 1 ouvert |
+
+Pour les cordes et la flûte, le moteur choisit le doigté de la mélodie (`arrangeStrings`, `arrangeWhistle`) : cases les plus basses et mouvements de main réduits pour les cordes, doigtés fixes pour la flûte. Une note que l'instrument ne joue pas est remplacée par la plus proche et signalée (orange), et la tonalité est transposée au besoin.
+
 ## Évolutions prévues
 
-Nouvelles familles (chromatique, concertina, piano, cordes…) et accords main droite : ils viendront avec une version 2 du format, la version 1 restant lisible.
+Concertina, piano, harmonica, basses Stradella du chromatique, accords main droite et accords de guitare : ils viendront avec une version 2 du format, la version 1 restant lisible.
