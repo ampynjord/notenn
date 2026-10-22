@@ -1,6 +1,6 @@
 'use client'
 
-import { layout } from '@notenn/argoat'
+import { layout, NOTATIONS } from '@notenn/argoat'
 import {
   arrange,
   fingeringsFor,
@@ -249,6 +249,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         width,
         staff: prefs.staff,
         labels: lineLabels,
+        notation: prefs.notation,
         maxBarsPerLine: width < 520 ? 2 : width < 760 ? 3 : arr.meter.beatsPerBar > 4 ? 2 : 4,
       })
       return { arr, lines, failed: false }
@@ -266,6 +267,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
     prefs.bass,
     prefs.staff,
     lineLabels,
+    prefs.notation,
     edits,
     width,
   ])
@@ -398,6 +400,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         legend: legend().join('   '),
         footer: t('pdfFooter'),
         labels: lineLabels,
+        notation: prefs.notation,
         staff: prefs.pdfStaff,
         color: prefs.pdfColor,
         barsPerLine: prefs.pdfBarsPerLine,
@@ -421,17 +424,26 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
           bars: arr.toBar,
         })
       : ''
-  const legend = () => [
-    `${tl('push')} ${t('legendPush')}`,
-    `${tl('pull')} ${t('legendPull')}`,
-    ...profile.rows
-      .filter((r) => activeRows.includes(r.id))
-      .map((r) => t('legendRow', { label: `4${r.suffix}`, row: rowName(r.id) })),
-    t('legendHold'),
-    // Plain words: the standard PDF fonts have no ● ○ glyphs.
-    ...(prefs.bass ? [t('legendBassChordText')] : []),
-    t('legendBeats'),
-  ]
+  const legend = () =>
+    prefs.notation === 'corgeron'
+      ? [t('legendCorgeron'), ...(prefs.bass ? [t('legendBassNames')] : [])]
+      : [
+          `${tl('push')} ${t('legendPush')}`,
+          `${tl('pull')} ${t('legendPull')}`,
+          ...profile.rows
+            .filter((r) => activeRows.includes(r.id))
+            .map((r) => t('legendRow', { label: `4${r.suffix}`, row: rowName(r.id) })),
+          ...(prefs.notation === 'argoat'
+            ? [
+                t('legendHold'),
+                // Plain words: the standard PDF fonts have no ● ○ glyphs.
+                ...(prefs.bass ? [t('legendBassChordText')] : []),
+                t('legendBeats'),
+              ]
+            : prefs.bass
+              ? [t('legendBassNames')]
+              : []),
+        ]
 
   const shownProblem = problem ?? (result?.failed ? { key: 'unknown' } : null)
   const editingNote = editing && arr ? arr.notes[editing.note] : undefined
@@ -600,6 +612,21 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         <details className="group" name="menu">
           <summary>{t('display')}</summary>
           <div className="panel">
+            <label>
+              <span>{t('notation')}</span>
+              <select
+                value={prefs.notation}
+                onChange={(e) =>
+                  setPrefs({ notation: e.target.value as (typeof NOTATIONS)[number] })
+                }
+              >
+                {NOTATIONS.map((n) => (
+                  <option key={n} value={n}>
+                    {t(`notation_${n}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
           <label className="inline">
             <input
               type="checkbox"
@@ -774,27 +801,36 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 )}
               </ul>
               <p className="legend">
-                <span>
-                  <b className="p">{tl('push')}</b> {t('legendPush')}
-                </span>
-                <span>
-                  <b className="t">{tl('pull')}</b> {t('legendPull')}
-                </span>
-                {profile.rows
-                  .filter((r) => activeRows.includes(r.id))
-                  .map((r) => (
-                    <span key={r.id}>
-                      {t('legendRow', { label: `4${r.suffix}`, row: rowName(r.id) })}
+                {prefs.notation === 'corgeron' ? (
+                  <span>{t('legendCorgeron')}</span>
+                ) : (
+                  <>
+                    <span>
+                      <b className="p">{tl('push')}</b> {t('legendPush')}
                     </span>
-                  ))}
-                <span>{t('legendHold')}</span>
-                {prefs.bass && (
-                  <span>
-                    <b className="b">●</b> {t('legendBass')} <b className="b">○</b>{' '}
-                    {t('legendChord')}
-                  </span>
+                    <span>
+                      <b className="t">{tl('pull')}</b> {t('legendPull')}
+                    </span>
+                    {profile.rows
+                      .filter((r) => activeRows.includes(r.id))
+                      .map((r) => (
+                        <span key={r.id}>
+                          {t('legendRow', { label: `4${r.suffix}`, row: rowName(r.id) })}
+                        </span>
+                      ))}
+                  </>
                 )}
-                <span>{t('legendBeats')}</span>
+                {prefs.notation === 'argoat' && <span>{t('legendHold')}</span>}
+                {prefs.bass &&
+                  (prefs.notation === 'argoat' ? (
+                    <span>
+                      <b className="b">●</b> {t('legendBass')} <b className="b">○</b>{' '}
+                      {t('legendChord')}
+                    </span>
+                  ) : (
+                    <span>{t('legendBassNames')}</span>
+                  ))}
+                {prefs.notation === 'argoat' && <span>{t('legendBeats')}</span>}
               </p>
               {editor && <p className="tip">{t('editTip')}</p>}
             </header>
