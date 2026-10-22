@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Tablatures pour accordéon diatonique en Système Argoat · Diatonic accordion tabs in Système Argoat',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f1f3f4',
-    theme_color: '#1f3f8f',
+    background_color: '#f5f6fb',
+    theme_color: '#1d2363',
     icons: [
       { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
       { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },

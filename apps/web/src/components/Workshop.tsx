@@ -439,12 +439,29 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
   const editCount = arr?.notes.filter((n) => n.edited).length ?? 0
   const playing = cursor !== null
 
+  const toolbarRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const close = (except?: Node | null) =>
+      toolbarRef.current?.querySelectorAll<HTMLDetailsElement>(':scope > details.group[open]').forEach((d) => {
+        if (!except || !d.contains(except)) d.removeAttribute('open')
+      })
+    const onPointer = (e: PointerEvent) => close(e.target as Node)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [])
+
   return (
     <div className="workshop">
-      <aside className="controls" aria-label={t('settings')}>
+      <aside className="controls" aria-label={t('settings')} ref={toolbarRef}>
         {editor && (
-          <details open className="group">
+          <details className="group" name="menu">
             <summary>{t('song')}</summary>
+            <div className="panel">
             {member && library && (
               <label>
                 <span>{t('fromLibrary')}</span>
@@ -520,11 +537,15 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 </select>
               </label>
             )}
+            </div>
           </details>
         )}
 
-        <details open className="group">
-          <summary>{t('keyboard')}</summary>
+        <details className="group" name="menu">
+          <summary>
+            {t('keyboard')} <small>{profileName(profile)}</small>
+          </summary>
+          <div className="panel">
           <label>
             <span>{t('instrument')}</span>
             <select
@@ -573,10 +594,12 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
               ))}
             </select>
           </label>
+          </div>
         </details>
 
-        <details open className="group">
+        <details className="group" name="menu">
           <summary>{t('display')}</summary>
+          <div className="panel">
           <label className="inline">
             <input
               type="checkbox"
@@ -593,11 +616,13 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
             />{' '}
             {t('basses')}
           </label>
+          </div>
         </details>
 
         {editor && (
-          <details open className="group">
+          <details className="group" name="menu">
             <summary>{t('practice')}</summary>
+            <div className="panel">
             <div className="pair">
               <label>
                 <span>{t('fromBar')}</span>
@@ -638,11 +663,13 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 }
               />
             </label>
+            </div>
           </details>
         )}
 
-        <details className="group">
+        <details className="group" name="menu">
           <summary>{t('pdf')}</summary>
+          <div className="panel">
           <label className="inline">
             <input
               type="checkbox"
@@ -676,6 +703,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
           <button type="button" onClick={() => void exportPdf()} disabled={!arr || pdfBusy}>
             {pdfBusy ? t('pdfBusy') : t('pdfDownload')}
           </button>
+          </div>
         </details>
       </aside>
 

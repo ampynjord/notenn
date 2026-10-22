@@ -10,7 +10,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@fontsource/atkinson-hyperlegible':
+      '@fontsource-variable/inter':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource-variable/manrope':
         specifier: ^5.3.0
         version: 5.3.0
       '@notenn/argoat':
@@ -951,8 +954,11 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@fontsource/atkinson-hyperlegible@5.3.0':
-    resolution: {integrity: sha512-Sp8Ve8+rQmENY2Lv02VH7sLpntzTTvnncnJMTbRE7DX6TLxGraN4ykZfzaUWIoCFmaomwkvNiqmlPkrKBuDoSA==}
+  '@fontsource-variable/inter@5.3.0':
+    resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
+
+  '@fontsource-variable/manrope@5.3.0':
+    resolution: {integrity: sha512-6D5dgokHsWDDMtmXHznKa0hK229NN+1a4BLPmUCLqcO1Pw5EEhWY5RFt0AcXnVRAljFFPfRtLkJePQj6LSsV6g==}
 
   '@formatjs/fast-memoize@3.1.7':
     resolution: {integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA==}
@@ -5298,7 +5304,9 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@fontsource/atkinson-hyperlegible@5.3.0': {}
+  '@fontsource-variable/inter@5.3.0': {}
+
+  '@fontsource-variable/manrope@5.3.0': {}
 
   '@formatjs/fast-memoize@3.1.7': {}
 
