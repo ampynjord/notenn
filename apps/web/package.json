@@ -20,7 +20,8 @@
     "test:unit": "vitest run --config ./vitest.unit.config.mts"
   },
   "dependencies": {
-    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
     "@notenn/argoat": "workspace:*",
     "@notenn/engine": "workspace:*",
     "@notenn/import": "workspace:*",

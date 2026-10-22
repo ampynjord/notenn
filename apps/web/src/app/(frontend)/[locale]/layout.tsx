@@ -4,8 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
-import '@fontsource/atkinson-hyperlegible/400.css'
-import '@fontsource/atkinson-hyperlegible/700.css'
+import '@fontsource-variable/inter'
+import '@fontsource-variable/manrope'
 
 import Script from 'next/script'
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Omit<Props, 'children'>): Pro
     description: t('description'),
     metadataBase: new URL(SITE.url),
     manifest: '/manifest.webmanifest',
-    icons: { icon: '/icons/favicon-32.png', apple: '/icons/apple-touch-icon.png' },
+    icons: { icon: [{ url: '/logo.svg', type: 'image/svg+xml' }, { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' }], apple: '/icons/apple-touch-icon.png' },
   }
 }
 
