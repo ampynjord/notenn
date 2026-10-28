@@ -1,49 +1,64 @@
 # Notenn
 
-Application web qui transforme une partition, un MIDI ou un enregistrement en tablature, avec curseur de lecture et export PDF. Première cible : l'accordéon diatonique, avec le **Système Argoat** (tablature gestuelle pour accordéon diatonique).
+Web application that turns a score, a MIDI file or a recording into a tablature, with a playback cursor and PDF export. Available in French and English (`/fr/…` and `/en/…`).
 
-Projet privé — tous droits réservés.
+Notenn is multi-instrument. The first instrument, and the most complete one, is the diatonic accordion, written by default in the **Argoat System** (a gestural tablature for the diatonic accordion). Other notations and instruments are added over time.
 
-## Contenu du dépôt
+Private project — all rights reserved (see [`LICENSE`](LICENSE)).
 
-| Dossier | Contenu |
+## Status
+
+Beta in preparation. Already in place:
+
+- **Instruments**: diatonic accordion (G/C, D/G, A/D, C/F, B♭/E♭, three-row G/C/F, Hohner 2915 layout), chromatic accordion (C system, preview), guitar (standard, DADGAD), ukulele and tin whistle (D, C, B♭) — the last ones are still to be refined.
+- **Notations** for the diatonic accordion: Argoat System, CADB and Corgeron, selectable in the editor and in the PDF.
+- **Editor**: track and passage selection, transposition, keyboard and row choice, optional staff, basses, click-to-edit (button, row, bellows direction).
+- **Practice**: playback cursor, loop on a passage, slow-down without pitch change, metronome with count-in.
+- **Import**: MIDI, MusicXML (including `.mxl`) and ABC. **Export**: PDF (with or without staff, bars per line, colour or black and white).
+- **Site**: home, tune library (public domain, traditional, free licences), accounts, personal library (saved fingerings and settings), donations, privacy, legal notice, installable PWA.
+
+## Repository contents
+
+| Folder | Contents |
 | --- | --- |
-| `docs/` | Plan du projet, définition du Système Argoat, format des profils d'instruments, plan de clavier Hohner 2915 |
-| `apps/web/` | Application Next.js + Payload CMS 3 (PostgreSQL) |
-| `packages/engine/` | Moteur musical TypeScript : mélodie, transposition, doigté, basses, profils de claviers |
-| `packages/argoat/` | Mise en page du Système Argoat (portée, lignes P/T, basses), indépendante du support |
-| `packages/import/` | Lecture des fichiers MIDI, MusicXML (.mxl compris) et ABC ; banc de tests sur de vrais fichiers |
-| `prototype/` | Prototype fonctionnel en une page HTML (import MIDI/MusicXML/ABC, doigté, basses, portée, curseur, PDF) |
+| `docs/` | Project plan, definition of the Argoat System, instrument profile format, Hohner 2915 keyboard layout, tune validation, SEO (in French) |
+| `apps/web/` | Next.js + Payload CMS 3 application (PostgreSQL) |
+| `packages/engine/` | TypeScript music engine: melody, transposition, fingering, basses, instrument profiles (keyboards, strings, whistles) |
+| `packages/argoat/` | Tablature layout (staff, P/T lines, basses) for Argoat, CADB and Corgeron, independent of the output medium |
+| `packages/import/` | MIDI, MusicXML (including `.mxl`) and ABC file reading; test bench on real files |
+| `deploy/` | VPS deployment: Docker Compose, deploy and backup scripts |
+| `prototype/` | Working single-page HTML prototype (MIDI/MusicXML/ABC import, fingering, basses, staff, cursor, PDF) |
 
-Le prototype s'ouvre directement dans un navigateur : `prototype/systeme-argoat.html`.
+The prototype opens directly in a browser: `prototype/systeme-argoat.html`.
 
-## Stack prévue
+## Stack
 
-- Next.js (React, TypeScript), application web installable (PWA)
-- Payload CMS 3 intégré à Next.js
+- Next.js (React, TypeScript), installable web app (PWA)
+- Payload CMS 3 embedded in Next.js
 - PostgreSQL
-- Hébergement sur VPS : Docker + Traefik
-- Plus tard : service Python séparé pour la lecture de partitions (photo/PDF)
+- VPS hosting: Docker + Traefik, CI/CD through GitHub Actions
+- Later: separate Python service for score reading (photo/PDF)
 
-## Feuille de route
+## Roadmap
 
-| Phase | Contenu |
+| Phase | Contents |
 | --- | --- |
-| 0 · Moteur universel | Moteur TypeScript multi-instruments et multi-voix, projet Next.js + Payload, banc de tests sur vrais fichiers |
-| 1 · V1 | Accordéon diatonique, Système Argoat, import MIDI/MusicXML/ABC/MP3, export PDF, FR + EN, dons |
-| 2 · Mois suivants | Autres instruments, Corgeron et CADB, comptes et communauté, exports MIDI/MusicXML/PNG |
-| 3 · Ensuite | Photo/PDF de partition, paiement à l'usage, groupes et classes, duos et paroles |
+| 0 · Universal engine | Multi-instrument, multi-voice TypeScript engine, Next.js + Payload project, test bench on real files — done |
+| 1 · Beta | Diatonic accordion, Argoat System, MIDI/MusicXML/ABC import, PDF export, FR + EN, accounts and library, donations — remaining: more Breton tunes, checking keyboards on real instruments, opening the beta |
+| 2 · Following months | MP3 import, more instruments (piano, harmonica, concertina), keyboard editor, community (sharing, ratings, comments), MIDI/MusicXML/PNG exports, setlists |
+| 3 · Afterwards | Score photo/PDF, pay-per-use, groups and classes, duets and lyrics |
 
-Détail complet : [`docs/plan.md`](docs/plan.md).
+Full details: [`docs/plan.md`](docs/plan.md) (in French).
 
-## Démarrer en local
+## Running locally
 
-Prérequis : Node 22, pnpm 10, Docker.
+Requirements: Node 22, pnpm 10, Docker.
 
 ```bash
 pnpm install
-pnpm db:up                      # PostgreSQL de développement
-cp apps/web/.env.example apps/web/.env   # puis mettre un PAYLOAD_SECRET aléatoire
-pnpm dev                        # http://localhost:3000 et /admin
-pnpm test                       # tests du moteur
+pnpm db:up                      # development PostgreSQL
+cp apps/web/.env.example apps/web/.env   # then set a random PAYLOAD_SECRET
+pnpm dev                        # http://localhost:3000 and /admin
+pnpm test                       # engine, layout, import and web unit tests
+pnpm typecheck
 ```
