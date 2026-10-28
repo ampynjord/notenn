@@ -8,3 +8,6 @@ build/
 *.log
 .DS_Store
 coverage/
+
+# Antigravity chat exports for Cursor
+/.cursor/antigravity-history/
