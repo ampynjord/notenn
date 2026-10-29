@@ -7,8 +7,6 @@ import React from 'react'
 import '@fontsource-variable/inter'
 import '@fontsource-variable/manrope'
 
-import Script from 'next/script'
-
 import { ServiceWorker } from '@/components/ServiceWorker'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -52,7 +50,6 @@ export default async function LocaleLayout({ children, params }: Props) {
             <main id="content">{children}</main>
             <SiteFooter />
             <ServiceWorker />
-            <Script src="/stats.js" strategy="afterInteractive" />
           </AccountProvider>
         </NextIntlClientProvider>
       </body>

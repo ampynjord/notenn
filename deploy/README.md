@@ -137,27 +137,6 @@ Tester : créer un compte sur le site avec sa propre adresse. En cas de souci, `
 
 Les comptes du site (« membres ») sont distincts des administrateurs : ils n'ouvrent jamais `/admin`. Leurs bibliothèques sont privées, même pour l'administrateur ; il voit seulement la liste des comptes (Membres) et peut en supprimer un.
 
-## 7. Statistiques de visite (Umami)
-
-Umami compte les visites sans cookie : pas besoin de bandeau de consentement. Il tourne à part, sur https://stats.ampynjord.bzh.
-
-Un `.env` créé avant l'ajout d'Umami n'a pas ses lignes : les ajouter d'abord, sinon la base d'Umami refuse de démarrer (*superuser password is not specified*) :
-
-```sh
-cd ~/notenn/deploy
-grep -q '^UMAMI_DB_PASSWORD=' .env || printf '\nSTATS_DOMAIN=stats.ampynjord.bzh\nUMAMI_DB_PASSWORD=\nUMAMI_APP_SECRET=\nUMAMI_SCRIPT_URL=\nUMAMI_WEBSITE_ID=\n' >> .env
-sed -i "s/^UMAMI_DB_PASSWORD=.*/UMAMI_DB_PASSWORD=$(openssl rand -hex 32)/" .env
-sed -i "s/^UMAMI_APP_SECRET=.*/UMAMI_APP_SECRET=$(openssl rand -hex 32)/" .env
-docker compose --profile stats up -d
-```
-
-1. Ouvrir https://stats.ampynjord.bzh, se connecter avec `admin` / `umami` et **changer tout de suite le mot de passe**.
-2. Ajouter un site « Notenn » (domaine `notenn.ampynjord.bzh`) et copier son identifiant (*Website ID*).
-3. Dans `.env` : `UMAMI_SCRIPT_URL=https://stats.ampynjord.bzh/script.js` et `UMAMI_WEBSITE_ID=<identifiant>`.
-4. `docker compose --profile stats up -d` pour relancer l'appli avec les statistiques.
-
-Pour mettre Umami à jour en même temps que Notenn, ajouter `--profile stats` à la commande `docker compose up -d --build`.
-
 ## Commandes utiles
 
 | Besoin | Commande |

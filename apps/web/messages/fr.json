@@ -275,8 +275,6 @@
     "files": "Sans compte, un morceau importé est lu et converti dans ton navigateur et n’est jamais envoyé au serveur. Si tu l’enregistres dans ta bibliothèque, il est gardé sur le serveur, visible par toi seul, jamais publié.",
     "storageTitle": "Ton compte",
     "storage": "Un compte garde ton adresse e-mail, ton mot de passe chiffré, ta bibliothèque (airs ajoutés, fichiers, doigtés) et tes réglages. Un seul cookie technique te garde connecté. Les e-mails (confirmation, mot de passe) partent par Resend.",
-    "statsTitle": "Statistiques de visite",
-    "stats": "Notenn compte les visites avec Umami, hébergé sur son propre serveur : sans cookie, sans suivi d’une visite à l’autre et sans revente de données. Seuls des chiffres globaux sont conservés (pages vues, pays, type d’appareil).",
     "hostingTitle": "Hébergement",
     "hosting": "Le site est hébergé chez OVH, sur un serveur loué par l’éditeur.",
     "rightsTitle": "Tes droits",

@@ -35,7 +35,7 @@ Document de référence vivant : ce fichier est le résumé versionné du plan d
 | Hors ligne | Favoris jouables sans internet |
 | Organisation | Répertoires (setlists), mode scène ; groupes et classes plus tard |
 | Paiement | Dons via Liberapay ; paiement à l'usage via Stripe pour toute fonction très coûteuse en argent ou en ressources serveur (photo/PDF de partition en tête) |
-| Statistiques | Umami auto-hébergé, sans cookie |
+| Statistiques | Aucune (Umami retiré du VPS et du code le 30/10/2026) |
 | Style | Sobre et moderne |
 | Langues | Interface en français et en anglais, adresses /fr/… et /en/… ; code, structure, commentaires et tests en anglais |
 
@@ -66,7 +66,7 @@ Protection du code : build minifié et obscurci, calculs sensibles côté serveu
 
 | Domaine | 0 · Moteur universel | 1 · V1 | 2 · Mois suivants | 3 · Ensuite |
 | --- | --- | --- | --- | --- |
-| Technique | Moteur multi-instruments/multi-voix ; Next.js + Payload + PostgreSQL sur VPS ; banc de tests | PWA ; statistiques Umami sans cookie (pas de bandeau) | Synchro hors ligne des favoris | Service Python partitions |
+| Technique | Moteur multi-instruments/multi-voix ; Next.js + Payload + PostgreSQL sur VPS ; banc de tests | PWA | Synchro hors ligne des favoris | Service Python partitions |
 | Instruments | Format des profils, Hohner 2915 | Diatonique : Sol/Do 2 rangs courants, autres tonalités (La/Ré, Do/Fa…), 3 rangs | Accordéon chromatique (système C, aperçu), guitare (standard, DADGAD), ukulélé et tin whistle (Ré, Do, Si♭) en place, à affiner ; ensuite piano, harmonica, concertina ; éditeur de clavier | Saxophone, flûtes (tin whistle, flûte à bec), bombarde / biniou, piano |
 | Imports | MIDI, MusicXML, ABC | Choix de piste, plage, transposition ; MP3 juste après la bêta | Saisie à la main | Photo/PDF de partition (en premier de la phase) |
 | Tablature | Doigté, basses ; moteur multi-voix | Système Argoat (avec 3e rang) ; portée | Corgeron, CADB ; annotations ; accords main droite | Duos, paroles |
@@ -110,14 +110,14 @@ Fait :
 - [x] Comptes (inscription, confirmation par e-mail, mot de passe oublié, suppression du compte)
 - [x] Ma bibliothèque : airs de la banque, fichiers importés, doigtés et réglages enregistrés
 - [x] Site FR/EN : accueil, banque d'airs, bibliothèque, éditeur, soutenir (Liberapay), confidentialité, mentions légales ; notation présentée par une légende seulement
-- [x] PWA (installable, éditeur hors ligne) et statistiques Umami (code prêt)
+- [x] PWA (installable, éditeur hors ligne) (statistiques Umami retirées ensuite)
 
 Reste à faire :
 
 - [x] CI/CD : contrôles à chaque PR, image sur GHCR, déploiement auto sur le VPS à chaque fusion (sauvegarde, contrôle de santé, retour arrière) 
 - [x] Mettre en ligne la version comptes + bibliothèque sur le VPS (déploiement automatique en place)
 - [x] Créer le compte Resend et vérifier le domaine
-- [x] Lancer Umami sur le VPS (stats.ampynjord.bzh)
+- [x] Umami lancé puis désinstallé du VPS (30/10/2026)
 - [x] Liberapay (compte « ampynjord ») et hébergeur OVH confirmé
 - [x] Adresse de contact : notenn@ampynjord.bzh (envoi par Resend ; réception par redirection OVH, MX d'OVH)
 - [ ] Ajouter des airs bretons à la banque (domaine public / trad)
