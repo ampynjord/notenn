@@ -21,7 +21,7 @@ export default async function PrivacyPage({ params }: Props) {
     <article className="prose">
       <h1>{t('title')}</h1>
       <p className="lead">{t('lead')}</p>
-      {(['files', 'storage', 'stats', 'hosting', 'rights'] as const).map((k) => (
+      {(['files', 'storage', 'hosting', 'rights'] as const).map((k) => (
         <section key={k}>
           <h2>{t(`${k}Title`)}</h2>
           <p>{t(k)}</p>

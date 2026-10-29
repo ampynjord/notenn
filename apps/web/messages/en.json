@@ -275,8 +275,6 @@
     "files": "Without an account, an imported piece is read and converted in your browser and never sent to the server. If you save it to your library, it is kept on the server, visible to you only, never published.",
     "storageTitle": "Your account",
     "storage": "An account keeps your e-mail address, your hashed password, your library (added tunes, files, fingerings) and your settings. A single technical cookie keeps you logged in. E-mails (confirmation, password) are sent through Resend.",
-    "statsTitle": "Visit statistics",
-    "stats": "Notenn counts visits with Umami, hosted on its own server: no cookie, no tracking from one visit to the next, no data sold. Only overall figures are kept (pages viewed, country, device type).",
     "hostingTitle": "Hosting",
     "hosting": "The site is hosted by OVH, on a server rented by the publisher.",
     "rightsTitle": "Your rights",

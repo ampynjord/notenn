@@ -21,8 +21,8 @@ self.addEventListener('fetch', (event) => {
   const req = event.request
   const url = new URL(req.url)
   if (req.method !== 'GET' || url.origin !== self.location.origin) return
-  // Never cache the administration, the API or the statistics script.
-  if (/^\/(admin|api)(\/|$)/.test(url.pathname) || url.pathname === '/stats.js') return
+  // Never cache the administration or the API.
+  if (/^\/(admin|api)(\/|$)/.test(url.pathname)) return
 
   if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/icons/')) {
     event.respondWith(
