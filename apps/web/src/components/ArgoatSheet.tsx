@@ -50,9 +50,15 @@ function Op({ op, hotNote, hotBass }: { op: DrawOp; hotNote: number; hotBass: nu
           transform={`rotate(-20 ${op.x} ${op.y})`}
           style={{ fill: op.filled ? fill(op.ink) : 'none', stroke: fill(op.ink) }}
           strokeWidth={1.1}
-          className={op.note !== undefined && op.note === hotNote ? 'hot' : undefined}
+          className={
+            (op.note !== undefined && op.note === hotNote) || (op.bass !== undefined && op.bass === hotBass)
+              ? 'hot'
+              : undefined
+          }
         />
       )
+    case 'hit':
+      return null
     case 'polyline':
       return (
         <polyline
@@ -162,13 +168,13 @@ export function ArgoatSheet({
             )}
             {onNoteClick &&
               l.ops.map((op, i) =>
-                op.kind === 'text' && op.note !== undefined ? (
+                (op.kind === 'text' || op.kind === 'hit') && op.note !== undefined ? (
                   <rect
                     key={`hit${i}`}
-                    x={op.x - 4}
-                    y={op.y - 14}
-                    width={op.text.length * 7.6 + 8}
-                    height={19}
+                    x={op.kind === 'hit' ? op.x : op.x - 4}
+                    y={op.kind === 'hit' ? op.y : op.y - 14}
+                    width={op.kind === 'hit' ? op.w : op.text.length * 7.6 + 8}
+                    height={op.kind === 'hit' ? op.h : 19}
                     rx={4}
                     className={op.note === selected ? 'note-hit selected' : 'note-hit'}
                     role="button"

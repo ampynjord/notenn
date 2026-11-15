@@ -190,6 +190,64 @@ describe('CADB and Corgeron tablatures', () => {
   })
 })
 
+describe('keyboard tablature', () => {
+  const arr = arrange(song, hohner2915GC, { bass: true })
+  const ops = layout(arr, hohner2915GC, song.meter, { staff: false, notation: 'keyboard' }).flatMap((l) => l.ops)
+
+  it('draws one mini keyboard per note: the button to press is the only filled coloured dot, on the row of its fingering', () => {
+    const pressed = ops.filter((o) => o.kind === 'ellipse' && o.note !== undefined)
+    expect(pressed).toHaveLength(arr.notes.length)
+    for (const o of pressed) {
+      if (o.kind !== 'ellipse') continue
+      const n = arr.notes[o.note!]!
+      expect(o.ink).toBe(n.fingering.bellows)
+      expect(o.y).toBeCloseTo(25 + hohner2915GC.rows.findIndex((r) => r.id === n.fingering.row) * 6)
+    }
+    // Every other button of the keyboard is drawn too, in the light ink of the empty buttons.
+    const perNote = hohner2915GC.rows.reduce((sum, r) => sum + r.buttons.length, 0)
+    const lastRowY = 25 + (hohner2915GC.rows.length - 1) * 6
+    const empty = ops.filter((o) => o.kind === 'ellipse' && o.ink === 'line' && o.y <= lastRowY + 0.01)
+    expect(empty).toHaveLength(arr.notes.length * (perNote - 1))
+  })
+
+  it('writes the bellows under each keyboard (so a black and white print stays readable) and has no number or tab line', () => {
+    const letters = ops.filter((o) => o.kind === 'text' && (o.text === 'P' || o.text === 'T'))
+    expect(letters).toHaveLength(arr.notes.length)
+    expect(ops.some((o) => o.kind === 'text' && o.note !== undefined)).toBe(false)
+    expect(ops.some((o) => o.kind === 'line' && o.ink === 'muted' && o.width < 0.6)).toBe(false)
+  })
+
+  it('gives each note a clickable area covering its keyboard, for the fingering editor', () => {
+    const hits = ops.filter((o) => o.kind === 'hit')
+    expect(hits.map((o) => (o.kind === 'hit' ? o.note : -1))).toEqual(arr.notes.map((_, i) => i))
+  })
+
+  it('left hand: a small bass/chord keyboard with the pressed button filled, and the name of the bass or chord', () => {
+    expect(arr.bass.length).toBeGreaterThan(0)
+    expect(ops.filter((o) => o.kind === 'circle')).toHaveLength(0)
+    const pressed = ops.filter((o) => o.kind === 'ellipse' && o.bass !== undefined)
+    expect(pressed).toHaveLength(arr.bass.length)
+    for (const o of pressed) expect(o.kind === 'ellipse' && o.ink).toBe('bass')
+    const names = ops.filter((o) => o.kind === 'text' && o.bass !== undefined).map((o) => (o.kind === 'text' ? o.text : ''))
+    expect(names).toHaveLength(arr.bass.length)
+    expect(names.some((n) => /^[A-G]/.test(n))).toBe(true)
+    expect(names.some((n) => /^[a-g]/.test(n))).toBe(true)
+  })
+
+  it('spaces the lines so two mini keyboards never overlap, and works with the three-row keyboard', () => {
+    const three = getInstrument('diatonic-gcf-31')!
+    if (three.family !== 'diatonic-accordion') throw new Error('diatonic accordion expected')
+    const arr3 = arrange(song, three)
+    const lines = layout(arr3, three, song.meter, { staff: true, notation: 'keyboard' })
+    const hits = lines.flatMap((l) => l.ops).filter((o) => o.kind === 'hit')
+    expect(hits).toHaveLength(arr3.notes.length)
+    for (const l of lines) {
+      const xs = l.ops.filter((o) => o.kind === 'hit').map((o) => (o.kind === 'hit' ? [o.x, o.x + o.w] : [0, 0]))
+      for (let i = 1; i < xs.length; i++) expect(xs[i]![0]!).toBeGreaterThanOrEqual(xs[i - 1]![1]! - 1)
+    }
+  })
+})
+
 describe('guitar and whistle tablatures', () => {
   it('guitar: one fret number per note, each on the line of its string, with string names and barlines', () => {
     const guitar = getInstrument('guitar-standard')!
