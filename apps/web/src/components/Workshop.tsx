@@ -496,6 +496,8 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         ? [t('legendWhistle')]
         : instrument.family === 'chromatic-accordion'
           ? [t('legendChromatic')]
+          : prefs.notation === 'keyboard'
+      ? [t('legendKeyboard', { push: tl('push'), pull: tl('pull') }), ...(prefs.bass ? [t('legendKeyboardBass')] : [])]
           : prefs.notation === 'corgeron'
       ? [t('legendCorgeron'), ...(prefs.bass ? [t('legendBassNames')] : [])]
       : [
@@ -908,6 +910,11 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                   <span>{legend()[0]}</span>
                 ) : instrument.family === 'chromatic-accordion' ? (
                   <span>{t('legendChromatic')}</span>
+                ) : prefs.notation === 'keyboard' ? (
+                  <>
+                    <span>{t('legendKeyboard', { push: tl('push'), pull: tl('pull') })}</span>
+                    {prefs.bass && <span>{t('legendKeyboardBass')}</span>}
+                  </>
                 ) : prefs.notation === 'corgeron' ? (
                   <span>{t('legendCorgeron')}</span>
                 ) : (
@@ -930,6 +937,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 {diatonic && prefs.notation === 'argoat' && <span>{t('legendHold')}</span>}
                 {diatonic &&
                   prefs.bass &&
+                  prefs.notation !== 'keyboard' &&
                   (prefs.notation === 'argoat' ? (
                     <span>
                       <b className="b">●</b> {t('legendBass')} <b className="b">○</b>{' '}

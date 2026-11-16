@@ -12,15 +12,19 @@ export type Ink = 'push' | 'pull' | 'bass' | 'warn' | 'muted' | 'line' | 'ink'
  * The diatonic accordion tablatures:
  * - argoat: P and T lines, time-proportional spacing, beat marks, hold lines, bass circles;
  * - cadb: P, T and bass lines, numbers only (prime = inner row, double prime = third row);
- * - corgeron: one line per row (the row is the line), pull notes underlined, bass line.
+ * - corgeron: one line per row (the row is the line), pull notes underlined, bass line;
+ * - keyboard: under each note a small drawing of the keyboard, the button to press filled and the bellows
+ *   written under it; the left hand is a small bass/chord keyboard with the name of the bass or chord.
  */
-export const NOTATIONS = ['argoat', 'cadb', 'corgeron'] as const
+export const NOTATIONS = ['argoat', 'cadb', 'corgeron', 'keyboard'] as const
 export type Notation = (typeof NOTATIONS)[number]
 
 export type DrawOp =
   | { kind: 'text'; x: number; y: number; text: string; ink: Ink; size: number; bold?: boolean; mono?: boolean; anchor?: 'start' | 'middle'; note?: number; bass?: number; underline?: boolean }
   | { kind: 'line'; x1: number; y1: number; x2: number; y2: number; ink: Ink; width: number }
-  | { kind: 'ellipse'; x: number; y: number; rx: number; ry: number; ink: Ink; filled: boolean; note?: number }
+  | { kind: 'ellipse'; x: number; y: number; rx: number; ry: number; ink: Ink; filled: boolean; note?: number; bass?: number }
+  /** Invisible clickable area of a note (the keyboard notation has no text to click on). */
+  | { kind: 'hit'; x: number; y: number; w: number; h: number; note: number }
   | { kind: 'circle'; x: number; y: number; r: number; filled: boolean; label: string; bass: number }
   | { kind: 'polyline'; points: [number, number][]; ink: Ink; width: number }
 
@@ -65,8 +69,21 @@ const RIGHT = 8
 
 /** Height of one line of music: the staff (optional), then the tab lines and the bass line. */
 export function lineHeight(staff: boolean, rowCount = 2, notation: Notation = 'argoat') {
-  const extra = notation === 'corgeron' ? Math.max(0, rowCount - 2) * 21 : 0
+  const extra = notation === 'corgeron' ? Math.max(0, rowCount - 2) * 21 : notation === 'keyboard' ? Math.max(0, rowCount - 3) * KB_GAP : 0
   return (staff ? 140 : 80) + extra
+}
+
+/* ---------- Keyboard notation ---------- */
+/** Distance between two rows of buttons, and widest mini keyboard, in drawing units. */
+const KB_GAP = 6
+const KB_MAX_WIDTH = 52
+
+/** Size of the mini keyboard of the right hand: the buttons of a row run left to right, button 1 on the left. */
+function keyboardGeometry(profile: InstrumentProfile) {
+  const count = Math.max(...profile.rows.map((r) => r.buttons.length))
+  const shift = Math.max(...profile.rows.map((r) => r.offset))
+  const pitch = Math.min(4.4, KB_MAX_WIDTH / (count + shift))
+  return { pitch, width: (count - 1 + shift) * pitch + 5 }
 }
 
 const PC_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
@@ -104,12 +121,16 @@ function autoBarsPerLine(arr: Arrangement, profile: InstrumentProfile, width: nu
       const prev = arr.notes[i - 1]!
       const gap = (arr.notes[i]!.start - prev.start) * sc
       const sameLine =
-        notation === 'corgeron'
+        notation === 'keyboard' ||
+        (notation === 'corgeron'
           ? arr.notes[i]!.fingering.row === prev.fingering.row
-          : arr.notes[i]!.fingering.bellows === prev.fingering.bellows
-      // Room needed after a button number on the same line: its width in the 11.5 px monospace.
-      const label = tabLabel(profile, prev.fingering.row, prev.fingering.button, notation)
-      if ((sameLine && gap < label.length * 6.9 + 2) || (staff && gap < 10)) {
+          : arr.notes[i]!.fingering.bellows === prev.fingering.bellows)
+      // Room needed after a button number on the same line: its width in the 11.5 px monospace, or a mini keyboard.
+      const room =
+        notation === 'keyboard'
+          ? keyboardGeometry(profile).width + 2
+          : tabLabel(profile, prev.fingering.row, prev.fingering.button, notation).length * 6.9 + 2
+      if ((sameLine && gap < room) || (staff && gap < 10)) {
         ok = false
         break
       }
@@ -306,6 +327,9 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
   // The chromatic accordion has one line per row and the same note on push and pull: no P/T lines, nothing underlined.
   const chromatic = profile.family === 'chromatic-accordion'
   const notation: Notation = chromatic ? 'corgeron' : (options.notation ?? 'argoat')
+  const keyboard = notation === 'keyboard'
+  const kb = keyboardGeometry(profile)
+  const bassPitch = Math.min(4.4, KB_MAX_WIDTH / Math.max(1, profile.bassGroups.length))
   const rowIds = profile.rows.map((r) => r.id)
   const bpl =
     options.barsPerLine === undefined || options.barsPerLine === 'auto'
@@ -329,7 +353,10 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     // Tab lines: P and T, or one line per row (Corgeron); the bass line comes last.
     const tabY = notation === 'corgeron' ? rowIds.map((_, i) => 27 + off + i * 21) : [27 + off, 48 + off]
     const yP = tabY[0]!, yT = tabY[1] ?? tabY[0]!
-    const yB = notation === 'corgeron' ? 27 + off + rowIds.length * 21 - 2 : 67 + off
+    // Keyboard notation: the rows of the right-hand keyboard, the bellows letter under it, then the left-hand keyboard.
+    const kbRow = (i: number) => 25 + off + i * KB_GAP
+    const kbLabelY = kbRow(rowIds.length - 1) + 10.5
+    const yB = keyboard ? kbLabelY + 9 : notation === 'corgeron' ? 27 + off + rowIds.length * 21 - 2 : 67 + off
     const noteY = (n: Arrangement['notes'][number]) =>
       notation === 'corgeron' ? (tabY[Math.max(0, rowIds.indexOf(n.fingering.row))] ?? yP) : n.fingering.bellows === 'push' ? yP : yT
     // Where the numbers sit on each tab line, so the line can be drawn around them (CADB, Corgeron).
@@ -341,7 +368,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       rowIds.forEach((id, i) =>
         ops.push({ kind: 'text', x: 6, y: tabY[i]!, text: options.rowLabels?.[id] ?? id.toUpperCase(), ink: 'ink', size: 12, bold: true }),
       )
-    } else {
+    } else if (!keyboard) {
       ops.push({ kind: 'text', x: 6, y: yP, text: labels.push, ink: 'push', size: 12, bold: true })
       ops.push({ kind: 'text', x: 6, y: yT, text: labels.pull, ink: 'pull', size: 12, bold: true })
     }
@@ -370,6 +397,26 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         return
       }
       if (!inLine(n.start)) return
+      if (keyboard) {
+        const x0 = X(n.start)
+        const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
+        const rowIndex = Math.max(0, rowIds.indexOf(n.fingering.row))
+        const dotX = (r: number, button: number) => x0 + 2.5 + (button - 1 + profile.rows[r]!.offset) * kb.pitch
+        const pressedR = Math.min(2.6, kb.pitch * 0.6)
+        profile.rows.forEach((row, r) =>
+          row.buttons.forEach((_, b) => {
+            const pressed = r === rowIndex && b + 1 === n.fingering.button
+            const rad = pressed ? pressedR : kb.pitch * 0.27
+            ops.push({ kind: 'ellipse', x: dotX(r, b + 1), y: kbRow(r), rx: rad, ry: rad, ink: pressed ? ink : 'line', filled: true, ...(pressed ? { note: i } : {}) })
+          }),
+        )
+        const px = dotX(rowIndex, n.fingering.button)
+        ops.push({ kind: 'text', x: px, y: kbLabelY, text: n.fingering.bellows === 'push' ? labels.push : labels.pull, ink, size: 7.5, bold: true, anchor: 'middle' })
+        // A fingering chosen by hand is underlined, as in the other notations.
+        if (n.edited) ops.push({ kind: 'line', x1: px - 3, y1: kbLabelY + 2, x2: px + 3, y2: kbLabelY + 2, ink, width: 1.2 })
+        ops.push({ kind: 'hit', x: x0 - 1, y: kbRow(0) - 4, w: kb.width + 2, h: kbLabelY + 3 - (kbRow(0) - 4), note: i })
+        return
+      }
       const label = tabLabel(profile, n.fingering.row, n.fingering.button, notation)
       const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
       const pullMark = notation === 'corgeron' && !chromatic && n.fingering.bellows === 'pull'
@@ -391,6 +438,21 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
     arr.bass.forEach((ev, bi) => {
       if (!inLine(ev.time)) return
       const side = profile.bassGroups.find((g) => g.id === ev.group)?.[ev.bellows]
+      if (keyboard && side) {
+        // Left hand: a bass row over a chord row, one column per group; the pressed button is filled.
+        const col = profile.bassGroups.findIndex((g) => g.id === ev.group)
+        const x0 = X(ev.time)
+        for (let g = 0; g < profile.bassGroups.length; g++) {
+          for (const bassRow of [true, false]) {
+            const pressed = g === col && bassRow === ev.isBass
+            const rad = pressed ? Math.min(2.6, bassPitch * 0.6) : bassPitch * 0.27
+            ops.push({ kind: 'ellipse', x: x0 + 2.5 + g * bassPitch, y: yB + (bassRow ? 0 : KB_GAP), rx: rad, ry: rad, ink: pressed ? 'bass' : 'line', filled: true, ...(pressed ? { bass: bi } : {}) })
+          }
+        }
+        // The name of the bass or chord (capital = bass, lower case = chord), as in CADB.
+        ops.push({ kind: 'text', x: x0, y: yB + KB_GAP + 9.5, text: bassName(ev.isBass ? side.bass : side.chord, ev.isBass), ink: 'bass', size: 8.5, bold: ev.isBass, mono: true, bass: bi })
+        return
+      }
       if (notation === 'argoat' || !side) {
         ops.push({ kind: 'circle', x: X(ev.time) + 6, y: yB, r: 6.2, filled: ev.isBass, label: String(ev.group), bass: bi })
         return
@@ -403,7 +465,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
 
     // CADB and Corgeron are drawn on tab lines, interrupted around the numbers, with barlines.
     if (notation !== 'argoat') {
-      const lineYs = [...new Set([...tabY, ...(arr.bass.length ? [yB] : [])])]
+      const lineYs = keyboard ? [] : [...new Set([...tabY, ...(arr.bass.length ? [yB] : [])])]
       for (const ly of lineYs) {
         const cy = ly - 4
         let x = 4
@@ -413,8 +475,8 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         }
         if (x < width - 6) ops.push({ kind: 'line', x1: x, y1: cy, x2: width - 6, y2: cy, ink: 'muted', width: 0.5 })
       }
-      const top = lineYs[0]! - 9
-      const bottom = lineYs[lineYs.length - 1]! + 1
+      const top = keyboard ? kbRow(0) - 6 : lineYs[0]! - 9
+      const bottom = keyboard ? (arr.bass.length ? yB + KB_GAP + 13 : kbLabelY + 4) : lineYs[lineYs.length - 1]! + 1
       for (let bar = b; bar <= e; bar++) {
         const xb = X(arr.pickup + (bar - 1) * arr.meter.barLength) - 4
         if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bottom, ink: 'muted', width: 0.8 })

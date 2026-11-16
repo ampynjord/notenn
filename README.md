@@ -11,7 +11,7 @@ Private project — all rights reserved (see [`LICENSE`](LICENSE)).
 Beta in preparation. Already in place:
 
 - **Instruments**: diatonic accordion (G/C, D/G, A/D, C/F, B♭/E♭, three-row G/C/F, Hohner 2915 layout), chromatic accordion (C system, preview), guitar (standard, DADGAD), ukulele and tin whistle (D, C, B♭) — the last ones are still to be refined.
-- **Notations** for the diatonic accordion: Argoat System, CADB and Corgeron, selectable in the editor and in the PDF.
+- **Notations** for the diatonic accordion: Argoat System, CADB, Corgeron and Keyboard (a mini keyboard drawing under each note, with the bass and chord keyboard for the left hand), selectable in the editor and in the PDF.
 - **Editor**: track and passage selection, transposition, keyboard and row choice, optional staff, basses, click-to-edit (button, row, bellows direction).
 - **Practice**: playback cursor, loop on a passage, slow-down without pitch change, metronome with count-in.
 - **Import**: MIDI, MusicXML (including `.mxl`) and ABC. **Export**: PDF (with or without staff, bars per line, colour or black and white).
@@ -24,7 +24,7 @@ Beta in preparation. Already in place:
 | `docs/` | Project plan, definition of the Argoat System, instrument profile format, Hohner 2915 keyboard layout, tune validation, SEO (in French) |
 | `apps/web/` | Next.js + Payload CMS 3 application (PostgreSQL) |
 | `packages/engine/` | TypeScript music engine: melody, transposition, fingering, basses, instrument profiles (keyboards, strings, whistles) |
-| `packages/argoat/` | Tablature layout (staff, P/T lines, basses) for Argoat, CADB and Corgeron, independent of the output medium |
+| `packages/argoat/` | Tablature layout (staff, P/T lines, basses) for Argoat, CADB, Corgeron and Keyboard, independent of the output medium |
 | `packages/import/` | MIDI, MusicXML (including `.mxl`) and ABC file reading; test bench on real files |
 | `deploy/` | VPS deployment: Docker Compose, deploy and backup scripts |
 | `prototype/` | Working single-page HTML prototype (MIDI/MusicXML/ABC import, fingering, basses, staff, cursor, PDF) |
