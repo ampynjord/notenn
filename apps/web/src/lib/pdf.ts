@@ -115,6 +115,13 @@ export async function buildPdf(
             .setLineWidth(0.9)
           doc.ellipse(X(op.x), Y(op.y), op.rx, op.ry, op.filled ? 'FD' : 'S')
           break
+        case 'rect':
+          doc
+            .setDrawColor(...rgb(op.ink))
+            .setFillColor(...rgb(op.ink))
+            .setLineWidth(0.4)
+          doc.rect(X(op.x), Y(op.y), op.w, op.h, op.filled ? 'FD' : 'S')
+          break
         case 'circle':
           doc.setDrawColor(...rgb('bass')).setLineWidth(1)
           if (op.filled) doc.setFillColor(...rgb('bass'))

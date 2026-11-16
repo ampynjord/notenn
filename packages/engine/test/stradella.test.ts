@@ -32,7 +32,7 @@ describe('Stradella left hand', () => {
   it('each row gives its own notes: counter-bass a third above the root, then major, minor, seventh and diminished chords', () => {
     const c = chromatic.bassGroups.find((g) => g.push.bass === 0)!
     const notesOf = (quality: Parameters<typeof bassEventNotes>[1]['quality']) =>
-      bassEventNotes(chromatic, { time: 0, group: c.id, bellows: 'push', isBass: quality === 'bass' || quality === 'counter', quality })!
+      bassEventNotes(chromatic, { group: c.id, bellows: 'push', quality })!
     expect(notesOf('bass').bass).toBe(0)
     expect(notesOf('counter').bass).toBe(4)
     expect(notesOf('major').chord).toEqual([0, 4, 7])

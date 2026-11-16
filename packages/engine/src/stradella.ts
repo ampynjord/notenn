@@ -29,7 +29,7 @@ export function stradellaGroups(): BassGroup[] {
 }
 
 /** What an event of the left hand sounds: the bass note and the chord, as pitch classes. */
-export function bassEventNotes(profile: InstrumentProfile, ev: BassEvent): { bass: number; chord: number[] } | null {
+export function bassEventNotes(profile: Pick<InstrumentProfile, 'bassGroups'>, ev: Pick<BassEvent, 'group' | 'bellows' | 'quality'>): { bass: number; chord: number[] } | null {
   const g = profile.bassGroups.find((x) => x.id === ev.group)
   if (!g) return null
   const side = g[ev.bellows]
@@ -72,24 +72,31 @@ export function estimateKey(notes: Note[]): number {
 const MAJOR_KEY = { chords: { 0: 'major', 2: 'minor', 4: 'minor', 5: 'major', 7: 'major', 9: 'minor' } as Record<number, ChordQuality>, primary: [0, 5, 7], tonic: 0, dominant: 7 }
 const MINOR_KEY = { chords: { 0: 'major', 2: 'minor', 4: 'major', 5: 'major', 7: 'major', 9: 'minor' } as Record<number, ChordQuality>, primary: [9, 2, 4], tonic: 9, dominant: 4 }
 
+/** One bass or chord of the harmony: the column of the Stradella keyboard, and for a chord its quality. */
+export interface HarmonyBeat {
+  time: number
+  group: number
+  isBass: boolean
+  quality: BassQuality
+}
+
 /**
- * One bass or chord per beat on the Stradella keyboard: bass (fundamental) on the first beat of the bar,
- * a chord on the others. The chord holds the sounding note and keeps to the chords of the key (I, ii, iii, IV, V,
- * vi, the seventh on V), staying on the same button when it can.
+ * One bass or chord per beat: bass (fundamental) on the first beat of the bar, a chord on the others. The chord
+ * holds the sounding note and keeps to the chords of the key (I, ii, iii, IV, V, vi, the seventh on V),
+ * staying on the same button when it can. Shared by the Stradella keyboard and the left hand of the piano.
  */
-export function chooseStradellaBass(
+export function harmonize(
   notes: Note[],
-  fingering: Fingering[],
-  profile: InstrumentProfile,
+  groups: BassGroup[],
   meter: MeterInfo,
   pickup: number,
   fromBar: number,
   toBar: number,
-): BassEvent[] {
+): HarmonyBeat[] {
   const key = estimateKey(notes)
   const last = notes.at(-1)
   const mode = last && (pitchClass(last.pitch) - key + 12) % 12 === 9 ? MINOR_KEY : MAJOR_KEY
-  const out: BassEvent[] = []
+  const out: HarmonyBeat[] = []
   let prev: { group: number; quality: ChordQuality } | null = null
   for (let bar = fromBar; bar <= toBar; bar++) {
     for (let k = 0; k < meter.beatsPerBar; k++) {
@@ -105,7 +112,7 @@ export function chooseStradellaBass(
         .map((n) => pitchClass(n.pitch))
       let best: { group: number; quality: ChordQuality } | null = null
       let bestScore = -Infinity
-      for (const g of profile.bassGroups) {
+      for (const g of groups) {
         const root = g.push.bass
         const degree = (root - key + 12) % 12
         for (const quality of Object.keys(CHORDS) as ChordQuality[]) {
@@ -125,11 +132,26 @@ export function chooseStradellaBass(
         }
       }
       if (best) {
-        const bellows = fingering[i]!.bellows
-        out.push({ time: t, group: best.group, bellows, isBass: k === 0, quality: k === 0 ? 'bass' : best.quality })
+        out.push({ time: t, group: best.group, isBass: k === 0, quality: k === 0 ? 'bass' : best.quality })
         prev = best
       } else prev = null
     }
   }
   return out
+}
+
+/** The Stradella left hand: the harmony, in the bellows direction of the sounding right-hand note (no difference in sound). */
+export function chooseStradellaBass(
+  notes: Note[],
+  fingering: Fingering[],
+  profile: InstrumentProfile,
+  meter: MeterInfo,
+  pickup: number,
+  fromBar: number,
+  toBar: number,
+): BassEvent[] {
+  return harmonize(notes, profile.bassGroups, meter, pickup, fromBar, toBar).map((h) => {
+    const i = notes.findIndex((n) => n.start <= h.time + 1e-6 && h.time < n.start + n.dur - 1e-6)
+    return { time: h.time, group: h.group, bellows: fingering[i]!.bellows, isBass: h.isBass, quality: h.quality }
+  })
 }

@@ -59,6 +59,22 @@ function Op({ op, hotNote, hotBass }: { op: DrawOp; hotNote: number; hotBass: nu
       )
     case 'hit':
       return null
+    case 'rect':
+      return (
+        <rect
+          x={op.x}
+          y={op.y}
+          width={op.w}
+          height={op.h}
+          style={{ fill: op.filled ? fill(op.ink) : 'none', stroke: fill(op.ink) }}
+          strokeWidth={0.5}
+          className={
+            (op.note !== undefined && op.note === hotNote) || (op.bass !== undefined && op.bass === hotBass)
+              ? 'hot'
+              : undefined
+          }
+        />
+      )
     case 'polyline':
       return (
         <polyline

@@ -187,6 +187,7 @@ legend { font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: 
 .argoat-sheet svg + svg { border-top: 1px dashed var(--line); }
 .argoat-sheet text.hot { stroke: var(--hl); stroke-width: 6px; paint-order: stroke; stroke-linejoin: round; }
 .argoat-sheet ellipse.hot, .argoat-sheet circle.hot { stroke: var(--cur); stroke-width: 2.4; }
+.argoat-sheet rect.hot { stroke: var(--cur); stroke-width: 1.6; }
 .argoat-sheet .dim { fill: var(--surface); opacity: 0.62; pointer-events: none; }
 .argoat-sheet .note-hit { fill: transparent; cursor: pointer; }
 .argoat-sheet .note-hit:hover { fill: var(--push); fill-opacity: 0.08; stroke: var(--push); stroke-opacity: 0.4; }

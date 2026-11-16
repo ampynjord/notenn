@@ -1,12 +1,15 @@
 import { nearestPlayable } from './keyboard'
 import { fitTranspose, melodyRange, type MelodyOptions } from './range'
-import type { Song, StringArrangement, StringNote, StringPosition, StringProfile, WhistleArrangement, WhistleNote, WhistleProfile } from './types'
+import { harmonize, stradellaGroups } from './stradella'
+import type { BassEvent, PianoArrangement, PianoProfile, Song, StringArrangement, StringNote, StringPosition, StringProfile, WhistleArrangement, WhistleNote, WhistleProfile } from './types'
 
 export interface InstrumentOptions extends MelodyOptions {
   /** Transposition in semitones, or 'auto'. */
   transpose?: number | 'auto'
   /** Strings: capo fret (0 = none). */
   capo?: number
+  /** Piano: write the left hand (bass and chords), true by default. */
+  bass?: boolean
 }
 
 /** Every pitch a fretted instrument can sound, with the capo. */
@@ -106,4 +109,28 @@ export function arrangeWhistle(song: Song, profile: WhistleProfile, options: Ins
     return { ...n, original, pitch, approx: pitch !== original, holes: f.holes, octave: f.octave }
   })
   return { notes, meter, pickup: song.pickup, fromBar, toBar, transpose, approxCount: notes.filter((n) => n.approx).length }
+}
+
+/**
+ * Piano: the melody on the right hand, replacing notes outside the keyboard by the nearest key, and
+ * an accompaniment for the left hand (bass on the first beat of each bar, a chord on the others).
+ */
+export function arrangePiano(song: Song, profile: PianoProfile, options: InstrumentOptions = {}): PianoArrangement {
+  const { melody, meter, fromBar, toBar } = melodyRange(song, options)
+  const playable = new Set<number>()
+  for (let p = profile.low; p <= profile.high; p++) playable.add(p)
+  const transpose =
+    options.transpose === undefined || options.transpose === 'auto'
+      ? fitTranspose(melody.map((n) => n.pitch), playable)
+      : options.transpose
+  const notes = melody.map((n) => {
+    const original = n.pitch + transpose
+    const pitch = nearestPlayable(original, playable)
+    return { ...n, original, pitch, approx: pitch !== original }
+  })
+  const bass: BassEvent[] =
+    options.bass === false
+      ? []
+      : harmonize(notes, stradellaGroups(), meter, song.pickup, fromBar, toBar).map((h) => ({ ...h, bellows: 'push' as const }))
+  return { notes, bass, meter, pickup: song.pickup, fromBar, toBar, transpose, approxCount: notes.filter((n) => n.approx).length }
 }

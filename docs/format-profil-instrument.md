@@ -75,9 +75,12 @@ Instruments fournis en plus :
 | `guitar-standard`, `guitar-dadgad` | Guitare, 22 cases : accordage standard et DADGAD |
 | `ukulele-gcea` | Ukulélé soprano, 15 cases |
 | `whistle-d`, `whistle-c`, `whistle-bb` | Tin whistle en Ré, Do, Si♭ : gamme de Ré majeur plus le Do naturel (doigté croisé) ; le Ré aigu se joue trou 1 ouvert |
+| `piano-88`, `keyboard-61` | Piano de 88 touches (La0 à Do8) et clavier de 61 touches (Do2 à Do7) : seule l'étendue compte |
+
+Pour le piano, la main droite joue la mélodie (`arrangePiano`) et la main gauche une basse au premier temps de chaque mesure puis des accords, choisis dans la tonalité de l'air comme pour les basses Stradella.
 
 Pour les cordes et la flûte, le moteur choisit le doigté de la mélodie (`arrangeStrings`, `arrangeWhistle`) : cases les plus basses et mouvements de main réduits pour les cordes, doigtés fixes pour la flûte. Une note que l'instrument ne joue pas est remplacée par la plus proche et signalée (orange), et la tonalité est transposée au besoin.
 
 ## Évolutions prévues
 
-Concertina, piano, harmonica, basses mélodiques (free bass) du chromatique, accords main droite et accords de guitare : ils viendront avec une version 2 du format, la version 1 restant lisible.
+Concertina, harmonica, basses mélodiques (free bass) du chromatique, accords main droite et accords de guitare : ils viendront avec une version 2 du format, la version 1 restant lisible.

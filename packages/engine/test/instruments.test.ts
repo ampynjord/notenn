@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { arrange, arrangeStrings, arrangeWhistle, chromaticProfiles, getInstrument, instruments, parseProfile, stringPositions, type Song } from '../src/index'
+import { arrange, arrangePiano, arrangeStrings, arrangeWhistle, chromaticProfiles, getInstrument, instruments, parseProfile, stringPositions, type Song } from '../src/index'
 
 // Amazing Grace, opening (traditional tune, public domain), 3/4 with a pickup.
 const durations: [number, number][] = [[67, 1], [72, 2], [76, 0.5], [72, 0.5], [76, 2], [74, 1], [72, 2], [69, 1], [67, 2], [67, 1], [72, 2], [76, 0.5], [72, 0.5], [76, 2], [74, 1], [79, 3]]
@@ -141,5 +141,39 @@ describe('chromatic accordion', () => {
       rows: [{ id: 'a', name: 'A', buttons: ['C4', 'D4'] }],
     })
     expect(p.rows[0]!.buttons).toEqual([{ push: 60, pull: 60 }, { push: 62, pull: 62 }])
+  })
+})
+
+describe('piano', () => {
+  const piano = getInstrument('piano-88')!
+  if (piano.family !== 'piano') throw new Error('piano expected')
+  // C major melody, 4/4: C D E F G A G E C.
+  let t = 0
+  const notes = [[72, 1], [74, 1], [76, 1], [77, 1], [79, 1], [81, 1], [79, 1], [76, 1], [72, 4]].map(([p, d]) => ({ start: (t += d!) - d!, dur: d!, pitch: p! }))
+  const song = { title: 'x', meter: { num: 4, den: 4 }, pickup: 0, tempo: 100, tracks: [{ name: 'M', notes }] }
+
+  it('plays every note of the melody on its own key, without transposing a tune that fits', () => {
+    const arr = arrangePiano(song, piano)
+    expect(arr.transpose).toBe(0)
+    expect(arr.notes.map((n) => n.pitch)).toEqual(notes.map((n) => n.pitch))
+    expect(arr.approxCount).toBe(0)
+  })
+
+  it('brings a tune back into the range of a smaller keyboard, and replaces what is left outside', () => {
+    const keyboard = getInstrument('keyboard-61')!
+    if (keyboard.family !== 'piano') throw new Error('piano expected')
+    const low = { ...song, tracks: [{ name: 'M', notes: notes.map((n) => ({ ...n, pitch: n.pitch - 48 })) }] }
+    const arr = arrangePiano(low, keyboard)
+    for (const n of arr.notes) expect(n.pitch).toBeGreaterThanOrEqual(keyboard.low)
+    const outside = arrangePiano(low, keyboard, { transpose: 0 })
+    expect(outside.approxCount).toBeGreaterThan(0)
+    expect(outside.notes.every((n) => n.pitch >= keyboard.low && n.pitch <= keyboard.high)).toBe(true)
+  })
+
+  it('writes a left hand: a bass on the first beat of each bar, chords on the others, none when asked not to', () => {
+    const arr = arrangePiano(song, piano)
+    expect(arr.bass.filter((ev) => ev.isBass).map((ev) => ev.time)).toEqual([0, 4, 8])
+    expect(arr.bass.every((ev) => ev.isBass === (ev.time % 4 === 0))).toBe(true)
+    expect(arrangePiano(song, piano, { bass: false }).bass).toEqual([])
   })
 })

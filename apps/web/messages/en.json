@@ -3,7 +3,7 @@
     "title": "Notenn",
     "homeTitle": "Notenn: tabs for accordion, guitar and whistle",
     "tagline": "Tabs for accordion, guitar and whistle",
-    "description": "Import a tune and Notenn writes it as a tab for your instrument: diatonic or chromatic accordion, guitar, ukulele, tin whistle."
+    "description": "Import a tune and Notenn writes it as a tab for your instrument: diatonic or chromatic accordion, guitar, ukulele, tin whistle, piano."
   },
   "nav": {
     "beta": "beta",
@@ -35,7 +35,9 @@
     "ukulele-gcea": "Ukulele, soprano (GCEA)",
     "whistle-d": "Tin whistle in D",
     "whistle-c": "Tin whistle in C",
-    "whistle-bb": "Tin whistle in B♭"
+    "whistle-bb": "Tin whistle in B♭",
+    "piano-88": "Piano, 88 keys",
+    "keyboard-61": "Keyboard, 61 keys"
   },
   "home": {
     "title": "Your instrument, note after note.",
@@ -58,6 +60,8 @@
     "libraryLink": "Open my library",
     "heroDiatonic": "Diatonic accordion",
     "heroChromatic": "Chromatic",
+    "heroPiano": "Piano",
+    "heroCaptionPiano": "“Au clair de la lune” on piano: the key to play on a one-octave keyboard, and the left hand in green.",
     "heroGuitar": "Guitar",
     "heroWhistle": "Whistle",
     "heroCaptionChromatic": "“Au clair de la lune” on a chromatic button accordion: one line per row.",
@@ -102,6 +106,7 @@
     "notation_argoat": "Système Argoat",
     "notation_cadb": "CADB (push / pull lines)",
     "notation_corgeron": "Corgeron (one line per row)",
+    "legendPiano": "Keyboard under each note: blue key = the note to play, with its name and octave; green = the left hand (a bass, then chords, with their names)",
     "legendCorgeron": "One line per row; underlined number = pull, plain = push",
     "legendStradellaNames": "Stradella basses: capital = bass, lower case = chord (c major, cm minor, c7 seventh, cdim diminished)",
     "legendStradellaKeyboard": "Left hand, top to bottom: counter-bass, bass, major, minor, seventh, diminished chord; filled button = the pressed one, with the name of the bass or chord",
@@ -114,6 +119,7 @@
     "family_diatonic-accordion": "Diatonic accordion",
     "family_chromatic-accordion": "Chromatic accordion",
     "family_string": "Guitar and ukulele",
+    "family_piano": "Piano and keyboard",
     "family_whistle": "Whistle (tin whistle)",
     "preview": "preview",
     "previewInstrument": "Preview: this keyboard has not been checked on a real instrument yet.",
@@ -172,6 +178,7 @@
     "tab_diatonic-accordion": "Diatonic accordion",
     "tab_chromatic-accordion": "Chromatic accordion",
     "tab_string": "Guitar and ukulele",
+    "tab_piano": "Piano",
     "tab_whistle": "Whistle",
     "model": "Model",
     "tuning": "Tuning",
