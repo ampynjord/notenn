@@ -37,6 +37,10 @@ Chaque groupe porte le numéro affiché dans la tablature (`id`, entier à parti
 - `bass` : la note de basse, sans octave (`"C"`, `"F#"`) ;
 - `chord` : l'accord, par son nom (`"C"`, `"Am"`, `"D7"`, `"Em7"`) ou par ses notes (`["E", "G#", "B"]`).
 
+### Basses Stradella (`bassSystem`)
+
+Pour l'accordéon chromatique, `"bassSystem": "stradella"` remplace la liste `bass` : le moteur construit les douze colonnes du clavier Stradella (basses en quintes, Mib Sib Fa Do Sol Ré La Mi Si Fa# Do# Sol#), identiques au poussé et au tiré. Chaque colonne a six rangs : contrebasse (tierce au-dessus de la fondamentale), basse fondamentale, accord majeur, mineur, de septième (fondamentale, tierce, septième) et diminué. Le moteur écrit une basse au premier temps de chaque mesure et un accord sur les autres, choisi dans les accords de la tonalité de l'air (I, ii, iii, IV, V, vi, septième sur V ; en mineur, Mi majeur pour la dominante). Les instruments de 120 basses répètent quelques colonnes : elles ne sont pas dessinées en double.
+
 ## Erreurs
 
 `parseProfile` refuse un profil incomplet et lève une `ProfileError` qui dit où est le problème : le champ fautif (`path`, par exemple `rows[1].buttons[3]`), un code (`code`, par exemple `bad-pull-note`) et ses paramètres (`params`, par exemple le numéro du bouton et la valeur lue). L'interface s'en sert pour afficher le message dans la langue de l'utilisateur ; le texte de l'erreur elle-même est en anglais.
@@ -76,4 +80,4 @@ Pour les cordes et la flûte, le moteur choisit le doigté de la mélodie (`arra
 
 ## Évolutions prévues
 
-Concertina, piano, harmonica, basses Stradella du chromatique, accords main droite et accords de guitare : ils viendront avec une version 2 du format, la version 1 restant lisible.
+Concertina, piano, harmonica, basses mélodiques (free bass) du chromatique, accords main droite et accords de guitare : ils viendront avec une version 2 du format, la version 1 restant lisible.

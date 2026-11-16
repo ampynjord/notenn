@@ -1,4 +1,4 @@
-import type { Arrangement, InstrumentProfile } from '@notenn/engine'
+import { bassEventNotes, type Arrangement, type InstrumentProfile } from '@notenn/engine'
 
 export interface PlayOptions {
   /** Quarter notes per minute, speed already applied. */
@@ -95,12 +95,11 @@ export function play(arr: Arrangement, profile: InstrumentProfile, opts: PlayOpt
     }
   for (const ev of arr.bass) {
     if (ev.time < from - 1e-6 || ev.time >= to - 1e-6) continue
-    const g = profile.bassGroups.find((x) => x.id === ev.group)
-    if (!g) continue
-    const side = g[ev.bellows]
+    const notes = bassEventNotes(profile, ev)
+    if (!notes) continue
     const d = arr.meter.beat * spb * 0.55
-    if (ev.isBass) voice(36 + side.bass, at(ev.time), d, 0.5)
-    else side.chord.forEach((pc) => voice(48 + pc, at(ev.time), d, 0.18))
+    if (ev.isBass) voice(36 + notes.bass, at(ev.time), d, 0.5)
+    else notes.chord.forEach((pc) => voice(48 + pc, at(ev.time), d, 0.18))
   }
 
   // Beats are counted from the first full bar (after the pickup).

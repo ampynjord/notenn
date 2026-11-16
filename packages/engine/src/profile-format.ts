@@ -1,3 +1,4 @@
+import { stradellaGroups } from './stradella'
 import type { BassGroup, ButtonRow, InstrumentProfile } from './types'
 
 /**
@@ -15,6 +16,8 @@ export interface ProfileJson {
   source?: string
   /** True while the layout has not been checked against a real instrument. */
   preview?: boolean
+  /** Chromatic accordion: the left hand is the Stradella keyboard (the groups are built in, `bass` is not needed). */
+  bassSystem?: 'stradella'
   rows: {
     id: string
     name: string
@@ -50,6 +53,7 @@ export type ProfileErrorCode =
   | 'bad-group-id'
   | 'bad-bass-note'
   | 'bad-chord'
+  | 'unsupported-bass-system'
 
 /**
  * Invalid profile. `path` points at the faulty field (e.g. "rows[1].buttons[3]"), `code` and `params`
@@ -167,7 +171,9 @@ export function parseProfile(input: unknown): InstrumentProfile {
     }
   })
 
-  const bassIn = d.bass ?? []
+  if (d.bassSystem !== undefined && (d.bassSystem !== 'stradella' || !chromatic))
+    throw new ProfileError('bassSystem', 'unsupported-bass-system', { value: JSON.stringify(d.bassSystem) }, 'only "stradella" is supported, on the chromatic accordion')
+  const bassIn = d.bassSystem === 'stradella' ? [] : (d.bass ?? [])
   if (!Array.isArray(bassIn)) throw new ProfileError('bass', 'list-expected', {}, 'a list is expected')
   const bassIds = new Set<number>()
   const bassGroups: BassGroup[] = bassIn.map((g: unknown, gi: number) => {
@@ -196,7 +202,8 @@ export function parseProfile(input: unknown): InstrumentProfile {
     name: d.name as string,
     family: d.family as InstrumentProfile['family'],
     rows,
-    bassGroups,
+    ...(d.bassSystem === 'stradella' ? { bassSystem: 'stradella' as const } : {}),
+    bassGroups: d.bassSystem === 'stradella' ? stradellaGroups() : bassGroups,
     ...(d.preview === true ? { preview: true } : {}),
   }
 }

@@ -248,6 +248,57 @@ describe('keyboard tablature', () => {
   })
 })
 
+describe('keyboard tablature, chromatic accordion', () => {
+  const chromatic = getInstrument('chromatic-c-3row')!
+  if (chromatic.family !== 'chromatic-accordion') throw new Error('chromatic accordion expected')
+  const arr = arrange(song, chromatic)
+
+  it('keeps one line per row (Corgeron layout) unless the keyboard is asked for', () => {
+    const ops = layout(arr, chromatic, song.meter, { staff: false, notation: 'argoat' }).flatMap((l) => l.ops)
+    expect(ops.some((o) => o.kind === 'hit')).toBe(false)
+    expect(ops.some((o) => o.kind === 'text' && o.note !== undefined)).toBe(true)
+  })
+
+  it('draws the keyboard of the three rows with the pressed button filled, in plain ink, and its number under it', () => {
+    const lines = layout(arr, chromatic, song.meter, { staff: false, notation: 'keyboard' })
+    const ops = lines.flatMap((l) => l.ops)
+    const pressed = ops.filter((o) => o.kind === 'ellipse' && o.note !== undefined)
+    expect(pressed).toHaveLength(arr.notes.length)
+    for (const o of pressed) expect(o.kind === 'ellipse' && o.ink).toBe('ink')
+    const numbers = ops.filter((o) => o.kind === 'text' && /^\d+$/.test(o.text) && o.y > 25 && o.size === 7.5)
+    expect(numbers.map((o) => (o.kind === 'text' ? o.text : ''))).toEqual(arr.notes.map((n) => String(n.fingering.button)))
+    expect(ops.filter((o) => o.kind === 'hit')).toHaveLength(arr.notes.length)
+  })
+
+  it('left hand: the Stradella keyboard, six rows by twelve columns, with the pressed button filled and its name', () => {
+    expect(arr.bass.length).toBeGreaterThan(0)
+    const lines = layout(arr, chromatic, song.meter, { staff: false, notation: 'keyboard' })
+    const ops = lines.flatMap((l) => l.ops)
+    const pressed = ops.filter((o) => o.kind === 'ellipse' && o.bass !== undefined)
+    expect(pressed).toHaveLength(arr.bass.length)
+    // Rows of the pressed buttons: the first one of the bar is a fundamental bass, the second row from the top.
+    const rowYs = [...new Set(ops.filter((o) => o.kind === 'ellipse' && o.ink === 'line' && o.y > 40).map((o) => (o.kind === 'ellipse' ? o.y : 0)))]
+    expect(rowYs).toHaveLength(6)
+    const first = pressed[0]!
+    expect(first.kind === 'ellipse' && first.y).toBeCloseTo(Math.min(...rowYs) + 4.4)
+    const empty = ops.filter((o) => o.kind === 'ellipse' && o.ink === 'line' && o.y > 40)
+    expect(empty).toHaveLength(arr.bass.length * (6 * 12 - 1))
+    const names = ops.filter((o) => o.kind === 'text' && o.bass !== undefined).map((o) => (o.kind === 'text' ? o.text : ''))
+    expect(names).toHaveLength(arr.bass.length)
+    expect(names.some((n) => /^[A-G]#?b?$/.test(n))).toBe(true)
+    expect(names.some((n) => /^[a-g]/.test(n))).toBe(true)
+    // The six-row keyboard needs more room than the two-row one.
+    expect(lines[0]!.height).toBeGreaterThan(80)
+  })
+
+  it('the other notation of the chromatic accordion writes the bass line by name: c, cm, c7…', () => {
+    const ops = layout(arr, chromatic, song.meter, { staff: false }).flatMap((l) => l.ops)
+    const names = ops.filter((o) => o.kind === 'text' && o.bass !== undefined).map((o) => (o.kind === 'text' ? o.text : ''))
+    expect(names).toHaveLength(arr.bass.length)
+    expect(names.some((n) => /^[a-g]#?b?(m|7|dim)?$/.test(n))).toBe(true)
+  })
+})
+
 describe('guitar and whistle tablatures', () => {
   it('guitar: one fret number per note, each on the line of its string, with string names and barlines', () => {
     const guitar = getInstrument('guitar-standard')!

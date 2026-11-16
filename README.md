@@ -10,7 +10,7 @@ Private project — all rights reserved (see [`LICENSE`](LICENSE)).
 
 Beta in preparation. Already in place:
 
-- **Instruments**: diatonic accordion (G/C, D/G, A/D, C/F, B♭/E♭, three-row G/C/F, Hohner 2915 layout), chromatic accordion (C system, preview), guitar (standard, DADGAD), ukulele and tin whistle (D, C, B♭) — the last ones are still to be refined.
+- **Instruments**: diatonic accordion (G/C, D/G, A/D, C/F, B♭/E♭, three-row G/C/F, Hohner 2915 layout), chromatic accordion (C system, preview, with Stradella bass and chords), guitar (standard, DADGAD), ukulele and tin whistle (D, C, B♭) — the last ones are still to be refined.
 - **Notations** for the diatonic accordion: Argoat System, CADB, Corgeron and Keyboard (a mini keyboard drawing under each note, with the bass and chord keyboard for the left hand), selectable in the editor and in the PDF.
 - **Editor**: track and passage selection, transposition, keyboard and row choice, optional staff, basses, click-to-edit (button, row, bellows direction).
 - **Practice**: playback cursor, loop on a passage, slow-down without pitch change, metronome with count-in.

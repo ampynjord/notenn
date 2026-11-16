@@ -304,7 +304,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         trackIndex: track,
         rows: activeRows,
         transpose,
-        bass: prefs.bass && diatonic,
+        bass: prefs.bass && profile.bassGroups.length > 0,
         fingerings: edits,
       })
       const lines = layout(arr, profile, song.meter, {
@@ -495,7 +495,10 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
       : instrument.family === 'whistle'
         ? [t('legendWhistle')]
         : instrument.family === 'chromatic-accordion'
-          ? [t('legendChromatic')]
+          ? [
+              t(prefs.notation === 'keyboard' ? 'legendChromaticKeyboard' : 'legendChromatic'),
+              ...(prefs.bass ? [t(prefs.notation === 'keyboard' ? 'legendStradellaKeyboard' : 'legendStradellaNames')] : []),
+            ]
           : prefs.notation === 'keyboard'
       ? [t('legendKeyboard', { push: tl('push'), pull: tl('pull') }), ...(prefs.bass ? [t('legendKeyboardBass')] : [])]
           : prefs.notation === 'corgeron'
@@ -713,18 +716,19 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
         <details className="group" name="menu">
           <summary>{t('display')}</summary>
           <div className="panel">
-            {diatonic && (
+            {accordion && (
             <label>
               <span>{t('notation')}</span>
               <select
-                value={prefs.notation}
+                value={diatonic || prefs.notation === 'keyboard' ? prefs.notation : 'corgeron'}
                 onChange={(e) =>
                   setPrefs({ notation: e.target.value as (typeof NOTATIONS)[number] })
                 }
               >
-                {NOTATIONS.map((n) => (
+                {/* The chromatic accordion has no P/T lines: its own lines (one per row) or the keyboard. */}
+                {(diatonic ? NOTATIONS : (['corgeron', 'keyboard'] as const)).map((n) => (
                   <option key={n} value={n}>
-                    {t(`notation_${n}`)}
+                    {t(diatonic || n === 'keyboard' ? `notation_${n}` : 'notation_rowLines')}
                   </option>
                 ))}
               </select>
@@ -738,7 +742,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
             />{' '}
             {t('staff')}
           </label>
-          {diatonic && (
+          {accordion && profile.bassGroups.length > 0 && (
           <label className="inline">
             <input
               type="checkbox"
@@ -909,7 +913,10 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
                 {!accordion ? (
                   <span>{legend()[0]}</span>
                 ) : instrument.family === 'chromatic-accordion' ? (
-                  <span>{t('legendChromatic')}</span>
+                  <>
+                    <span>{t(prefs.notation === 'keyboard' ? 'legendChromaticKeyboard' : 'legendChromatic')}</span>
+                    {prefs.bass && <span>{t(prefs.notation === 'keyboard' ? 'legendStradellaKeyboard' : 'legendStradellaNames')}</span>}
+                  </>
                 ) : prefs.notation === 'keyboard' ? (
                   <>
                     <span>{t('legendKeyboard', { push: tl('push'), pull: tl('pull') })}</span>

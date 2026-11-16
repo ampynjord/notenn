@@ -1,4 +1,5 @@
 import { pitchClass } from './keyboard'
+import { chooseStradellaBass } from './stradella'
 import type { BassEvent, Fingering, InstrumentProfile, MeterInfo, Note } from './types'
 
 /** Small preference for the first groups (the most common basses), per bellows direction. */
@@ -17,6 +18,7 @@ export function chooseBass(
   fromBar: number,
   toBar: number,
 ): BassEvent[] {
+  if (profile.bassSystem === 'stradella') return chooseStradellaBass(notes, fingering, profile, meter, pickup, fromBar, toBar)
   const out: BassEvent[] = []
   let prev: { group: number; bellows: string } | null = null
   for (let bar = fromBar; bar <= toBar; bar++) {
