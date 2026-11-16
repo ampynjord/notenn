@@ -1,8 +1,9 @@
 'use client'
 
-import { layout, layoutStrings, layoutWhistle, NOTATIONS } from '@notenn/argoat'
+import { layout, layoutPiano, layoutStrings, layoutWhistle, NOTATIONS } from '@notenn/argoat'
 import {
   arrange,
+  arrangePiano,
   arrangeStrings,
   arrangeWhistle,
   fingeringsFor,
@@ -11,6 +12,7 @@ import {
   instruments,
   noteKey,
   pickMelodyTrack,
+  stradellaGroups,
   type Arrangement,
   type FingerChoice,
   type Instrument,
@@ -101,7 +103,7 @@ function toPlayable(a: {
   }
 }
 
-const FAMILIES: InstrumentFamily[] = ['diatonic-accordion', 'chromatic-accordion', 'string', 'whistle']
+const FAMILIES: InstrumentFamily[] = ['diatonic-accordion', 'chromatic-accordion', 'string', 'whistle', 'piano']
 
 interface Props {
   /**
@@ -286,12 +288,23 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
   const result = useMemo(() => {
     if (!song) return null
     try {
-      if (instrument.family === 'string' || instrument.family === 'whistle') {
+      if (instrument.family === 'string' || instrument.family === 'whistle' || instrument.family === 'piano') {
         const opts = { trackIndex: track, transpose }
         const layoutOpts = {
           width,
           staff: prefs.staff,
           maxBarsPerLine: width < 520 ? 2 : width < 760 ? 3 : undefined,
+        }
+        if (instrument.family === 'piano') {
+          const native = arrangePiano(song, instrument, { ...opts, bass: prefs.bass })
+          const nameOf = (p: number) => noteName(p, locale)
+          return {
+            arr: { ...toPlayable(native), bass: native.bass },
+            lines: layoutPiano(native, instrument, song.meter, { ...layoutOpts, noteName: nameOf }),
+            failed: false,
+            build: (w: number, staff: boolean, bars: number) =>
+              layoutPiano(native, instrument, song.meter, { width: w, staff, noteName: nameOf, ...(bars > 0 ? { barsPerLine: bars } : {}) }),
+          }
         }
         if (instrument.family === 'string') {
           const native = arrangeStrings(song, instrument, opts)
@@ -333,6 +346,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
     prefs.notation,
     edits,
     width,
+    locale,
   ])
 
   const arr = result?.arr ?? null
@@ -368,8 +382,16 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
     (withCountIn = prefs.countIn) => {
       if (!arr || !passage) return
       stop()
-      const pb = play(arr, profile, {
-        timbre: instrument.family === 'string' ? 'string' : instrument.family === 'whistle' ? 'whistle' : 'accordion',
+      // The left hand of the piano uses the Stradella columns for its bass and chords.
+      const pb = play(arr, instrument.family === 'piano' ? { bassGroups: stradellaGroups() } : profile, {
+        timbre:
+          instrument.family === 'string'
+            ? 'string'
+            : instrument.family === 'whistle'
+              ? 'whistle'
+              : instrument.family === 'piano'
+                ? 'piano'
+                : 'accordion',
         bpm: (tempo * prefs.speed) / 100,
         from: Math.max(passage.start, arr.notes[0]?.start ?? 0),
         to: passage.end,
@@ -494,7 +516,9 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
       ? [t('legendStrings')]
       : instrument.family === 'whistle'
         ? [t('legendWhistle')]
-        : instrument.family === 'chromatic-accordion'
+        : instrument.family === 'piano'
+          ? [t('legendPiano')]
+          : instrument.family === 'chromatic-accordion'
           ? [
               t(prefs.notation === 'keyboard' ? 'legendChromaticKeyboard' : 'legendChromatic'),
               ...(prefs.bass ? [t(prefs.notation === 'keyboard' ? 'legendStradellaKeyboard' : 'legendStradellaNames')] : []),
@@ -742,7 +766,7 @@ export function Workshop({ mode = 'editor', abc: initialAbc, itemId, showTitle =
             />{' '}
             {t('staff')}
           </label>
-          {accordion && profile.bassGroups.length > 0 && (
+          {((accordion && profile.bassGroups.length > 0) || instrument.family === 'piano') && (
           <label className="inline">
             <input
               type="checkbox"

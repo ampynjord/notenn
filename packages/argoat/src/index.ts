@@ -3,8 +3,8 @@
  * operations (text, line, ellipse, circle, polyline) in abstract units. The app draws them
  * as SVG, the PDF export with jsPDF.
  */
-import { bassEventNotes, STRADELLA_ROWS } from '@notenn/engine'
-import type { Arrangement, BassEvent, InstrumentProfile, Meter, StringArrangement, StringProfile, WhistleArrangement, WhistleProfile } from '@notenn/engine'
+import { bassEventNotes, STRADELLA_ROWS, stradellaGroups } from '@notenn/engine'
+import type { Arrangement, BassEvent, InstrumentProfile, Meter, PianoArrangement, PianoProfile, StringArrangement, StringProfile, WhistleArrangement, WhistleProfile } from '@notenn/engine'
 
 /** Logical colours; each medium maps them (CSS variables, RGB for the PDF). */
 export type Ink = 'push' | 'pull' | 'bass' | 'warn' | 'muted' | 'line' | 'ink'
@@ -28,6 +28,8 @@ export type DrawOp =
   | { kind: 'hit'; x: number; y: number; w: number; h: number; note: number }
   | { kind: 'circle'; x: number; y: number; r: number; filled: boolean; label: string; bass: number }
   | { kind: 'polyline'; points: [number, number][]; ink: Ink; width: number }
+  /** A piano key: outlined, or filled when it is the one to play. */
+  | { kind: 'rect'; x: number; y: number; w: number; h: number; ink: Ink; filled: boolean; note?: number; bass?: number }
 
 export interface SystemLine {
   firstBar: number
@@ -55,6 +57,8 @@ export interface LayoutOptions {
   notation?: Notation
   /** Corgeron: label of each row's line, by row id (the id in capitals by default). */
   rowLabels?: Record<string, string>
+  /** Piano: name of a note without its octave ("C", "Do"…), in the language of the interface; English letters by default. */
+  noteName?: (pitch: number) => string
 }
 
 export interface LineLabels {
@@ -101,7 +105,7 @@ const PC_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B
 
 /** Name of a bass or of a chord for the bass line of CADB and Corgeron: bass "C", chord "c", "am", "g7"… */
 /** Name of the bass or chord of an event: Stradella buttons carry their quality (c, cm, c7, cdim), diatonic groups their chord. */
-function eventName(profile: InstrumentProfile, ev: BassEvent, side: { bass: number; chord: number[] }): string {
+function eventName(profile: Pick<InstrumentProfile, 'bassGroups'>, ev: BassEvent, side: { bass: number; chord: number[] }): string {
   if (!ev.quality) return bassName(ev.isBass ? side.bass : side.chord, ev.isBass)
   const notes = bassEventNotes(profile, ev)!
   const base = PC_NAMES[notes.bass]!
@@ -649,5 +653,66 @@ export function layoutWhistle(arr: WhistleArrangement, _profile: WhistleProfile,
     c.ops.push({ kind: 'text', x: 6, y: c.off + top + 3, text: '1', ink: 'muted', size: 8 })
     c.ops.push({ kind: 'text', x: 6, y: c.off + top + 5 * step + 3, text: '6', ink: 'muted', size: 8 })
     tabBarlines(c, arr, c.off + top - 12, c.off + top + 5 * step + 6)
+  })
+}
+
+/* ---------- Piano ---------- */
+
+const WHITE_PCS = [0, 2, 4, 5, 7, 9, 11]
+/** Black keys of an octave: their pitch class and the number of white keys on their left. */
+const BLACK_KEYS: [number, number][] = [[1, 1], [3, 2], [6, 4], [8, 5], [10, 6]]
+const PIANO_KEY_W = 3.8
+const PIANO_LEFT_KEY_W = 3
+
+/** `octaves` octaves of keys from a C at `x`: keys outlined, the ones in `lit` (semitones above that C) filled with their ink. */
+function drawKeys(ops: DrawOp[], x: number, y: number, keyW: number, h: number, octaves: number, lit: Map<number, Ink>, tag: { note?: number; bass?: number }) {
+  for (let o = 0; o < octaves; o++) {
+    WHITE_PCS.forEach((pc, w) => {
+      const ink = lit.get(o * 12 + pc)
+      ops.push({ kind: 'rect', x: x + (o * 7 + w) * keyW, y, w: keyW, h, ink: ink ?? 'muted', filled: ink !== undefined, ...(ink ? tag : {}) })
+    })
+  }
+  for (let o = 0; o < octaves; o++) {
+    for (const [pc, left] of BLACK_KEYS) {
+      const ink = lit.get(o * 12 + pc)
+      ops.push({ kind: 'rect', x: x + (o * 7 + left) * keyW - keyW * 0.3, y, w: keyW * 0.6, h: h * 0.62, ink: ink ?? 'ink', filled: true, ...(ink ? tag : {}) })
+    }
+  }
+}
+
+/**
+ * Tablature of a piano: under each melody note a keyboard of one octave with the key to play filled and its
+ * name and octave below; under the left-hand events a keyboard of two octaves (C2 to B3) with the bass key
+ * (lower octave) or the chord keys (upper octave) filled, and the name of the bass or chord.
+ */
+export function layoutPiano(arr: PianoArrangement, _profile: PianoProfile, meter: Meter, options: LayoutOptions = {}): SystemLine[] {
+  const groups = stradellaGroups()
+  const rightW = 7 * PIANO_KEY_W
+  const noteName = options.noteName ?? ((p: number) => PC_NAMES[((p % 12) + 12) % 12]!)
+  const rightY = 22
+  const rightH = 14
+  const leftY = 52
+  const leftH = 11
+  return chunkedLayout(arr, meter, options, 82, () => rightW + 2, (c) => {
+    arr.notes.forEach((note, i) => {
+      if (!c.inLine(note.start)) return
+      const x = c.X(note.start)
+      const ink: Ink = note.approx ? 'warn' : 'push'
+      drawKeys(c.ops, x, c.off + rightY, PIANO_KEY_W, rightH, 1, new Map([[((note.pitch % 12) + 12) % 12, ink]]), { note: i })
+      c.ops.push({ kind: 'text', x: x + rightW / 2, y: c.off + rightY + rightH + 9, text: `${noteName(note.pitch)}${Math.floor(note.pitch / 12) - 1}`, ink, size: 8, bold: true, anchor: 'middle' })
+    })
+    arr.bass.forEach((ev, bi) => {
+      if (!c.inLine(ev.time)) return
+      const notes = bassEventNotes({ bassGroups: groups }, ev)
+      if (!notes) return
+      const lit = new Map<number, Ink>()
+      if (ev.isBass) lit.set(notes.bass, 'bass')
+      else for (const pc of notes.chord) lit.set(12 + pc, 'bass')
+      const x = c.X(ev.time)
+      drawKeys(c.ops, x, c.off + leftY, PIANO_LEFT_KEY_W, leftH, 2, lit, { bass: bi })
+      c.ops.push({ kind: 'text', x, y: c.off + leftY + leftH + 9, text: eventName({ bassGroups: groups }, ev, notes), ink: 'bass', size: 8.5, bold: ev.isBass, mono: true, bass: bi })
+    })
+    if (arr.bass.length) c.ops.push({ kind: 'text', x: 6, y: c.off + leftY + 8, text: options.labels?.bass ?? DEFAULT_LABELS.bass, ink: 'bass', size: 7.5 })
+    tabBarlines(c, arr, c.off + rightY - 8, c.off + (arr.bass.length ? leftY + leftH + 14 : rightY + rightH + 12))
   })
 }

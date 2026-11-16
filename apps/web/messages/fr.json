@@ -3,7 +3,7 @@
     "title": "Notenn",
     "homeTitle": "Notenn : tablatures pour accordéon, guitare et flûte",
     "tagline": "Tablatures pour accordéon, guitare et flûte",
-    "description": "Importe un morceau et Notenn l'écrit en tablature pour ton instrument : accordéon diatonique ou chromatique, guitare, ukulélé, tin whistle."
+    "description": "Importe un morceau et Notenn l'écrit en tablature pour ton instrument : accordéon diatonique ou chromatique, guitare, ukulélé, tin whistle, piano."
   },
   "nav": {
     "beta": "bêta",
@@ -35,7 +35,9 @@
     "ukulele-gcea": "Ukulélé soprano (SOL DO MI LA)",
     "whistle-d": "Tin whistle en Ré",
     "whistle-c": "Tin whistle en Do",
-    "whistle-bb": "Tin whistle en Si♭"
+    "whistle-bb": "Tin whistle en Si♭",
+    "piano-88": "Piano, 88 touches",
+    "keyboard-61": "Clavier, 61 touches"
   },
   "home": {
     "title": "Ton instrument, note après note.",
@@ -58,6 +60,8 @@
     "libraryLink": "Ouvrir ma bibliothèque",
     "heroDiatonic": "Accordéon diatonique",
     "heroChromatic": "Chromatique",
+    "heroPiano": "Piano",
+    "heroCaptionPiano": "« Au clair de la lune » au piano : la touche à jouer sur un clavier d’une octave, et en vert la main gauche.",
     "heroGuitar": "Guitare",
     "heroWhistle": "Flûte",
     "heroCaptionChromatic": "« Au clair de la lune » sur un chromatique à boutons : une ligne par rang.",
@@ -102,6 +106,7 @@
     "notation_argoat": "Système Argoat",
     "notation_cadb": "CADB (lignes poussé / tiré)",
     "notation_corgeron": "Corgeron (une ligne par rang)",
+    "legendPiano": "Clavier sous chaque note : touche bleue = la note à jouer, avec son nom et son octave ; en vert, la main gauche (basse puis accords, avec leur nom)",
     "legendCorgeron": "Une ligne par rang ; chiffre souligné = tiré, non souligné = poussé",
     "legendStradellaNames": "Basses Stradella : majuscule = basse, minuscule = accord (c majeur, cm mineur, c7 septième, cdim diminué)",
     "legendStradellaKeyboard": "Main gauche, du haut vers le bas : contrebasse, basse, accord majeur, mineur, septième, diminué ; bouton plein = bouton pressé, avec le nom de la basse ou de l’accord",
@@ -114,6 +119,7 @@
     "family_diatonic-accordion": "Accordéon diatonique",
     "family_chromatic-accordion": "Accordéon chromatique",
     "family_string": "Guitare et ukulélé",
+    "family_piano": "Piano et clavier",
     "family_whistle": "Flûte (tin whistle)",
     "preview": "aperçu",
     "previewInstrument": "Aperçu : ce clavier n’a pas encore été vérifié sur un instrument réel.",
@@ -172,6 +178,7 @@
     "tab_diatonic-accordion": "Accordéon diatonique",
     "tab_chromatic-accordion": "Accordéon chromatique",
     "tab_string": "Guitare et ukulélé",
+    "tab_piano": "Piano",
     "tab_whistle": "Flûte",
     "model": "Modèle",
     "tuning": "Accordage",

@@ -1,6 +1,6 @@
 import { layout, type LineLabels, type SystemLine } from '@notenn/argoat'
-import { layoutStrings, layoutWhistle } from '@notenn/argoat'
-import { arrange, arrangeStrings, arrangeWhistle, getInstrument, hohner2915GC, type Song } from '@notenn/engine'
+import { layoutPiano, layoutStrings, layoutWhistle } from '@notenn/argoat'
+import { arrange, arrangePiano, arrangeStrings, arrangeWhistle, getInstrument, hohner2915GC, type Song } from '@notenn/engine'
 
 /** Builds a song from "pitch:duration" tokens (durations in quarter notes). */
 function song(title: string, num: number, den: number, pickup: number, spec: string): Song {
@@ -46,5 +46,6 @@ export function exampleLinesFor(id: string, labels: LineLabels, opts: { width: n
     return layout(arrange(heroSong, instrument, { transpose: 0, bass: false }), instrument, heroSong.meter, { ...common, labels })
   if (instrument.family === 'string') return layoutStrings(arrangeStrings(heroSong, instrument), instrument, heroSong.meter, common)
   if (instrument.family === 'whistle') return layoutWhistle(arrangeWhistle(heroSong, instrument), instrument, heroSong.meter, common)
+  if (instrument.family === 'piano') return layoutPiano(arrangePiano(heroSong, instrument), instrument, heroSong.meter, common)
   return exampleLines(heroSong, labels, { staff: false, ...opts })
 }

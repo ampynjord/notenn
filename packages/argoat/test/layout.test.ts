@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { arrange, arrangeStrings, arrangeWhistle, getInstrument, hohner2915GC, type Song } from '@notenn/engine'
-import { layout, layoutStrings, layoutWhistle, splitDuration } from '../src/index'
+import { arrange, arrangePiano, arrangeStrings, arrangeWhistle, getInstrument, hohner2915GC, type Song } from '@notenn/engine'
+import { layout, layoutPiano, layoutStrings, layoutWhistle, splitDuration } from '../src/index'
 
 // Amazing Grace, opening (traditional tune, public domain), 3/4 with a pickup.
 const song: Song = {
@@ -341,5 +341,53 @@ describe('guitar and whistle tablatures', () => {
     const without = layoutStrings(arr, guitar, song.meter, { staff: false })
     expect(withStaff[0]!.height).toBeGreaterThan(without[0]!.height)
     expect(without[0]!.height).toBeGreaterThanOrEqual(24 + 6 * 11)
+  })
+})
+
+describe('piano tablature', () => {
+  const piano = getInstrument('piano-88')!
+  if (piano.family !== 'piano') throw new Error('piano expected')
+  const arr = arrangePiano(song, piano)
+  const lines = layoutPiano(arr, piano, song.meter, { staff: false })
+  const ops = lines.flatMap((l) => l.ops)
+
+  it('lights one key under each melody note: the one to play, in blue, on a keyboard of one octave', () => {
+    const lit = ops.filter((o) => o.kind === 'rect' && o.note !== undefined)
+    expect(lit).toHaveLength(arr.notes.length)
+    for (const o of lit) expect(o.kind === 'rect' && o.ink).toBe('push')
+    // Every octave has 7 white and 5 black keys, one octave per note.
+    expect(ops.filter((o) => o.kind === 'rect' && o.note === undefined && o.bass === undefined && o.y < 40)).toHaveLength(arr.notes.length * 12 - arr.notes.length)
+  })
+
+  it('writes the name and the octave under each key, in the language asked for', () => {
+    const names = (noteName?: (p: number) => string) =>
+      layoutPiano(arr, piano, song.meter, { staff: false, ...(noteName ? { noteName } : {}) })
+        .flatMap((l) => l.ops)
+        .filter((o) => o.kind === 'text' && o.ink === 'push')
+        .map((o) => (o.kind === 'text' ? o.text : ''))
+    // Amazing Grace starts on G4 (MIDI 67).
+    expect(names()[0]).toBe('G4')
+    expect(names(() => 'Sol')[0]).toBe('Sol4')
+  })
+
+  it('lights the bass key in the lower octave and the chord keys in the upper one of the left hand', () => {
+    expect(arr.bass.length).toBeGreaterThan(0)
+    const lit = ops.filter((o) => o.kind === 'rect' && o.bass !== undefined)
+    // One key per bass, three or four keys per chord.
+    const bassCount = arr.bass.filter((ev) => ev.isBass).length
+    expect(lit.length).toBeGreaterThanOrEqual(bassCount + (arr.bass.length - bassCount) * 3)
+    const names = ops.filter((o) => o.kind === 'text' && o.bass !== undefined).map((o) => (o.kind === 'text' ? o.text : ''))
+    expect(names).toHaveLength(arr.bass.length)
+    expect(names.some((n) => /^[A-G]/.test(n))).toBe(true)
+    expect(names.some((n) => /^[a-g]/.test(n))).toBe(true)
+  })
+
+  it('has no left hand when the arrangement has none, and keeps keyboards from overlapping', () => {
+    const alone = layoutPiano(arrangePiano(song, piano, { bass: false }), piano, song.meter, { staff: true }).flatMap((l) => l.ops)
+    expect(alone.some((o) => o.kind === 'rect' && o.bass !== undefined)).toBe(false)
+    for (const l of lines) {
+      const xs = l.ops.filter((o) => o.kind === 'rect' && o.note !== undefined).map((o) => (o.kind === 'rect' ? o.x : 0))
+      for (let i = 1; i < xs.length; i++) expect(xs[i]! - xs[i - 1]!).toBeGreaterThan(20)
+    }
   })
 })

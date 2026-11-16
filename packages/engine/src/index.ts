@@ -13,10 +13,10 @@ export { extractLowerVoices, extractMelody, meterInfo, melodyScore, pickMelodyTr
 export { bestTranspose, fingeringsFor, nearestPlayable, playablePitches } from './keyboard'
 export { chooseFingering, chooseGroupFingering, groupOptions, type NoteGroup } from './fingering'
 export { chooseBass } from './bass'
-export { bassEventNotes, estimateKey, STRADELLA_ROOTS, STRADELLA_ROWS, stradellaGroups } from './stradella'
+export { bassEventNotes, estimateKey, harmonize, STRADELLA_ROOTS, STRADELLA_ROWS, stradellaGroups } from './stradella'
 export { hohner2915GC } from './profiles/hohner-2915-gc'
 export { chromaticProfiles, getInstrument, getProfile, instruments, profiles } from './profiles'
-export { arrangeStrings, arrangeWhistle, stringPitches, stringPositions, type InstrumentOptions } from './instruments'
+export { arrangePiano, arrangeStrings, arrangeWhistle, stringPitches, stringPositions, type InstrumentOptions } from './instruments'
 export { fitTranspose, melodyRange } from './range'
 export { chordOf, midiOf, parseProfile, pitchClassOf, ProfileError, type ProfileErrorCode, type ProfileJson } from './profile-format'
 

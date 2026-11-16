@@ -41,6 +41,7 @@ export default async function HomePage({ params }: Props) {
     variant('chromatic-c-3row', t('heroChromatic'), t('heroCaptionChromatic')),
     variant('guitar-standard', t('heroGuitar'), t('heroCaptionString')),
     variant('whistle-d', t('heroWhistle'), t('heroCaptionWhistle')),
+    variant('piano-88', t('heroPiano'), t('heroCaptionPiano')),
   ]
 
   return (

@@ -11,7 +11,7 @@ export interface PlayOptions {
   /** One bar of clicks before the music starts. */
   countIn?: boolean
   /** Sound: the accordion's two detuned voices by default, a plucked string or a whistle. */
-  timbre?: 'accordion' | 'string' | 'whistle'
+  timbre?: 'accordion' | 'string' | 'whistle' | 'piano'
 }
 
 export interface Playback {
@@ -26,7 +26,7 @@ export interface Playback {
  * Playback with a simplified accordion sound: two slightly detuned voices ("musette" effect).
  * The sound is synthesised, so slowing down never changes the pitch.
  */
-export function play(arr: Arrangement, profile: InstrumentProfile, opts: PlayOptions): Playback {
+export function play(arr: Arrangement, profile: Pick<InstrumentProfile, 'bassGroups'>, opts: PlayOptions): Playback {
   const ctx = new AudioContext()
   const spb = 60 / opts.bpm
   const end = arr.notes.reduce((m, n) => Math.max(m, n.start + n.dur), arr.notes[0]?.start ?? 0)
@@ -53,6 +53,11 @@ export function play(arr: Arrangement, profile: InstrumentProfile, opts: PlayOpt
       // Plucked: instant attack, then a decay that does not wait for the end of the note.
       g.gain.linearRampToValueAtTime(vol * 1.4, start + 0.005)
       g.gain.exponentialRampToValueAtTime(0.001, start + Math.max(0.15, Math.min(dur + 0.4, 1.6)))
+    } else if (opts.timbre === 'piano') {
+      // Struck: instant attack, a long decay that ends sooner once the key is released.
+      g.gain.linearRampToValueAtTime(vol * 1.3, start + 0.004)
+      g.gain.exponentialRampToValueAtTime(vol * 0.35, start + Math.max(0.1, dur))
+      g.gain.exponentialRampToValueAtTime(0.001, start + Math.max(0.1, dur) + 0.35)
     } else if (opts.timbre === 'whistle') {
       g.gain.linearRampToValueAtTime(vol, start + 0.05)
       g.gain.setValueAtTime(vol, Math.max(start + 0.05, start + dur - 0.07))
@@ -63,7 +68,13 @@ export function play(arr: Arrangement, profile: InstrumentProfile, opts: PlayOpt
       g.gain.linearRampToValueAtTime(0, start + dur)
     }
     const shapes: [OscillatorType, number][] =
-      opts.timbre === 'string' ? [['triangle', 0]] : opts.timbre === 'whistle' ? [['sine', 0]] : [['sawtooth', -6], ['sawtooth', 6]]
+      opts.timbre === 'string'
+        ? [['triangle', 0]]
+        : opts.timbre === 'whistle'
+          ? [['sine', 0]]
+          : opts.timbre === 'piano'
+            ? [['triangle', 0], ['sine', 0]]
+            : [['sawtooth', -6], ['sawtooth', 6]]
     for (const [type, detune] of shapes) {
       const o = ctx.createOscillator()
       o.type = type

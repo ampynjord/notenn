@@ -8,6 +8,7 @@ import gc21 from './diatonic-gc-21.json'
 import gcf31 from './diatonic-gcf-31.json'
 import chromatic3 from './chromatic-c-3row.json'
 import { hohner2915GC } from './hohner-2915-gc'
+import { pianoProfiles } from './pianos'
 import { stringProfiles } from './strings'
 import { whistleProfiles } from './whistles'
 
@@ -21,7 +22,7 @@ export function getProfile(id: string): InstrumentProfile | undefined {
 
 /** Every instrument, by family: diatonic accordions first, then the chromatic accordion, strings and whistles. */
 export const chromaticProfiles: InstrumentProfile[] = [parseProfile(chromatic3)]
-export const instruments: Instrument[] = [...profiles, ...chromaticProfiles, ...stringProfiles, ...whistleProfiles]
+export const instruments: Instrument[] = [...profiles, ...chromaticProfiles, ...stringProfiles, ...whistleProfiles, ...pianoProfiles]
 
 export function getInstrument(id: string): Instrument | undefined {
   return instruments.find((i) => i.id === id)

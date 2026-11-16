@@ -61,7 +61,7 @@ export interface BassGroup {
  */
 export type BassQuality = 'counter' | 'bass' | 'major' | 'minor' | 'seventh' | 'diminished'
 
-export type InstrumentFamily = 'diatonic-accordion' | 'chromatic-accordion' | 'string' | 'whistle'
+export type InstrumentFamily = 'diatonic-accordion' | 'chromatic-accordion' | 'string' | 'whistle' | 'piano'
 
 /**
  * A button keyboard: the diatonic accordion (push and pull give different notes) or the chromatic
@@ -109,7 +109,17 @@ export interface WhistleProfile {
   preview?: boolean
 }
 
-export type Instrument = InstrumentProfile | StringProfile | WhistleProfile
+/** A piano or keyboard: the range of its keys, as MIDI pitches (A0 = 21 to C8 = 108 on an 88-key piano). */
+export interface PianoProfile {
+  id: string
+  name: string
+  family: 'piano'
+  low: number
+  high: number
+  preview?: boolean
+}
+
+export type Instrument = InstrumentProfile | StringProfile | WhistleProfile | PianoProfile
 
 /** What the music staff and the playback need from any instrument's arrangement. */
 export interface PlayedNote extends Note {
@@ -146,6 +156,15 @@ export interface ArrangementBase<N extends PlayedNote> {
 
 export type StringArrangement = ArrangementBase<StringNote>
 export type WhistleArrangement = ArrangementBase<WhistleNote>
+export type PianoNote = PlayedNote
+
+/**
+ * The melody for the right hand, and an accompaniment for the left: a bass on the first beat of each bar,
+ * a chord on the others (the events of the Stradella keyboard, so the same harmony and the same sound).
+ */
+export interface PianoArrangement extends ArrangementBase<PianoNote> {
+  bass: BassEvent[]
+}
 
 export interface Fingering {
   row: string
