@@ -55,6 +55,12 @@ export interface BassGroup {
   pull: { bass: number; chord: number[] }
 }
 
+/**
+ * A button of the Stradella left hand: counter-bass, fundamental bass or a chord. The diatonic groups
+ * have no quality (one bass and one chord per group).
+ */
+export type BassQuality = 'counter' | 'bass' | 'major' | 'minor' | 'seventh' | 'diminished'
+
 export type InstrumentFamily = 'diatonic-accordion' | 'chromatic-accordion' | 'string' | 'whistle'
 
 /**
@@ -66,6 +72,8 @@ export interface InstrumentProfile {
   name: string
   family: 'diatonic-accordion' | 'chromatic-accordion'
   rows: ButtonRow[]
+  /** The groups are the columns of the Stradella keyboard (chromatic accordion): six rows of buttons, see `stradella.ts`. */
+  bassSystem?: 'stradella'
   bassGroups: BassGroup[]
   /** True while the layout has not been checked against a real instrument. */
   preview?: boolean
@@ -166,6 +174,8 @@ export interface BassEvent {
   bellows: Bellows
   /** true = bass button (first beat), false = chord. */
   isBass: boolean
+  /** Stradella only: the row of the button pressed in the group's column. */
+  quality?: BassQuality
 }
 
 export interface MeterInfo {

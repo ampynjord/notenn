@@ -5,7 +5,8 @@
   "name": "Chromatic button accordion, C system, 3 rows",
   "family": "chromatic-accordion",
   "preview": true,
-  "source": "Built from the C-system rule (along a row the notes rise by a minor third, the next row is a semitone higher) and not yet checked against a real instrument: the row order, the numbering of the buttons and the range vary between makers. No left hand yet.",
+  "bassSystem": "stradella",
+  "source": "Built from the C-system rule (along a row the notes rise by a minor third, the next row is a semitone higher) and not yet checked against a real instrument: the row order, the numbering of the buttons and the range vary between makers. Left hand: Stradella bass, twelve columns in fifths (Eb to G#), six rows; the 120-bass instruments repeat some columns.",
   "rows": [
     {
       "id": "r1",

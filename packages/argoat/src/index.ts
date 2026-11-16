@@ -3,7 +3,8 @@
  * operations (text, line, ellipse, circle, polyline) in abstract units. The app draws them
  * as SVG, the PDF export with jsPDF.
  */
-import type { Arrangement, InstrumentProfile, Meter, StringArrangement, StringProfile, WhistleArrangement, WhistleProfile } from '@notenn/engine'
+import { bassEventNotes, STRADELLA_ROWS } from '@notenn/engine'
+import type { Arrangement, BassEvent, InstrumentProfile, Meter, StringArrangement, StringProfile, WhistleArrangement, WhistleProfile } from '@notenn/engine'
 
 /** Logical colours; each medium maps them (CSS variables, RGB for the PDF). */
 export type Ink = 'push' | 'pull' | 'bass' | 'warn' | 'muted' | 'line' | 'ink'
@@ -68,27 +69,46 @@ const X0 = 44
 const RIGHT = 8
 
 /** Height of one line of music: the staff (optional), then the tab lines and the bass line. */
-export function lineHeight(staff: boolean, rowCount = 2, notation: Notation = 'argoat') {
-  const extra = notation === 'corgeron' ? Math.max(0, rowCount - 2) * 21 : notation === 'keyboard' ? Math.max(0, rowCount - 3) * KB_GAP : 0
+export function lineHeight(staff: boolean, rowCount = 2, notation: Notation = 'argoat', bassRows = 2) {
+  const extra = notation === 'corgeron' ? Math.max(0, rowCount - 2) * 21 : 0
+  if (notation === 'keyboard') {
+    // The right-hand keyboard, its bellows letter, the left-hand keyboard and the name of the bass or chord under it.
+    const below = 25 + (rowCount - 1) * KB_GAP + 10.5 + 9 + bassGap(bassRows) * (bassRows - 1) + 9.5 + 6
+    return (staff ? 60 : 0) + Math.max(80, below)
+  }
   return (staff ? 140 : 80) + extra
 }
 
 /* ---------- Keyboard notation ---------- */
 /** Distance between two rows of buttons, and widest mini keyboard, in drawing units. */
 const KB_GAP = 6
+/** The Stradella keyboard has six rows: they sit closer together. */
+const bassGap = (rows: number) => (rows > 2 ? 4.4 : KB_GAP)
 const KB_MAX_WIDTH = 52
+/** The chromatic keyboard has more buttons per row: its mini keyboard may be wider. */
+const KB_MAX_WIDTH_CHROMATIC = 70
 
 /** Size of the mini keyboard of the right hand: the buttons of a row run left to right, button 1 on the left. */
 function keyboardGeometry(profile: InstrumentProfile) {
+  const maxWidth = profile.family === 'chromatic-accordion' ? KB_MAX_WIDTH_CHROMATIC : KB_MAX_WIDTH
   const count = Math.max(...profile.rows.map((r) => r.buttons.length))
   const shift = Math.max(...profile.rows.map((r) => r.offset))
-  const pitch = Math.min(4.4, KB_MAX_WIDTH / (count + shift))
+  const pitch = Math.min(4.4, maxWidth / (count + shift))
   return { pitch, width: (count - 1 + shift) * pitch + 5 }
 }
 
 const PC_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
 
 /** Name of a bass or of a chord for the bass line of CADB and Corgeron: bass "C", chord "c", "am", "g7"… */
+/** Name of the bass or chord of an event: Stradella buttons carry their quality (c, cm, c7, cdim), diatonic groups their chord. */
+function eventName(profile: InstrumentProfile, ev: BassEvent, side: { bass: number; chord: number[] }): string {
+  if (!ev.quality) return bassName(ev.isBass ? side.bass : side.chord, ev.isBass)
+  const notes = bassEventNotes(profile, ev)!
+  const base = PC_NAMES[notes.bass]!
+  if (ev.quality === 'counter' || ev.quality === 'bass') return base
+  return base.toLowerCase() + { major: '', minor: 'm', seventh: '7', diminished: 'dim' }[ev.quality]
+}
+
 export function bassName(pc: number[] | number, isBass: boolean): string {
   if (isBass) return PC_NAMES[(((pc as number) % 12) + 12) % 12]!
   const pcs = [...new Set((pc as number[]).map((x) => ((x % 12) + 12) % 12))]
@@ -326,7 +346,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
   const labels = { ...DEFAULT_LABELS, ...options.labels }
   // The chromatic accordion has one line per row and the same note on push and pull: no P/T lines, nothing underlined.
   const chromatic = profile.family === 'chromatic-accordion'
-  const notation: Notation = chromatic ? 'corgeron' : (options.notation ?? 'argoat')
+  const notation: Notation = chromatic ? (options.notation === 'keyboard' ? 'keyboard' : 'corgeron') : (options.notation ?? 'argoat')
   const keyboard = notation === 'keyboard'
   const kb = keyboardGeometry(profile)
   const bassPitch = Math.min(4.4, KB_MAX_WIDTH / Math.max(1, profile.bassGroups.length))
@@ -336,7 +356,10 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       ? autoBarsPerLine(arr, profile, width, staff, options.maxBarsPerLine ?? (arr.meter.beatsPerBar > 4 ? 2 : 4), notation)
       : options.barsPerLine
   const octave = displayOctave(arr)
-  const H = lineHeight(staff, rowIds.length, notation)
+  const stradella = profile.bassSystem === 'stradella'
+  const bassRows = stradella ? STRADELLA_ROWS.length : 2
+  const bassStep = bassGap(bassRows)
+  const H = lineHeight(staff, rowIds.length, notation, bassRows)
   const lines: SystemLine[] = []
 
   for (let b = arr.fromBar; b <= arr.toBar; b += bpl) {
@@ -399,7 +422,8 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       if (!inLine(n.start)) return
       if (keyboard) {
         const x0 = X(n.start)
-        const ink: Ink = n.approx ? 'warn' : n.fingering.bellows
+        // Chromatic: the same button push and pull, so no colour and no bellows letter; the button number is written instead.
+        const ink: Ink = n.approx ? 'warn' : chromatic ? 'ink' : n.fingering.bellows
         const rowIndex = Math.max(0, rowIds.indexOf(n.fingering.row))
         const dotX = (r: number, button: number) => x0 + 2.5 + (button - 1 + profile.rows[r]!.offset) * kb.pitch
         const pressedR = Math.min(2.6, kb.pitch * 0.6)
@@ -411,7 +435,8 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
           }),
         )
         const px = dotX(rowIndex, n.fingering.button)
-        ops.push({ kind: 'text', x: px, y: kbLabelY, text: n.fingering.bellows === 'push' ? labels.push : labels.pull, ink, size: 7.5, bold: true, anchor: 'middle' })
+        const under = chromatic ? String(n.fingering.button) : n.fingering.bellows === 'push' ? labels.push : labels.pull
+        ops.push({ kind: 'text', x: px, y: kbLabelY, text: under, ink, size: 7.5, bold: true, anchor: 'middle' })
         // A fingering chosen by hand is underlined, as in the other notations.
         if (n.edited) ops.push({ kind: 'line', x1: px - 3, y1: kbLabelY + 2, x2: px + 3, y2: kbLabelY + 2, ink, width: 1.2 })
         ops.push({ kind: 'hit', x: x0 - 1, y: kbRow(0) - 4, w: kb.width + 2, h: kbLabelY + 3 - (kbRow(0) - 4), note: i })
@@ -439,18 +464,20 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
       if (!inLine(ev.time)) return
       const side = profile.bassGroups.find((g) => g.id === ev.group)?.[ev.bellows]
       if (keyboard && side) {
-        // Left hand: a bass row over a chord row, one column per group; the pressed button is filled.
+        // Left hand: one column per group. Two rows (bass over chord) for the diatonic accordion, the six rows of
+        // the Stradella keyboard for the chromatic one; the pressed button is filled.
         const col = profile.bassGroups.findIndex((g) => g.id === ev.group)
+        const pressedRow = stradella ? STRADELLA_ROWS.indexOf(ev.quality ?? 'bass') : ev.isBass ? 0 : 1
         const x0 = X(ev.time)
         for (let g = 0; g < profile.bassGroups.length; g++) {
-          for (const bassRow of [true, false]) {
-            const pressed = g === col && bassRow === ev.isBass
+          for (let r = 0; r < bassRows; r++) {
+            const pressed = g === col && r === pressedRow
             const rad = pressed ? Math.min(2.6, bassPitch * 0.6) : bassPitch * 0.27
-            ops.push({ kind: 'ellipse', x: x0 + 2.5 + g * bassPitch, y: yB + (bassRow ? 0 : KB_GAP), rx: rad, ry: rad, ink: pressed ? 'bass' : 'line', filled: true, ...(pressed ? { bass: bi } : {}) })
+            ops.push({ kind: 'ellipse', x: x0 + 2.5 + g * bassPitch, y: yB + r * bassStep, rx: rad, ry: rad, ink: pressed ? 'bass' : 'line', filled: true, ...(pressed ? { bass: bi } : {}) })
           }
         }
         // The name of the bass or chord (capital = bass, lower case = chord), as in CADB.
-        ops.push({ kind: 'text', x: x0, y: yB + KB_GAP + 9.5, text: bassName(ev.isBass ? side.bass : side.chord, ev.isBass), ink: 'bass', size: 8.5, bold: ev.isBass, mono: true, bass: bi })
+        ops.push({ kind: 'text', x: x0, y: yB + (bassRows - 1) * bassStep + 9.5, text: eventName(profile, ev, side), ink: 'bass', size: 8.5, bold: ev.isBass, mono: true, bass: bi })
         return
       }
       if (notation === 'argoat' || !side) {
@@ -458,7 +485,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         return
       }
       // CADB and Corgeron write the bass by its name: "C" for a bass, "c" or "am" for a chord.
-      const text = bassName(ev.isBass ? side.bass : side.chord, ev.isBass)
+      const text = eventName(profile, ev, side)
       ops.push({ kind: 'text', x: X(ev.time), y: yB, text, ink: 'bass', size: 11, bold: ev.isBass, mono: true, bass: bi })
       taken.set(yB, [...(taken.get(yB) ?? []), [X(ev.time) - 2, X(ev.time) + text.length * 6.6 + 1]])
     })
@@ -476,7 +503,7 @@ export function layout(arr: Arrangement, profile: InstrumentProfile, meter: Mete
         if (x < width - 6) ops.push({ kind: 'line', x1: x, y1: cy, x2: width - 6, y2: cy, ink: 'muted', width: 0.5 })
       }
       const top = keyboard ? kbRow(0) - 6 : lineYs[0]! - 9
-      const bottom = keyboard ? (arr.bass.length ? yB + KB_GAP + 13 : kbLabelY + 4) : lineYs[lineYs.length - 1]! + 1
+      const bottom = keyboard ? (arr.bass.length ? yB + (bassRows - 1) * bassStep + 13 : kbLabelY + 4) : lineYs[lineYs.length - 1]! + 1
       for (let bar = b; bar <= e; bar++) {
         const xb = X(arr.pickup + (bar - 1) * arr.meter.barLength) - 4
         if (xb > X0 - 3) ops.push({ kind: 'line', x1: xb, y1: top, x2: xb, y2: bottom, ink: 'muted', width: 0.8 })
